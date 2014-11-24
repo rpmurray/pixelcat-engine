@@ -5,31 +5,31 @@ import com.rpm.pixelcat.common.Printer;
 import com.rpm.pixelcat.hid.HIDEventEnum;
 import com.rpm.pixelcat.kernel.KernelState;
 import com.rpm.pixelcat.kernel.KernelStatePropertyEnum;
-import com.rpm.pixelcat.logic.resource.model.ResourceImpl;
+import com.rpm.pixelcat.logic.gameobject.GameObject;
 
 import java.awt.*;
 import java.util.HashSet;
 
-public class ResourceMover {
-    private static ResourceMover instance;
+public class GameObjectMover {
+    private static GameObjectMover instance;
     private static final Printer PRINTER = new Printer();
 
-    private ResourceMover() {
+    private GameObjectMover() {
     }
 
-    public static ResourceMover getInstace() {
+    public static GameObjectMover getInstace() {
         if (instance == null) {
-            instance = new ResourceMover();
+            instance = new GameObjectMover();
         }
 
         return instance;
     }
 
-    public void move(ResourceImpl object, KernelState kernelState, ImmutableSet<HIDEventEnum> applicableEvents) {
+    public void move(GameObject gameObject, KernelState kernelState, ImmutableSet<HIDEventEnum> applicableEvents) {
         Double xVel = 0.0, yVel = 0.0;
-        Double magnitude = object.getMagnitude();
+        Double magnitude = 1.0;
         HashSet<HIDEventEnum> hidEvents = kernelState.getHIDEvents();
-        Rectangle bounds = kernelState.getBounds();
+        Rectangle screenBounds = kernelState.getBounds();
 
         // determine velocity
         for (HIDEventEnum hidEvent : hidEvents) {
@@ -63,27 +63,33 @@ public class ResourceMover {
             }
         }
 
-        // move object
-        object.x += xVel;
-        object.y += yVel;
+        // initialize moved position
+        Point position = gameObject.getPosition();
+        Double x = position.getX() + xVel;
+        Double y = position.getY() + yVel;
 
-        // bounds checking
-        if ((object.y + object.height) > bounds.height) {
-            object.y = bounds.height - object.height;
+        // screen bounds checking
+        Rectangle resourceBounds = gameObject.getCurrentResource().getBounds();
+        if ((position.getX() + resourceBounds.getWidth()) > screenBounds.getWidth()) {
+            x = screenBounds.getWidth() - resourceBounds.getWidth();
         }
-        if ((object.x + object.width) > bounds.width) {
-            object.x = bounds.width - object.width;
+        if ((position.getY() + resourceBounds.getHeight()) > screenBounds.getHeight()) {
+            y = screenBounds.getHeight() - resourceBounds.getHeight();
         }
-        if (object.y < bounds.y) {
-            object.y = bounds.y;
+        if (y < screenBounds.getY()) {
+            y = screenBounds.getY();
         }
-        if (object.x < bounds.x) {
-            object.x = bounds.x;
+        if (x < screenBounds.getX()) {
+            x = screenBounds.getX();
         }
+
+        // set position
+        position.setLocation(x, y);
+        gameObject.setPosition(position);
 
         // debug
         if (kernelState.getPropertyAsBoolean(KernelStatePropertyEnum.DEBUG_ENABLED)) {
-            PRINTER.printDebug(" B: " + bounds + " X:" + object.x + " Y:" + object.y);
+            PRINTER.printDebug(" SB: " + screenBounds + " GOP:" + position);
         }
     }
 

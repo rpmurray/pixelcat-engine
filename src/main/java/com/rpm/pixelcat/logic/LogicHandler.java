@@ -5,7 +5,7 @@ import com.rpm.pixelcat.exception.ExitException;
 import com.rpm.pixelcat.hid.HIDEventEnum;
 import com.rpm.pixelcat.kernel.KernelState;
 import com.rpm.pixelcat.kernel.KernelStatePropertyEnum;
-import com.rpm.pixelcat.logic.resource.model.Resource;
+import com.rpm.pixelcat.logic.gameobject.GameObject;
 import com.rpm.pixelcat.logic.gameobject.GameObjectManagerImpl;
 
 import java.io.IOException;
@@ -18,8 +18,8 @@ public class LogicHandler {
         resourceManager = new GameObjectManagerImpl(state);
     }
 
-    public Resource[] getObjects() {
-        return resourceManager.getObjects();
+    public GameObject[][] getLayeredGameObjects() {
+        return resourceManager.getLayeredGameObjects();
     }
 
     public void process(KernelState kernelState) throws GameException {

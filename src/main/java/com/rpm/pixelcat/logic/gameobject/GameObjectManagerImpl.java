@@ -1,34 +1,63 @@
 package com.rpm.pixelcat.logic.gameobject;
 
-import com.rpm.pixelcat.constants.ResourceKeys;
+import com.rpm.pixelcat.constants.GameObjectKey;
 import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.kernel.KernelState;
-import com.rpm.pixelcat.logic.resource.model.ResourceImpl;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 public class GameObjectManagerImpl implements GameObjectManager {
-    private ResourceImpl[] objects;
+    private GameObject[][] gameObjects;
 
-    public GameObjectManagerImpl(KernelState kernelState) throws IOException, URISyntaxException {
-        objects = new ResourceImpl[ResourceKeys.NUM_OBJS.getValue()];
-        objects[ResourceKeys.CHARACTER.getValue()] = new com.rpm.pixelcat.logic.gameobject.Character(kernelState.getBounds());
-        objects[ResourceKeys.TITLE.getValue()] = new Title(kernelState.getBounds());
-        objects[ResourceKeys.SUBTITLE.getValue()] = new Subtitle(kernelState.getBounds());
+    public GameObjectManagerImpl(KernelState kernelState) {
+        // setup
+        LayerManager layerManager = LayerManager.getInstance();
+
+        // define layers
+        layerManager.addLayers(2);
+
+        // init game objects
+        gameObjects = new GameObject[layerManager.getLayerCount()][GameObjectKey.NUM_OBJS.getValue()];
+
+        // register game objects
+        registerGameObjects(kernelState);
+    }
+
+    private void registerGameObjects(KernelState kernelState) {
+        // character
+        registerGameObject(new com.rpm.pixelcat.logic.gameobject.Character(kernelState.getBounds()), GameObjectKey.LAYER1, GameObjectKey.CHARACTER);
+
+        // title
+        registerGameObject(new Title(kernelState.getBounds()), GameObjectKey.LAYER2, GameObjectKey.TITLE);
+
+        // subtitle
+        registerGameObject(new Subtitle(kernelState.getBounds()), GameObjectKey.LAYER2, GameObjectKey.SUBTITLE);
+    }
+
+    private void registerGameObject(GameObject gameObject, GameObjectKey layer, GameObjectKey key) {
+        gameObject.setLayer(layer.getValue());
+        gameObjects[layer.getValue()][key.getValue()] = gameObject;
     }
 
     public int getCount() {
-        return objects.length;
+        Integer count = 0;
+        for (GameObject[] list: gameObjects) {
+            for (GameObject item: list) {
+                if (item != null) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 
-    public ResourceImpl[] getObjects() {
-        return objects;
+    public GameObject[][] getLayeredGameObjects() {
+        return gameObjects;
     }
 
     public void process(KernelState kernelState) throws GameException {
-        for (ResourceImpl object : objects) {
-            object.process(kernelState);
-        }
+        // TODO: Fix Logic Hook
+        //for (GameObject object : gameObjects) {
+        //    object.process(kernelState);
+        //}
     }
 }

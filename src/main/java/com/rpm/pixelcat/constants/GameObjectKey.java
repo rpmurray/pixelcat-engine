@@ -1,15 +1,18 @@
 package com.rpm.pixelcat.constants;
 
-public enum ResourceKeys {
+public enum GameObjectKey {
     NUM_OBJS(3),
     CHARACTER(0),
     TITLE(1),
     SUBTITLE(2),
+
+    LAYER1(0),
+    LAYER2(1),
     ;
 
     private final Integer value;
 
-    ResourceKeys(Integer value) {
+    GameObjectKey(Integer value) {
         this.value = value;
     }
 

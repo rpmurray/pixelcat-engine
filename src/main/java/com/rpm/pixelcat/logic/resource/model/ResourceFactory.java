@@ -17,14 +17,14 @@ public class ResourceFactory {
         return instance;
     }
 
-    public ImageResource createImageResource(Integer x, Integer y, String file, Integer imageX1, Integer imageY1, Integer imageX2, Integer imageY2) {
-        ImageResource resource = new ImageResourceImpl(x, y, file, imageX1, imageY1, imageX2, imageY2);
+    public ImageResource createImageResource(String file, Integer imageX1, Integer imageY1, Integer imageX2, Integer imageY2) {
+        ImageResource resource = new ImageResourceImpl(file, imageX1, imageY1, imageX2, imageY2);
 
         return resource;
     }
 
-    public TextResource createTextResource(Integer x, Integer y, String text, Font font) {
-        TextResource resource = new TextResourceImpl(x, y, text, font);
+    public TextResource createTextResource(String text, Font font) {
+        TextResource resource = new TextResourceImpl(text, font);
 
         return resource;
     }

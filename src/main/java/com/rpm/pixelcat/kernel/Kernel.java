@@ -162,7 +162,7 @@ public class Kernel extends JPanel implements KeyListener {
         kernelState.setBounds(screen);
 
         // render frame
-        renderer.render((Graphics2D) g, kernelState, logic.getObjects());
+        renderer.render((Graphics2D) g, kernelState, logic.getLayeredGameObjects());
     }
 
     public void keyPressed(KeyEvent key) {

@@ -1,8 +1,6 @@
 package com.rpm.pixelcat.logic.resource.model;
 
-public interface Resource
-{
-    public double getX();
+import java.awt.*;
 
-    public double getY();
+public interface Resource extends Shape {
 }

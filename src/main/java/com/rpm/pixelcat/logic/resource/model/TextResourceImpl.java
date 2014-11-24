@@ -6,8 +6,8 @@ class TextResourceImpl extends ResourceImpl implements TextResource {
     String text;
     Font font;
 
-    TextResourceImpl(Integer x, Integer y, String text, Font font) {
-        super(x, y, 0, 0);
+    TextResourceImpl(String text, Font font) {
+        super(0, 0);
         this.text = text;
         this.font = font;
     }

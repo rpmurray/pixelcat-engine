@@ -3,6 +3,8 @@ package com.rpm.pixelcat.exception;
 public enum GameErrorCode {
     GAME_LOOP_TIME_EXCEEDED(10001L, "The game loop execution time exceeded the alloted time window for the current configured FPS rating."),
 
+    UNSUPPORTED_RESOURCE_FOR_RENDERING(20001L, "Found resource does not match a supported renderable entity and will be skipped."),
+
     HID_KEYBOARD_EVENT_TYPE_UNSUPPORTED(40001L, "Supplied keyboard event type not supported."),
     HID_KEYBOARD_EVENT_UNSUPPORTED(40002L,"Supplied keyboard event not supported."),
 
