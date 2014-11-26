@@ -3,9 +3,10 @@ package com.rpm.pixelcat.logic.gameobject;
 import com.rpm.pixelcat.constants.GameObjectKey;
 import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.kernel.KernelState;
+import com.rpm.pixelcat.logic.GameObjectMover;
 
 public class GameObjectManagerImpl implements GameObjectManager {
-    private GameObject[][] gameObjects;
+    private GameObject[] gameObjects;
 
     public GameObjectManagerImpl(KernelState kernelState) {
         // setup
@@ -15,7 +16,7 @@ public class GameObjectManagerImpl implements GameObjectManager {
         layerManager.addLayers(2);
 
         // init game objects
-        gameObjects = new GameObject[layerManager.getLayerCount()][GameObjectKey.NUM_OBJS.getValue()];
+        gameObjects = new GameObject[GameObjectKey.NUM_OBJS.getValue()];
 
         // register game objects
         registerGameObjects(kernelState);
@@ -34,16 +35,17 @@ public class GameObjectManagerImpl implements GameObjectManager {
 
     private void registerGameObject(GameObject gameObject, GameObjectKey layer, GameObjectKey key) {
         gameObject.setLayer(layer.getValue());
-        gameObjects[layer.getValue()][key.getValue()] = gameObject;
+        gameObjects[key.getValue()] = gameObject;
     }
 
     public int getCount() {
+        // setup
         Integer count = 0;
-        for (GameObject[] list: gameObjects) {
-            for (GameObject item: list) {
-                if (item != null) {
-                    count++;
-                }
+
+        // count objects
+        for (GameObject item: gameObjects) {
+            if (item != null) {
+                count++;
             }
         }
 
@@ -51,13 +53,24 @@ public class GameObjectManagerImpl implements GameObjectManager {
     }
 
     public GameObject[][] getLayeredGameObjects() {
-        return gameObjects;
+        // setup
+        GameObject[][] layeredGameObjects = new GameObject[LayerManager.getInstance().getLayerCount()][getCount()];
+        Integer[] layerIndices = new Integer[LayerManager.getInstance().getLayerCount()];
+        for (Integer i = 0; i < layerIndices.length; i++) {
+            layerIndices[i] = 0;
+        }
+
+        // build layered game objects
+        for (GameObject gameObject: gameObjects) {
+            layeredGameObjects[gameObject.getLayer()][layerIndices[gameObject.getLayer()]++] = gameObject;
+        }
+
+        return layeredGameObjects;
     }
 
     public void process(KernelState kernelState) throws GameException {
-        // TODO: Fix Logic Hook
-        //for (GameObject object : gameObjects) {
-        //    object.process(kernelState);
-        //}
+        for (GameObject gameObject : gameObjects) {
+            GameObjectMover.getInstace().move(gameObject, kernelState, gameObject.getBoundHIDEvents());
+        }
     }
 }

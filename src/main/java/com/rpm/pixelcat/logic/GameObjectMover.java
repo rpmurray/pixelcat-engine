@@ -9,6 +9,7 @@ import com.rpm.pixelcat.logic.gameobject.GameObject;
 
 import java.awt.*;
 import java.util.HashSet;
+import java.util.Set;
 
 public class GameObjectMover {
     private static GameObjectMover instance;
@@ -25,7 +26,7 @@ public class GameObjectMover {
         return instance;
     }
 
-    public void move(GameObject gameObject, KernelState kernelState, ImmutableSet<HIDEventEnum> applicableEvents) {
+    public void move(GameObject gameObject, KernelState kernelState, Set<HIDEventEnum> applicableEvents) {
         Double xVel = 0.0, yVel = 0.0;
         Double magnitude = 1.0;
         HashSet<HIDEventEnum> hidEvents = kernelState.getHIDEvents();

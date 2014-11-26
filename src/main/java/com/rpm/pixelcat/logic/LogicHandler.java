@@ -12,22 +12,22 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class LogicHandler {
-    GameObjectManagerImpl resourceManager;
+    GameObjectManagerImpl gameObjectManager;
 
     public LogicHandler(KernelState state) throws IOException, URISyntaxException {
-        resourceManager = new GameObjectManagerImpl(state);
+        gameObjectManager = new GameObjectManagerImpl(state);
     }
 
     public GameObject[][] getLayeredGameObjects() {
-        return resourceManager.getLayeredGameObjects();
+        return gameObjectManager.getLayeredGameObjects();
     }
 
     public void process(KernelState kernelState) throws GameException {
         // do logic checks
         checkExit(kernelState);
 
-        // do resourceManager handling
-        resourceManager.process(kernelState);
+        // do gameObjectManager handling
+        gameObjectManager.process(kernelState);
 
         // update game state
         updateGameState(kernelState);

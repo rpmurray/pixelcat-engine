@@ -1,18 +1,24 @@
 package com.rpm.pixelcat.logic.gameobject;
 
+import com.rpm.pixelcat.hid.HIDEventEnum;
 import com.rpm.pixelcat.logic.resource.model.Resource;
 
 import java.awt.*;
 import java.lang.ref.WeakReference;
+import java.util.HashSet;
+import java.util.Set;
 
 abstract class GameObjectImpl implements GameObject {
     private Point position;
     private Integer layer;
+    private Set<HIDEventEnum> boundHIDEvents;
     private WeakReference<Resource> currentResourceReference;
 
     public GameObjectImpl() {
         setPosition(0, 0);
         currentResourceReference = null;
+        layer = null;
+        boundHIDEvents = new HashSet<>();
     }
 
     public GameObjectImpl(Integer x, Integer y) {
@@ -29,6 +35,14 @@ abstract class GameObjectImpl implements GameObject {
         this();
         setPosition(x, y);
         setCurrentResource(currentResource);
+    }
+
+    public GameObjectImpl(Integer x, Integer y, Integer layer, Set<HIDEventEnum> boundHIDEvents, WeakReference<Resource> currentResourceReference) {
+        this();
+        setPosition(x, y);
+        this.layer = layer;
+        this.boundHIDEvents = boundHIDEvents;
+        this.currentResourceReference = currentResourceReference;
     }
 
     public void setPosition(Point position) {
@@ -62,5 +76,9 @@ abstract class GameObjectImpl implements GameObject {
 
     public Integer getLayer() {
         return layer;
+    }
+
+    public Set<HIDEventEnum> getBoundHIDEvents() {
+        return boundHIDEvents;
     }
 }
