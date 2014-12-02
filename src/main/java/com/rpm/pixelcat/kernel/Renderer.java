@@ -4,7 +4,7 @@ import com.rpm.pixelcat.common.Printer;
 import com.rpm.pixelcat.exception.GameErrorCode;
 import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.logic.gameobject.GameObject;
-import com.rpm.pixelcat.logic.resource.model.ImageResource;
+import com.rpm.pixelcat.logic.resource.model.SpriteResource;
 import com.rpm.pixelcat.logic.resource.model.Resource;
 import com.rpm.pixelcat.logic.resource.model.TextResource;
 
@@ -30,14 +30,14 @@ public class Renderer {
                 Resource resource = gameObject.getCurrentResource();
 
                 // render specific resource by type
-                if (resource instanceof ImageResource) {
+                if (resource instanceof SpriteResource) {
                     // setup
-                    ImageResource imageResource = (ImageResource) resource;
+                    SpriteResource spriteResource = (SpriteResource) resource;
 
                     // load resource if needed
-                    if (!imageResource.isImageLoaded()) {
+                    if (!spriteResource.isLoaded()) {
                         try {
-                            imageResource.loadImage();
+                            spriteResource.load();
                         } catch (GameException e) {
                             PRINTER.printError(e);
                         }
@@ -45,14 +45,18 @@ public class Renderer {
 
                     // render
                     g.drawImage(
-                        imageResource.getImage(),
-                        (int) position.getX(), (int) position.getY(),
-                        (int) (position.getX() + imageResource.getWidth()), (int) (position.getY() + imageResource.getHeight()),
-                        (int) imageResource.getImageX1(), (int) imageResource.getImageY1(),
-                        (int) imageResource.getImageX2(), (int) imageResource.getImageY2(),
+                        spriteResource.getSpriteSheet().getTexture(),
+                        (int) position.getX(),
+                        (int) position.getY(),
+                        (int) (position.getX() + spriteResource.getWidth()),
+                        (int) (position.getY() + spriteResource.getHeight()),
+                        (int) spriteResource.getX(),
+                        (int) spriteResource.getY(),
+                        (int) (spriteResource.getX() + spriteResource.getWidth()),
+                        (int) (spriteResource.getY() + spriteResource.getHeight()),
                         null
                     );
-                    PRINTER.printDebug("Rendering image -> " + imageResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
+                    PRINTER.printDebug("Rendering image -> " + spriteResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
                 } else if (resource instanceof TextResource) {
                     // setup
                     TextResource textResource = (TextResource) resource;

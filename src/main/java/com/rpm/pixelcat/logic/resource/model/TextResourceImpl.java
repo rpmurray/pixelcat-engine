@@ -2,12 +2,11 @@ package com.rpm.pixelcat.logic.resource.model;
 
 import java.awt.*;
 
-class TextResourceImpl extends ResourceImpl implements TextResource {
+class TextResourceImpl implements TextResource {
     String text;
     Font font;
 
     TextResourceImpl(String text, Font font) {
-        super(0, 0);
         this.text = text;
         this.font = font;
     }

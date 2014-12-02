@@ -17,8 +17,8 @@ public class ResourceFactory {
         return instance;
     }
 
-    public ImageResource createImageResource(String file, Integer imageX1, Integer imageY1, Integer imageX2, Integer imageY2) {
-        ImageResource resource = new ImageResourceImpl(file, imageX1, imageY1, imageX2, imageY2);
+    public SpriteResource createImageResource(String file, Integer imageX1, Integer imageY1, Integer imageX2, Integer imageY2) {
+        SpriteResource resource = new SpriteResourceImpl(file, imageX1, imageY1, imageX2, imageY2);
 
         return resource;
     }
