@@ -11,12 +11,14 @@ public class KernelState {
     private HashSet<Exception> errors;
     private HashMap<KernelStatePropertyEnum, Object> properties;
     private Rectangle bounds;
+    private Long clockTime;
 
-    public KernelState(Rectangle bounds) {
+    public KernelState(Rectangle bounds, Long clockTime) {
         this.hidEvents = new HashSet<>();
         this.errors = new HashSet<>();
         this.properties = new HashMap<>();
         this.bounds = bounds;
+        this.clockTime = clockTime;
     }
 
     public void init() {
@@ -74,5 +76,13 @@ public class KernelState {
 
     public Rectangle getBounds() {
         return bounds;
+    }
+
+    public Long getClockTime() {
+        return clockTime;
+    }
+
+    public void setClockTime(Long clockTime) {
+        this.clockTime = clockTime;
     }
 }

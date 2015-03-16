@@ -85,7 +85,7 @@ public class Kernel extends JPanel implements KeyListener {
     }
 
     private void initKernelState() {
-        kernelState = new KernelState(screen);
+        kernelState = new KernelState(screen, System.currentTimeMillis());
         kernelState.init();
     }
 
@@ -130,15 +130,15 @@ public class Kernel extends JPanel implements KeyListener {
     }
 
     public void sleep(Long loopStartClockTime) throws Exception {
-        Long currentClockTime = System.currentTimeMillis();
-        Long loopTimeElapsed = currentClockTime - loopStartClockTime;
-        Long remainingTime = LOOP_TIME - loopTimeElapsed;
-        if (remainingTime < 0) {
+        kernelState.setClockTime(System.currentTimeMillis());
+        Long loopTimeElapsed = kernelState.getClockTime() - loopStartClockTime;
+        Long loopRemainingTime = LOOP_TIME - loopTimeElapsed;
+        if (loopRemainingTime < 0) {
             if (kernelState.getPropertyAsBoolean(KernelStatePropertyEnum.DEBUG_ENABLED)) {
-                PRINTER.printError(new GameException(GameErrorCode.GAME_LOOP_TIME_EXCEEDED, ImmutableMap.of("remainingTime", remainingTime)));
+                PRINTER.printError(new GameException(GameErrorCode.GAME_LOOP_TIME_EXCEEDED, ImmutableMap.of("loopRemainingTime", loopRemainingTime)));
             }
-        } else if (remainingTime > 0) {
-            Thread.sleep(remainingTime);
+        } else if (loopRemainingTime > 0) {
+            Thread.sleep(loopRemainingTime);
         }
     }
 

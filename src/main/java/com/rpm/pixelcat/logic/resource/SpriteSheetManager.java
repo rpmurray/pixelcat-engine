@@ -1,7 +1,6 @@
 package com.rpm.pixelcat.logic.resource;
 
 import com.rpm.pixelcat.constants.SpriteSheetKeyEnum;
-import com.rpm.pixelcat.logic.resource.model.SpriteSheet;
 
 import java.util.HashMap;
 import java.util.Map;

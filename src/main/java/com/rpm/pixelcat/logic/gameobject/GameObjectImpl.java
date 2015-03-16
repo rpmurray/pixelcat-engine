@@ -1,48 +1,35 @@
 package com.rpm.pixelcat.logic.gameobject;
 
 import com.rpm.pixelcat.hid.HIDEventEnum;
-import com.rpm.pixelcat.logic.resource.model.Resource;
+import com.rpm.pixelcat.logic.animation.AnimationSequence;
+import com.rpm.pixelcat.logic.resource.Resource;
 
 import java.awt.*;
-import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-abstract class GameObjectImpl implements GameObject {
+class GameObjectImpl implements GameObject {
     private Point position;
     private Integer layer;
     private Set<HIDEventEnum> boundHIDEvents;
-    private WeakReference<Resource> currentResourceReference;
+    private Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences;
+    OrientationEnum currentOrientation;
+    private Resource currentResource;
 
-    public GameObjectImpl() {
-        setPosition(0, 0);
-        currentResourceReference = null;
-        layer = null;
-        boundHIDEvents = new HashSet<>();
-    }
-
-    public GameObjectImpl(Integer x, Integer y) {
-        this();
-        setPosition(x, y);
-    }
-
-    public GameObjectImpl(Resource currentResource) {
-        this();
-        setCurrentResource(currentResource);
-    }
-
-    public GameObjectImpl(Integer x, Integer y, Resource currentResource) {
-        this();
-        setPosition(x, y);
-        setCurrentResource(currentResource);
-    }
-
-    public GameObjectImpl(Integer x, Integer y, Integer layer, Set<HIDEventEnum> boundHIDEvents, WeakReference<Resource> currentResourceReference) {
-        this();
+    public GameObjectImpl(Integer x, Integer y,
+                          Integer layer,
+                          Set<HIDEventEnum> boundHIDEvents,
+                          Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
+                          OrientationEnum currentOrientation,
+                          Resource currentResource) {
         setPosition(x, y);
         this.layer = layer;
         this.boundHIDEvents = boundHIDEvents;
-        this.currentResourceReference = currentResourceReference;
+        this.orientationBoundAnimationSequences = orientationBoundAnimationSequences;
+        setCurrentOrientation(currentOrientation);
+        this.currentResource = currentResource;
     }
 
     public void setPosition(Point position) {
@@ -57,16 +44,11 @@ abstract class GameObjectImpl implements GameObject {
         return position;
     }
 
-    public void setCurrentResource(Resource resource) {
-        currentResourceReference = new WeakReference<Resource>(resource);
+    public void setCurrentResource(Resource currentResource) {
+        this.currentResource = currentResource;
     }
 
     public Resource getCurrentResource() {
-        Resource currentResource = null;
-        if (currentResourceReference != null) {
-            currentResource = currentResourceReference.get();
-        }
-
         return currentResource;
     }
 
@@ -80,5 +62,17 @@ abstract class GameObjectImpl implements GameObject {
 
     public Set<HIDEventEnum> getBoundHIDEvents() {
         return boundHIDEvents;
+    }
+
+    public OrientationEnum getCurrentOrientation() {
+        return currentOrientation;
+    }
+
+    public void setCurrentOrientation(OrientationEnum currentOrientation) {
+        this.currentOrientation = currentOrientation;
+    }
+
+    public AnimationSequence getCurrentAnimationSequence() {
+        return orientationBoundAnimationSequences.get(currentOrientation);
     }
 }

@@ -10,6 +10,8 @@ import com.rpm.pixelcat.logic.gameobject.GameObjectManagerImpl;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LogicHandler {
     GameObjectManagerImpl gameObjectManager;
@@ -18,7 +20,7 @@ public class LogicHandler {
         gameObjectManager = new GameObjectManagerImpl(state);
     }
 
-    public GameObject[][] getLayeredGameObjects() {
+    public ArrayList<ArrayList<GameObject>> getLayeredGameObjects() {
         return gameObjectManager.getLayeredGameObjects();
     }
 

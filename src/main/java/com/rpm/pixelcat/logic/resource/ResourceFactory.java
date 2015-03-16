@@ -1,4 +1,4 @@
-package com.rpm.pixelcat.logic.resource.model;
+package com.rpm.pixelcat.logic.resource;
 
 import java.awt.*;
 
@@ -17,8 +17,8 @@ public class ResourceFactory {
         return instance;
     }
 
-    public SpriteResource createImageResource(String file, Integer imageX1, Integer imageY1, Integer imageX2, Integer imageY2) {
-        SpriteResource resource = new SpriteResourceImpl(file, imageX1, imageY1, imageX2, imageY2);
+    public SpriteResource createImageResource(Integer xIndex, Integer yIndex, SpriteSheet spriteSheet) {
+        SpriteResource resource = new SpriteResourceImpl(spriteSheet, xIndex, yIndex);
 
         return resource;
     }
@@ -27,5 +27,11 @@ public class ResourceFactory {
         TextResource resource = new TextResourceImpl(text, font);
 
         return resource;
+    }
+
+    public SpriteSheet createSpriteSheet(String filename, Integer celWidth, Integer celHeight) {
+        SpriteSheet spriteSheet = new SpriteSheetImpl(filename, celWidth, celHeight);
+
+        return spriteSheet;
     }
 }

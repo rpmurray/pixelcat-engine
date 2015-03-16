@@ -1,13 +1,12 @@
 package com.rpm.pixelcat.logic;
 
-import com.google.common.collect.ImmutableSet;
 import com.rpm.pixelcat.common.Printer;
 import com.rpm.pixelcat.hid.HIDEventEnum;
 import com.rpm.pixelcat.kernel.KernelState;
 import com.rpm.pixelcat.kernel.KernelStatePropertyEnum;
 import com.rpm.pixelcat.logic.gameobject.GameObject;
-import com.rpm.pixelcat.logic.resource.model.MovableResource;
-import com.rpm.pixelcat.logic.resource.model.Resource;
+import com.rpm.pixelcat.logic.resource.MovableResource;
+import com.rpm.pixelcat.logic.resource.Resource;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -74,12 +73,12 @@ public class GameObjectMover {
         // screen bounds checking
         Resource resource = gameObject.getCurrentResource();
         if (resource instanceof MovableResource) {
-            MovableResource movableResource = (MovableResource) resource;
-            if ((position.getX() + movableResource.getWidth()) > screenBounds.getWidth()) {
-                x = screenBounds.getWidth() - movableResource.getWidth();
+            Rectangle resourceBounds = ((MovableResource) resource).getCelBounds();
+            if ((position.getX() + resourceBounds.getWidth()) > screenBounds.getWidth()) {
+                x = screenBounds.getWidth() - resourceBounds.getWidth();
             }
-            if ((position.getY() + movableResource.getHeight()) > screenBounds.getHeight()) {
-                y = screenBounds.getHeight() - movableResource.getHeight();
+            if ((position.getY() + resourceBounds.getHeight()) > screenBounds.getHeight()) {
+                y = screenBounds.getHeight() - resourceBounds.getHeight();
             }
             if (y < screenBounds.getY()) {
                 y = screenBounds.getY();

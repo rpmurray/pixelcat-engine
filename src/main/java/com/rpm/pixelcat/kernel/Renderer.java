@@ -4,21 +4,22 @@ import com.rpm.pixelcat.common.Printer;
 import com.rpm.pixelcat.exception.GameErrorCode;
 import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.logic.gameobject.GameObject;
-import com.rpm.pixelcat.logic.resource.model.SpriteResource;
-import com.rpm.pixelcat.logic.resource.model.Resource;
-import com.rpm.pixelcat.logic.resource.model.TextResource;
+import com.rpm.pixelcat.logic.resource.SpriteResource;
+import com.rpm.pixelcat.logic.resource.Resource;
+import com.rpm.pixelcat.logic.resource.TextResource;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Renderer {
     private static final Printer PRINTER = new Printer();
 
-    void render(Graphics2D g, KernelState kernelState, GameObject[][] layeredGameObjects) {
+    void render(Graphics2D g, KernelState kernelState, ArrayList<ArrayList<GameObject>> layeredGameObjects) {
         // Clear the drawing area, then draw logic components
         Rectangle bounds = kernelState.getBounds();
         g.clearRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-        for (GameObject[] gameObjects: layeredGameObjects) {
+        for (ArrayList<GameObject> gameObjects: layeredGameObjects) {
             for (GameObject gameObject : gameObjects) {
                 // check for empty item
                 if (gameObject == null) {
@@ -33,6 +34,7 @@ public class Renderer {
                 if (resource instanceof SpriteResource) {
                     // setup
                     SpriteResource spriteResource = (SpriteResource) resource;
+                    Rectangle spriteBounds = spriteResource.getCelBounds();
 
                     // load resource if needed
                     if (!spriteResource.isLoaded()) {
@@ -48,12 +50,12 @@ public class Renderer {
                         spriteResource.getSpriteSheet().getTexture(),
                         (int) position.getX(),
                         (int) position.getY(),
-                        (int) (position.getX() + spriteResource.getWidth()),
-                        (int) (position.getY() + spriteResource.getHeight()),
-                        (int) spriteResource.getX(),
-                        (int) spriteResource.getY(),
-                        (int) (spriteResource.getX() + spriteResource.getWidth()),
-                        (int) (spriteResource.getY() + spriteResource.getHeight()),
+                        (int) (position.getX() + spriteBounds.getWidth()),
+                        (int) (position.getY() + spriteBounds.getHeight()),
+                        (int) spriteBounds.getX(),
+                        (int) spriteBounds.getY(),
+                        (int) (spriteBounds.getX() + spriteBounds.getWidth()),
+                        (int) (spriteBounds.getY() + spriteBounds.getHeight()),
                         null
                     );
                     PRINTER.printDebug("Rendering image -> " + spriteResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
@@ -62,9 +64,17 @@ public class Renderer {
                     TextResource textResource = (TextResource) resource;
 
                     // render
-                    g.setFont(new Font(textResource.getFont().getFamily(), textResource.getFont().getStyle(), textResource.getFont().getSize()));
+                    g.setFont(
+                        new Font(
+                            textResource.getFont().getFamily(),
+                            textResource.getFont().getStyle(),
+                            textResource.getFont().getSize()
+                        )
+                    );
                     g.drawString(
-                        textResource.getText(), (int) position.getX(), (int) position.getY()
+                        textResource.getText(),
+                        (int) position.getX(),
+                        (int) position.getY()
                     );
                     PRINTER.printDebug("Rendering text -> " + textResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
                 } else {

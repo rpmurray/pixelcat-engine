@@ -1,4 +1,4 @@
-package com.rpm.pixelcat.logic.resource.model;
+package com.rpm.pixelcat.logic.resource;
 
 import java.awt.*;
 

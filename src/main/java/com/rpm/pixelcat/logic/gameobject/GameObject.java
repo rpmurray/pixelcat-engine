@@ -1,7 +1,8 @@
 package com.rpm.pixelcat.logic.gameobject;
 
 import com.rpm.pixelcat.hid.HIDEventEnum;
-import com.rpm.pixelcat.logic.resource.model.Resource;
+import com.rpm.pixelcat.logic.animation.AnimationSequence;
+import com.rpm.pixelcat.logic.resource.Resource;
 
 import java.awt.*;
 import java.util.Set;
@@ -22,4 +23,10 @@ public interface GameObject {
     public Integer getLayer();
 
     public Set<HIDEventEnum> getBoundHIDEvents();
+
+    public OrientationEnum getCurrentOrientation();
+
+    public void setCurrentOrientation(OrientationEnum currentOrientation);
+
+    public AnimationSequence getCurrentAnimationSequence();
 }
