@@ -4,7 +4,6 @@ import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.kernel.KernelState;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public interface GameObjectManager {
     public int getCount();

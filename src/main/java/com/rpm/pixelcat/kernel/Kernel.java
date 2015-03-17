@@ -116,6 +116,9 @@ public class Kernel extends JPanel implements KeyListener {
     }
 
     public void run() throws GameException {
+        // synthesize special HID events
+        hidEventManager.generateSynthesizedEvents();
+
         // process logic
         logic.process(kernelState);
 

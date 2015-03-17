@@ -5,6 +5,7 @@ public enum HIDEventEnum {
     DOWN,
     LEFT,
     RIGHT,
+    NO_DIRECTION,
     DEBUG_TOGGLE,
     FONT_DEBUG_TOGGLE,
     EXIT,

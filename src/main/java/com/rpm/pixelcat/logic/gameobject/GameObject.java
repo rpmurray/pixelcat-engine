@@ -22,7 +22,7 @@ public interface GameObject {
 
     public Integer getLayer();
 
-    public Set<HIDEventEnum> getBoundHIDEvents();
+    public Set<GameObjectHIDEventLogicBehaviorBinding> getGameObjectHIDEventLogicBehaviorBindings();
 
     public OrientationEnum getCurrentOrientation();
 

@@ -54,7 +54,7 @@ public class AnimationSequenceImpl implements AnimationSequence {
             currentIndex = 0;
         }
 
-        cels.addAll(cels);
+        this.cels.addAll(cels);
     }
 
     public void setMillisecondsPerCel(Long millisecondsPerCel) {

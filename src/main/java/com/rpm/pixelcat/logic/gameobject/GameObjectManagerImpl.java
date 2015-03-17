@@ -7,7 +7,7 @@ import com.rpm.pixelcat.constants.GameObjectKey;
 import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.hid.HIDEventEnum;
 import com.rpm.pixelcat.kernel.KernelState;
-import com.rpm.pixelcat.logic.GameObjectMover;
+import com.rpm.pixelcat.logic.GameObjectUpdater;
 import com.rpm.pixelcat.logic.animation.AnimationFactory;
 import com.rpm.pixelcat.logic.animation.AnimationSequence;
 import com.rpm.pixelcat.logic.resource.Resource;
@@ -15,7 +15,9 @@ import com.rpm.pixelcat.logic.resource.ResourceFactory;
 import com.rpm.pixelcat.logic.resource.SpriteSheet;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class GameObjectManagerImpl implements GameObjectManager {
     private List<GameObject> gameObjects;
@@ -35,35 +37,101 @@ public class GameObjectManagerImpl implements GameObjectManager {
     }
 
     private void registerGameObjects(KernelState kernelState) {
-        // character
-        SpriteSheet spriteSheet = ResourceFactory.getInstance().createSpriteSheet("nyancat_sprite_sheet.png", 60, 30);
-        Resource initialResource = ResourceFactory.getInstance().createImageResource(0, 0, spriteSheet);
+        // setup
+        ResourceFactory resourceFactory = ResourceFactory.getInstance();
+        GameObjectFactory gameObjectFactory = GameObjectFactory.getInstance();
+        AnimationFactory animationFactory = AnimationFactory.getInstance();
+
+        // game objects creation
+        SpriteSheet spriteSheet = resourceFactory.createSpriteSheet("nyancat_sprite_sheet.png", 60, 30);
         gameObjects.add(
-            GameObjectFactory.getInstance().createGameObject(
+            gameObjectFactory.createGameObject(
                 50, 50,
                 GameObjectKey.LAYER1.getValue(),
                 ImmutableSet.of(
-                    HIDEventEnum.UP,
-                    HIDEventEnum.DOWN,
-                    HIDEventEnum.LEFT,
-                    HIDEventEnum.RIGHT
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.UP,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.MOVE_UP, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.UP,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.MOVE_UP, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.DOWN,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.MOVE_DOWN, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.LEFT,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.MOVE_LEFT, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.RIGHT,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.MOVE_RIGHT, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.UP,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.ANIMATION_PLAY, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.DOWN,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.ANIMATION_PLAY, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.LEFT,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.ANIMATION_PLAY, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.RIGHT,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.ANIMATION_PLAY, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.NO_DIRECTION,
+                        new GameObjectLogicBehavior(GameObjectLogicBehaviorEnum.ANIMATION_STOP, ImmutableSet.<GameObjectLogicParameter>of())
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.RIGHT,
+                        new GameObjectLogicBehavior(
+                            GameObjectLogicBehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
+                            ImmutableSet.of(new GameObjectLogicParameterOrientation(OrientationEnum.RIGHT))
+                        )
+                    ),
+                    new GameObjectHIDEventLogicBehaviorBinding(
+                        HIDEventEnum.LEFT,
+                        new GameObjectLogicBehavior(
+                            GameObjectLogicBehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
+                            ImmutableSet.of(new GameObjectLogicParameterOrientation(OrientationEnum.LEFT))
+                        )
+                    )
                 ),
                 ImmutableMap.of(
-                    OrientationEnum.FRONT,
-                    AnimationFactory.getInstance().createAnimationSequence(
+                    OrientationEnum.RIGHT,
+                    animationFactory.createAnimationSequence(
                         ImmutableList.of(
-                            initialResource,
-                            ResourceFactory.getInstance().createImageResource(1, 0, spriteSheet),
-                            ResourceFactory.getInstance().createImageResource(2, 0, spriteSheet),
-                            ResourceFactory.getInstance().createImageResource(3, 0, spriteSheet),
-                            ResourceFactory.getInstance().createImageResource(4, 0, spriteSheet),
-                            ResourceFactory.getInstance().createImageResource(5, 0, spriteSheet)
+                            resourceFactory.createImageResource(0, 0, spriteSheet),
+                            resourceFactory.createImageResource(1, 0, spriteSheet),
+                            resourceFactory.createImageResource(2, 0, spriteSheet),
+                            resourceFactory.createImageResource(3, 0, spriteSheet),
+                            resourceFactory.createImageResource(4, 0, spriteSheet),
+                            resourceFactory.createImageResource(5, 0, spriteSheet)
+                        ),
+                        100L
+                    ),
+                    OrientationEnum.LEFT,
+                    animationFactory.createAnimationSequence(
+                        ImmutableList.of(
+                            resourceFactory.createImageResource(0, 1, spriteSheet),
+                            resourceFactory.createImageResource(1, 1, spriteSheet),
+                            resourceFactory.createImageResource(2, 1, spriteSheet),
+                            resourceFactory.createImageResource(3, 1, spriteSheet),
+                            resourceFactory.createImageResource(4, 1, spriteSheet),
+                            resourceFactory.createImageResource(5, 1, spriteSheet)
                         ),
                         100L
                     )
                 ),
-                OrientationEnum.FRONT,
-                initialResource
+                OrientationEnum.RIGHT,
+                resourceFactory.createImageResource(1, 0, spriteSheet)
             )
         );
 
@@ -107,29 +175,7 @@ public class GameObjectManagerImpl implements GameObjectManager {
 
     public void process(KernelState kernelState) throws GameException {
         for (GameObject gameObject : gameObjects) {
-            updateAnimation(gameObject, kernelState);
-            moveObject(gameObject, kernelState);
+            GameObjectUpdater.getInstace().update(gameObject, kernelState);
         }
-    }
-
-    private void updateAnimation(GameObject gameObject, KernelState kernelState) throws GameException {
-        // setup
-        AnimationSequence animationSequence = gameObject.getCurrentAnimationSequence();
-
-        if (kernelState.hasHIDEvent(HIDEventEnum.RIGHT)) {
-            animationSequence.play();
-        } else {
-            animationSequence.pause();
-        }
-
-        // step the animation forward as needed
-        animationSequence.advanceSequenceByTime(kernelState.getClockTime());
-
-        // record new current resource
-        gameObject.setCurrentResource(animationSequence.getCurrentCel());
-    }
-
-    private void moveObject(GameObject gameObject, KernelState kernelState) {
-        GameObjectMover.getInstace().move(gameObject, kernelState, gameObject.getBoundHIDEvents());
     }
 }

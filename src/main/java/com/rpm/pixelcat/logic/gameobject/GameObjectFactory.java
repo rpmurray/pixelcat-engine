@@ -1,6 +1,5 @@
 package com.rpm.pixelcat.logic.gameobject;
 
-import com.rpm.pixelcat.hid.HIDEventEnum;
 import com.rpm.pixelcat.logic.animation.AnimationSequence;
 import com.rpm.pixelcat.logic.resource.Resource;
 
@@ -24,14 +23,14 @@ public class GameObjectFactory {
 
     public GameObject createGameObject(Integer x, Integer y,
                                        Integer layer,
-                                       Set<HIDEventEnum> boundHIDBehaviors,
+                                       Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
                                        Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
                                        OrientationEnum currentOrientation,
                                        Resource currentResource) {
         GameObject gameObject = new GameObjectImpl(
             x, y,
             layer,
-            boundHIDBehaviors,
+            gameObjectHIDEventLogicBehaviorBindings,
             orientationBoundAnimationSequences,
             currentOrientation,
             currentResource

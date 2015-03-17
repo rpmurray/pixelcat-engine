@@ -1,32 +1,29 @@
 package com.rpm.pixelcat.logic.gameobject;
 
-import com.rpm.pixelcat.hid.HIDEventEnum;
 import com.rpm.pixelcat.logic.animation.AnimationSequence;
 import com.rpm.pixelcat.logic.resource.Resource;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 class GameObjectImpl implements GameObject {
     private Point position;
     private Integer layer;
-    private Set<HIDEventEnum> boundHIDEvents;
+    private Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings;
     private Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences;
     OrientationEnum currentOrientation;
     private Resource currentResource;
 
     public GameObjectImpl(Integer x, Integer y,
                           Integer layer,
-                          Set<HIDEventEnum> boundHIDEvents,
+                          Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
                           Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
                           OrientationEnum currentOrientation,
                           Resource currentResource) {
         setPosition(x, y);
         this.layer = layer;
-        this.boundHIDEvents = boundHIDEvents;
+        this.gameObjectHIDEventLogicBehaviorBindings = gameObjectHIDEventLogicBehaviorBindings;
         this.orientationBoundAnimationSequences = orientationBoundAnimationSequences;
         setCurrentOrientation(currentOrientation);
         this.currentResource = currentResource;
@@ -60,8 +57,8 @@ class GameObjectImpl implements GameObject {
         return layer;
     }
 
-    public Set<HIDEventEnum> getBoundHIDEvents() {
-        return boundHIDEvents;
+    public Set<GameObjectHIDEventLogicBehaviorBinding> getGameObjectHIDEventLogicBehaviorBindings() {
+        return gameObjectHIDEventLogicBehaviorBindings;
     }
 
     public OrientationEnum getCurrentOrientation() {

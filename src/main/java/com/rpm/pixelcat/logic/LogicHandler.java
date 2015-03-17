@@ -11,7 +11,6 @@ import com.rpm.pixelcat.logic.gameobject.GameObjectManagerImpl;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class LogicHandler {
     GameObjectManagerImpl gameObjectManager;

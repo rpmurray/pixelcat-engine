@@ -32,7 +32,10 @@ public class HIDEventManager {
     }
 
     private HIDEventEnum mapKeyboardEvent(Integer keyCode) throws GameException {
+        // setup
         HIDEventEnum hidEvent;
+
+        // handle key code triggered hid events
         switch (keyCode) {
             case KeyEvent.VK_UP:
                 hidEvent = HIDEventEnum.UP;
@@ -60,5 +63,17 @@ public class HIDEventManager {
         }
 
         return hidEvent;
+    }
+
+    public void generateSynthesizedEvents() {
+        // no directional keyboard events
+        if (!kernelState.hasHIDEvent(HIDEventEnum.UP) &&
+            !kernelState.hasHIDEvent(HIDEventEnum.DOWN) &&
+            !kernelState.hasHIDEvent(HIDEventEnum.LEFT) &&
+            !kernelState.hasHIDEvent(HIDEventEnum.RIGHT)) {
+            kernelState.addHIDEvent(HIDEventEnum.NO_DIRECTION);
+        } else {
+            kernelState.removeHIDEvent(HIDEventEnum.NO_DIRECTION);
+        }
     }
 }
