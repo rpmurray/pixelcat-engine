@@ -1,5 +1,6 @@
 package com.rpm.pixelcat.logic.gameobject;
 
+import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.hid.HIDEventEnum;
 import com.rpm.pixelcat.logic.animation.AnimationSequence;
 import com.rpm.pixelcat.logic.resource.Resource;
@@ -24,9 +25,11 @@ public interface GameObject {
 
     public Set<GameObjectHIDEventLogicBehaviorBinding> getGameObjectHIDEventLogicBehaviorBindings();
 
-    public OrientationEnum getCurrentOrientation();
+    public Boolean hasAnimation();
+
+    public OrientationEnum getCurrentOrientation() throws GameException;
 
     public void setCurrentOrientation(OrientationEnum currentOrientation);
 
-    public AnimationSequence getCurrentAnimationSequence();
+    public AnimationSequence getCurrentAnimationSequence() throws GameException;
 }

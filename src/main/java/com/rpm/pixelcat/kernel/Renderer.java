@@ -12,7 +12,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class Renderer {
-    private static final Printer PRINTER = new Printer();
+    private static final Printer PRINTER = new Printer(Renderer.class);
 
     void render(Graphics2D g, KernelState kernelState, ArrayList<ArrayList<GameObject>> layeredGameObjects) {
         // Clear the drawing area, then draw logic components
@@ -58,7 +58,7 @@ public class Renderer {
                         (int) (spriteBounds.getY() + spriteBounds.getHeight()),
                         null
                     );
-                    PRINTER.printDebug("Rendering image -> " + spriteResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
+                    PRINTER.printTrace("Rendering image -> " + spriteResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
                 } else if (resource instanceof TextResource) {
                     // setup
                     TextResource textResource = (TextResource) resource;
@@ -76,7 +76,7 @@ public class Renderer {
                         (int) position.getX(),
                         (int) position.getY()
                     );
-                    PRINTER.printDebug("Rendering text -> " + textResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
+                    PRINTER.printTrace("Rendering text -> " + textResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
                 } else {
                     PRINTER.printError(new GameException(GameErrorCode.UNSUPPORTED_RESOURCE_FOR_RENDERING, resource));
                 }
@@ -84,7 +84,7 @@ public class Renderer {
         }
 
         // font rendering -- debug
-        if (kernelState.getPropertyAsBoolean(KernelStatePropertyEnum.FONT_DEBUG_ENABLED)) {
+        if (kernelState.getPropertyAsBoolean(KernelStatePropertyEnum.FONT_DISPLAY_ENABLED)) {
             debugFonts(g, kernelState.getBounds());
         }
     }

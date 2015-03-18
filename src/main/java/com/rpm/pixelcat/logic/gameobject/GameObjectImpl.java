@@ -1,5 +1,8 @@
 package com.rpm.pixelcat.logic.gameobject;
 
+import com.google.common.collect.ImmutableMap;
+import com.rpm.pixelcat.exception.GameErrorCode;
+import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.logic.animation.AnimationSequence;
 import com.rpm.pixelcat.logic.resource.Resource;
 
@@ -20,12 +23,30 @@ class GameObjectImpl implements GameObject {
                           Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
                           Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
                           OrientationEnum currentOrientation,
-                          Resource currentResource) {
+                          Resource currentResource,
+                          Boolean animationEnabled) throws GameException {
         setPosition(x, y);
         this.layer = layer;
         this.gameObjectHIDEventLogicBehaviorBindings = gameObjectHIDEventLogicBehaviorBindings;
         this.orientationBoundAnimationSequences = orientationBoundAnimationSequences;
         setCurrentOrientation(currentOrientation);
+        this.currentResource = currentResource;
+        if (animationEnabled) {
+            getCurrentAnimationSequence().play();
+        } else {
+            getCurrentAnimationSequence().pause();
+        }
+    }
+
+    public GameObjectImpl(Integer x, Integer y,
+                          Integer layer,
+                          Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
+                          Resource currentResource) {
+        setPosition(x, y);
+        this.layer = layer;
+        this.gameObjectHIDEventLogicBehaviorBindings = gameObjectHIDEventLogicBehaviorBindings;
+        this.orientationBoundAnimationSequences = ImmutableMap.<OrientationEnum, AnimationSequence>of();
+        setCurrentOrientation(null);
         this.currentResource = currentResource;
     }
 
@@ -61,7 +82,15 @@ class GameObjectImpl implements GameObject {
         return gameObjectHIDEventLogicBehaviorBindings;
     }
 
-    public OrientationEnum getCurrentOrientation() {
+    public Boolean hasAnimation() {
+        return currentOrientation != null && orientationBoundAnimationSequences.size() > 0;
+    }
+
+    public OrientationEnum getCurrentOrientation() throws GameException {
+        if (!hasAnimation()) {
+            throw new GameException(GameErrorCode.LOGIC_ERROR);
+        }
+
         return currentOrientation;
     }
 
@@ -69,7 +98,11 @@ class GameObjectImpl implements GameObject {
         this.currentOrientation = currentOrientation;
     }
 
-    public AnimationSequence getCurrentAnimationSequence() {
+    public AnimationSequence getCurrentAnimationSequence() throws GameException {
+        if (!hasAnimation()) {
+            throw new GameException(GameErrorCode.LOGIC_ERROR);
+        }
+
         return orientationBoundAnimationSequences.get(currentOrientation);
     }
 }

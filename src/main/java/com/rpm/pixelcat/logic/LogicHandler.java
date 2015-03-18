@@ -1,5 +1,7 @@
 package com.rpm.pixelcat.logic;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.ImmutableTypeToInstanceMap;
 import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.exception.ExitException;
 import com.rpm.pixelcat.hid.HIDEventEnum;
@@ -7,15 +9,17 @@ import com.rpm.pixelcat.kernel.KernelState;
 import com.rpm.pixelcat.kernel.KernelStatePropertyEnum;
 import com.rpm.pixelcat.logic.gameobject.GameObject;
 import com.rpm.pixelcat.logic.gameobject.GameObjectManagerImpl;
+import org.apache.log4j.Level;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class LogicHandler {
     GameObjectManagerImpl gameObjectManager;
 
-    public LogicHandler(KernelState state) throws IOException, URISyntaxException {
+    public LogicHandler(KernelState state) throws IOException, URISyntaxException, GameException {
         gameObjectManager = new GameObjectManagerImpl(state);
     }
 
@@ -44,20 +48,63 @@ public class LogicHandler {
         }
     }
 
-    private void updateGameState(KernelState kernelState) {
-        // handle debuggers
-        handleDebuggers(kernelState);
+    private void updateGameState(KernelState kernelState) throws GameException {
+        // handle logging
+        handleLogging(kernelState);
+
+        // handle font display
+        handleFontDisplay(kernelState);
     }
 
-    private void handleDebuggers(KernelState kernelState) {
-        // normal debug console
-        toggleKernelStateProperty(kernelState, HIDEventEnum.DEBUG_TOGGLE, KernelStatePropertyEnum.DEBUG_ENABLED);
+    private void handleLogging(KernelState kernelState) throws GameException {
+        // logging level
+        setKernelStateProperty(
+            kernelState,
+            KernelStatePropertyEnum.LOG_LVL,
+            ImmutableMap.<HIDEventEnum, Object>builder().put(
+                HIDEventEnum.SET_LOG_LVL_FATAL, Level.FATAL
+            ).put(
+                HIDEventEnum.SET_LOG_LVL_ERROR, Level.ERROR
+            ).put(
+                HIDEventEnum.SET_LOG_LVL_WARN, Level.WARN
+            ).put(
+                HIDEventEnum.SET_LOG_LVL_INFO, Level.INFO
+            ).put(
+                HIDEventEnum.SET_LOG_LVL_DEBUG, Level.DEBUG
+            ).put(
+                HIDEventEnum.SET_LOG_LVL_TRACE, Level.TRACE
+            ).build()
+        );
+    }
 
+    private void handleFontDisplay(KernelState kernelState) throws GameException {
         // font debugger
-        toggleKernelStateProperty(kernelState, HIDEventEnum.FONT_DEBUG_TOGGLE, KernelStatePropertyEnum.FONT_DEBUG_ENABLED);
+        toggleKernelStateProperty(kernelState, HIDEventEnum.FONT_DEBUG_TOGGLE, KernelStatePropertyEnum.FONT_DISPLAY_ENABLED);
     }
 
-    private void toggleKernelStateProperty(KernelState kernelState, HIDEventEnum hidEvent, KernelStatePropertyEnum kernelStateProperty) {
+    private void setKernelStateProperty(KernelState kernelState,
+                                        KernelStatePropertyEnum kernelStateProperty,
+                                        Map<HIDEventEnum, Object> hidEventKernelStatePropertyMap)
+                 throws GameException {
+        for (HIDEventEnum hidEvent: hidEventKernelStatePropertyMap.keySet()) {
+            // setup
+            Object kernelStatePropertyValue = hidEventKernelStatePropertyMap.get(hidEvent);
+
+            // check hid event and set kernel state property
+            if (kernelState.hasHIDEvent(hidEvent)) {
+                // remove HID event so it isn't processed twice
+                kernelState.removeHIDEvent(hidEvent);
+
+                // set kernel state property
+                kernelState.setProperty(kernelStateProperty, kernelStatePropertyValue);
+            }
+        }
+    }
+
+    private void toggleKernelStateProperty(KernelState kernelState,
+                                           HIDEventEnum hidEvent,
+                                           KernelStatePropertyEnum kernelStateProperty)
+                 throws GameException {
         if (kernelState.hasHIDEvent(hidEvent)) {
             // remove HID event so it isn't processed twice
             kernelState.removeHIDEvent(hidEvent);

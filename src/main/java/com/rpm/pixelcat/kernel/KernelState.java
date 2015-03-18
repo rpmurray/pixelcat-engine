@@ -1,6 +1,10 @@
 package com.rpm.pixelcat.kernel;
 
+import com.rpm.pixelcat.common.Printer;
+import com.rpm.pixelcat.exception.GameErrorCode;
+import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.hid.HIDEventEnum;
+import org.apache.log4j.Level;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -21,8 +25,8 @@ public class KernelState {
         this.clockTime = clockTime;
     }
 
-    public void init() {
-        setProperty(KernelStatePropertyEnum.DEBUG_ENABLED, true);
+    public void init() throws GameException {
+        setProperty(KernelStatePropertyEnum.LOG_LVL, Level.WARN);
     }
 
     public void addHIDEvent(HIDEventEnum hidEvent) {
@@ -57,7 +61,24 @@ public class KernelState {
         return errors;
     }
 
-    public void setProperty(KernelStatePropertyEnum name, Object value) {
+    public void setProperty(KernelStatePropertyEnum name, Object value) throws GameException {
+        // property-specific handling
+        switch (name) {
+            case LOG_LVL:
+                // validate input
+                if (!(value instanceof Level)) {
+                    throw new GameException(GameErrorCode.LOGIC_ERROR);
+                }
+
+                // update logging level in printer
+                Printer.setLevel((Level) value);
+                break;
+            default:
+                // do nothing special
+                break;
+        }
+
+        // save property value
         properties.put(name, value);
     }
 

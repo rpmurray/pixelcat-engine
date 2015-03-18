@@ -1,6 +1,7 @@
 package com.rpm.pixelcat.logic;
 
 import com.rpm.pixelcat.common.Printer;
+import com.rpm.pixelcat.exception.GameErrorCode;
 import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.hid.HIDEventEnum;
 import com.rpm.pixelcat.kernel.KernelState;
@@ -19,7 +20,7 @@ import java.util.Set;
 
 public class GameObjectUpdater {
     private static GameObjectUpdater instance;
-    private static final Printer PRINTER = new Printer();
+    private static final Printer PRINTER = new Printer(GameObjectUpdater.class);
 
     private GameObjectUpdater() {
     }
@@ -39,7 +40,6 @@ public class GameObjectUpdater {
 
     private void updateForHIDEventGameLogicBindings(GameObject gameObject, KernelState kernelState) throws GameException {
         // setup
-        AnimationSequence animationSequence = gameObject.getCurrentAnimationSequence();
         Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings = gameObject.getGameObjectHIDEventLogicBehaviorBindings();
         HashSet<HIDEventEnum> triggeredHIDEvents = kernelState.getHIDEvents();
 
@@ -63,10 +63,16 @@ public class GameObjectUpdater {
                     move(gameObject, kernelState, gameObjectLogicBehavior);
                     break;
                 case ANIMATION_PLAY:
-                    animationSequence.play();
+                    if (!gameObject.hasAnimation()) {
+                        throw new GameException(GameErrorCode.LOGIC_ERROR);
+                    }
+                    gameObject.getCurrentAnimationSequence().play();
                     break;
                 case ANIMATION_STOP:
-                    animationSequence.pause();
+                    if (!gameObject.hasAnimation()) {
+                        throw new GameException(GameErrorCode.LOGIC_ERROR);
+                    }
+                    gameObject.getCurrentAnimationSequence().pause();
                     break;
                 case ANIMATION_SEQUENCE_SWITCH:
                     gameObject.setCurrentOrientation(
@@ -78,6 +84,11 @@ public class GameObjectUpdater {
     }
 
     private void updateAnimation(GameObject gameObject, KernelState kernelState) throws GameException {
+        // precondition check
+        if (!gameObject.hasAnimation()) {
+            return;
+        }
+
         // setup
         AnimationSequence animationSequence = gameObject.getCurrentAnimationSequence();
 
@@ -113,9 +124,7 @@ public class GameObjectUpdater {
         }
 
             // debug
-            if (kernelState.getPropertyAsBoolean(KernelStatePropertyEnum.DEBUG_ENABLED)) {
-                PRINTER.printDebug("B:" + gameObjectLogicBehavior);
-            }
+            PRINTER.printTrace("B:" + gameObjectLogicBehavior);
 
         // initialize moved position
         Point position = gameObject.getPosition();
@@ -145,8 +154,6 @@ public class GameObjectUpdater {
         }
 
         // debug
-        if (kernelState.getPropertyAsBoolean(KernelStatePropertyEnum.DEBUG_ENABLED)) {
-            PRINTER.printDebug(" SB: " + screenBounds + " GOP:" + position);
-        }
+            PRINTER.printTrace(" SB: " + screenBounds + " GOP:" + position);
     }
 }

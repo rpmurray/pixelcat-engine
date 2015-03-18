@@ -2,9 +2,7 @@ package com.rpm.pixelcat.kernel;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.common.collect.ImmutableMap;
 import com.rpm.pixelcat.common.Printer;
-import com.rpm.pixelcat.exception.GameErrorCode;
 import com.rpm.pixelcat.hid.HIDEventManager;
 import com.rpm.pixelcat.hid.HIDKeyboardEventTypeEnum;
 import com.rpm.pixelcat.logic.LogicHandler;
@@ -16,6 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 public class Kernel extends JPanel implements KeyListener {
     // components
@@ -27,7 +26,7 @@ public class Kernel extends JPanel implements KeyListener {
     private HIDEventManager hidEventManager; // human interface device manager
 
     // utilities
-    private static final Printer PRINTER = new Printer();
+    private static final Printer PRINTER = new Printer(Kernel.class);
 
     // constants
     private static final Integer FPS = 60;
@@ -37,35 +36,7 @@ public class Kernel extends JPanel implements KeyListener {
         super();
     }
 
-    public static void main(String arg[]) {
-        try {
-            // instantiate kernel
-            Kernel kernel = new Kernel();
-
-            // initialize
-            kernel.init();
-
-            while(true) {
-                // record clock time
-                Long loopStartClockTime = System.currentTimeMillis();
-
-                // run game logic every frame
-                kernel.run();
-
-                // sleep for remainder of frame loop time
-                kernel.sleep(loopStartClockTime);
-            }
-        } catch (ExitException e) {
-            // game quit, not an issue
-        } catch (Exception e) {
-            PRINTER.printError(e);
-        }
-
-        // exit
-        System.exit(0);
-    }
-
-    private void init() throws IOException, URISyntaxException {
+    public void init() throws IOException, URISyntaxException, GameException {
         initGuice();
         initScreen();
         initRenderer();
@@ -73,6 +44,34 @@ public class Kernel extends JPanel implements KeyListener {
         initHIDEventManager();
         initLogicHandler();
         initFrame();
+    }
+
+    public void kernelMain(Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap) throws Exception {
+        try {
+            Integer loopCounter = 0;
+            while(true) {
+                // debug game loop
+                PRINTER.printDebug("Game loop counter: " + loopCounter++);
+
+                // record clock time
+                Long loopStartClockTime = System.currentTimeMillis();
+
+                // run game logic every frame
+                run(kernelInjectionMap);
+
+                // sleep for remainder of frame loop time
+                sleep(loopStartClockTime);
+            }
+        } catch (ExitException e) {
+            // game quit, not an issue
+            PRINTER.printWarning("Game exit condition met.");
+        } catch (Exception e) {
+            // log error
+            PRINTER.printError(e);
+
+            // throw error to caller
+            throw e;
+        }
     }
 
     private void initGuice() {
@@ -84,12 +83,12 @@ public class Kernel extends JPanel implements KeyListener {
         renderer = new Renderer();
     }
 
-    private void initKernelState() {
+    private void initKernelState() throws GameException {
         kernelState = new KernelState(screen, System.currentTimeMillis());
         kernelState.init();
     }
 
-    private void initLogicHandler() throws IOException, URISyntaxException {
+    private void initLogicHandler() throws IOException, URISyntaxException, GameException {
         logic = new LogicHandler(kernelState);
         addKeyListener(this);
     }
@@ -97,7 +96,7 @@ public class Kernel extends JPanel implements KeyListener {
     private void initScreen() {
         // set up screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        screen = new Rectangle(0, 0, (int) screenSize.getWidth() - 100, (int) screenSize.getHeight() - 100);
+        screen = new Rectangle(0, 0, (int) screenSize.getWidth() - 200, (int) screenSize.getHeight() - 400);
         this.setFocusable(true);
     }
 
@@ -105,7 +104,7 @@ public class Kernel extends JPanel implements KeyListener {
         // set up frame
         frame = new JFrame("Video Game");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setLocation(50, 50);
+        frame.setLocation(100, 50);
         frame.setSize(screen.width, screen.height);
         frame.setContentPane(this);
         frame.setVisible(true);
@@ -115,9 +114,14 @@ public class Kernel extends JPanel implements KeyListener {
         hidEventManager = new HIDEventManager(kernelState);
     }
 
-    public void run() throws GameException {
+    public void run(Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap) throws GameException {
         // synthesize special HID events
         hidEventManager.generateSynthesizedEvents();
+
+        // handle pre-processing kernel injection
+        if (kernelInjectionMap.containsKey(KernelInjectionEventEnum.PRE_PROCESSING)) {
+            kernelInjectionMap.get(KernelInjectionEventEnum.PRE_PROCESSING).run(kernelState);
+        }
 
         // process logic
         logic.process(kernelState);
@@ -137,18 +141,18 @@ public class Kernel extends JPanel implements KeyListener {
         Long loopTimeElapsed = kernelState.getClockTime() - loopStartClockTime;
         Long loopRemainingTime = LOOP_TIME - loopTimeElapsed;
         if (loopRemainingTime < 0) {
-            if (kernelState.getPropertyAsBoolean(KernelStatePropertyEnum.DEBUG_ENABLED)) {
-                PRINTER.printError(new GameException(GameErrorCode.GAME_LOOP_TIME_EXCEEDED, ImmutableMap.of("loopRemainingTime", loopRemainingTime)));
+                PRINTER.printWarning("The game loop exceeded the allotted time window for the current FPS configuration. [" + loopRemainingTime + "ms]");
+        } else if (loopRemainingTime >= 0) {
+                PRINTER.printInfo("The game loop was within the allotted time window for the current FPS configuration [" + loopRemainingTime + "ms]");
+
+            if (loopRemainingTime > 0) {
+                Thread.sleep(loopRemainingTime);
             }
-        } else if (loopRemainingTime > 0) {
-            Thread.sleep(loopRemainingTime);
         }
     }
 
     private void handleErrors() {
-        if (kernelState.getPropertyAsBoolean(KernelStatePropertyEnum.DEBUG_ENABLED)) {
             kernelState.getErrors().forEach(PRINTER::printError);
-        }
     }
 
     private void cleanUp() {

@@ -1,8 +1,6 @@
 package com.rpm.pixelcat.exception;
 
 public enum GameErrorCode {
-    GAME_LOOP_TIME_EXCEEDED(10001L, "The game loop execution time exceeded the alloted time window for the current configured FPS rating."),
-
     UNSUPPORTED_RESOURCE_FOR_RENDERING(20001L, "Found resource does not match a supported renderable entity and will be skipped."),
 
     LOGIC_ERROR(30001L, "Unspecified logic error during game logic processing."),

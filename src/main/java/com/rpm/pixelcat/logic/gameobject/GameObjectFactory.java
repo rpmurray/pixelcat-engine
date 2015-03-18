@@ -1,5 +1,6 @@
 package com.rpm.pixelcat.logic.gameobject;
 
+import com.rpm.pixelcat.exception.GameException;
 import com.rpm.pixelcat.logic.animation.AnimationSequence;
 import com.rpm.pixelcat.logic.resource.Resource;
 
@@ -26,13 +27,29 @@ public class GameObjectFactory {
                                        Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
                                        Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
                                        OrientationEnum currentOrientation,
-                                       Resource currentResource) {
+                                       Resource currentResource,
+                                       Boolean animationEnabled) throws GameException {
         GameObject gameObject = new GameObjectImpl(
             x, y,
             layer,
             gameObjectHIDEventLogicBehaviorBindings,
             orientationBoundAnimationSequences,
             currentOrientation,
+            currentResource,
+            animationEnabled
+        );
+
+        return gameObject;
+    }
+
+    public GameObject createGameObject(Integer x, Integer y,
+                                       Integer layer,
+                                       Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
+                                       Resource currentResource) {
+        GameObject gameObject = new GameObjectImpl(
+            x, y,
+            layer,
+            gameObjectHIDEventLogicBehaviorBindings,
             currentResource
         );
 
