@@ -21,9 +21,16 @@ public class TestMain {
             // initialize
             kernel.init();
 
+            // init game objects
+            String startingLevel = LevelHandler.START_SCREEN;
+            LevelHandler levelHandler = new LevelHandler(startingLevel);
+            GameObjectsHandler gameObjectsHandler = new GameObjectsHandler(kernel.getKernelState());
+            gameObjectsHandler.init();
+            kernel.registerGameObjectManagers(gameObjectsHandler.getGameObjectManagerSet(startingLevel));
+
             // define kernel injections
             Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap = ImmutableMap.<KernelInjectionEventEnum, KernelInjection>of(
-                KernelInjectionEventEnum.PRE_PROCESSING, new TestPreProcessingKernelInjection()
+                KernelInjectionEventEnum.PRE_PROCESSING, new PreProcessingKernelInjection(levelHandler, gameObjectsHandler)
             );
 
             // run the game kernel

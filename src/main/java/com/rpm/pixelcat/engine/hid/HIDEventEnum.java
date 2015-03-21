@@ -1,14 +1,14 @@
 package com.rpm.pixelcat.engine.hid;
 
 public enum HIDEventEnum {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-    NO_DIRECTION,
-    DEBUG_TOGGLE,
+    PRIMARY_UP,
+    PRIMARY_DOWN,
+    PRIMARY_LEFT,
+    PRIMARY_RIGHT,
+    PRIMARY_NO_DIRECTION,
     FONT_DEBUG_TOGGLE,
-    EXIT,
+    BACK,
+    NEXT,
     SET_LOG_LVL_FATAL,
     SET_LOG_LVL_ERROR,
     SET_LOG_LVL_WARN,

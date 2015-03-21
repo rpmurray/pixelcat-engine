@@ -7,21 +7,21 @@ import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.logic.animation.AnimationSequence;
-import com.rpm.pixelcat.engine.logic.resource.MovableResource;
+import com.rpm.pixelcat.engine.logic.resource.MeasurableResource;
 import com.rpm.pixelcat.engine.logic.resource.Resource;
 
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GameObjectUpdater {
+class GameObjectUpdater {
     private static GameObjectUpdater instance;
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(GameObjectUpdater.class);
 
     private GameObjectUpdater() {
     }
 
-    public static GameObjectUpdater getInstace() {
+    static GameObjectUpdater getInstace() {
         if (instance == null) {
             instance = new GameObjectUpdater();
         }
@@ -29,7 +29,7 @@ public class GameObjectUpdater {
         return instance;
     }
 
-    public void update(GameObject gameObject, KernelState kernelState) throws GameException {
+    void update(GameObject gameObject, KernelState kernelState) throws GameException {
         updateForHIDEventGameLogicBindings(gameObject, kernelState);
         updateAnimation(gameObject, kernelState);
     }
@@ -72,7 +72,7 @@ public class GameObjectUpdater {
                     break;
                 case ANIMATION_SEQUENCE_SWITCH:
                     gameObject.setCurrentOrientation(
-                        ((GameObjectLogicParameterOrientation) gameObjectLogicBehavior.getGameObjectLogicParameterByClass(GameObjectLogicParameterOrientation.class)).getOrientation()
+                        ((GameObjectLogicBehaviorParameterOrientation) gameObjectLogicBehavior.getGameObjectLogicParameterByClass(GameObjectLogicBehaviorParameterOrientation.class)).getOrientation()
                     );
                     break;
             }
@@ -89,16 +89,29 @@ public class GameObjectUpdater {
         AnimationSequence animationSequence = gameObject.getCurrentAnimationSequence();
 
         // step the animation forward as needed
-        animationSequence.advanceSequenceByTime(kernelState.getClockTime());
+        animationSequence.advanceSequenceByTime();
 
         // record new current resource
         gameObject.setCurrentResource(animationSequence.getCurrentCel());
     }
 
-    private void move(GameObject gameObject, KernelState kernelState, GameObjectLogicBehavior gameObjectLogicBehavior) {
+    private void move(GameObject gameObject, KernelState kernelState, GameObjectLogicBehavior gameObjectLogicBehavior)
+            throws GameException {
+        // setup
+        GameObjectLogicBehaviorParameterMagnitude magnitudeParameter;
         Double xVel = 0.0, yVel = 0.0;
-        Double magnitude = 1.0;
-        Rectangle screenBounds = kernelState.getBounds();
+
+        // derive move magnitude
+        Double magnitude;
+        try {
+            magnitudeParameter = (GameObjectLogicBehaviorParameterMagnitude) gameObjectLogicBehavior.getGameObjectLogicParameterByClass(
+                GameObjectLogicBehaviorParameterMagnitude.class
+            );
+            magnitude = magnitudeParameter.getMagnitude();
+        } catch (GameException e) {
+            PRINTER.printWarning("Logic behavior parameter lookup failed during game object movement for {GameObjectLogicBehaviorParameterMagnitude}");
+            magnitude = 1.0;
+        }
 
         // map event to velocity changes
         switch (gameObjectLogicBehavior.getBehaviorType()) {
@@ -115,41 +128,120 @@ public class GameObjectUpdater {
                 xVel = -magnitude;
                 break;
             default:
-               // do nothing
+                // do nothing
                 break;
         }
 
-            // debug
-            PRINTER.printTrace("B:" + gameObjectLogicBehavior);
+        // debug
+        PRINTER.printTrace("B:" + gameObjectLogicBehavior);
 
         // initialize moved position
-        Point position = gameObject.getPosition();
-        Double x = position.getX() + xVel;
-        Double y = position.getY() + yVel;
+        Point initialPosition = gameObject.getPosition();
+        Point finalPosition = new Point(
+            (int) (initialPosition.getX() + xVel),
+            (int) (initialPosition.getY() + yVel)
+        );
 
         // screen bounds checking
-        Resource resource = gameObject.getCurrentResource();
-        if (resource instanceof MovableResource) {
-            Rectangle resourceBounds = ((MovableResource) resource).getCelBounds();
-            if ((position.getX() + resourceBounds.getWidth()) > screenBounds.getWidth()) {
-                x = screenBounds.getWidth() - resourceBounds.getWidth();
-            }
-            if ((position.getY() + resourceBounds.getHeight()) > screenBounds.getHeight()) {
-                y = screenBounds.getHeight() - resourceBounds.getHeight();
-            }
-            if (y < screenBounds.getY()) {
-                y = screenBounds.getY();
-            }
-            if (x < screenBounds.getX()) {
-                x = screenBounds.getX();
-            }
-
-            // set position
-            position.setLocation(x, y);
-            gameObject.setPosition(position);
-        }
+        handleScreenBounds(gameObject, kernelState, finalPosition);
 
         // debug
-            PRINTER.printTrace(" SB: " + screenBounds + " GOP:" + position);
+        PRINTER.printTrace(
+            " SB: " + kernelState.getBounds() +
+                " GO_IP: " + initialPosition +
+                " GO_FP: " + finalPosition +
+                " SBH:" + gameObject.getScreenBoundsHandlingTypeEnum()
+        );
+
+        // set position
+        gameObject.setPosition(finalPosition);
+    }
+
+    private void handleScreenBounds(GameObject gameObject, KernelState kernelState, Point finalPosition)
+            throws GameException {
+        // setup
+        Resource resource = gameObject.getCurrentResource();
+        Rectangle resourceBounds;
+        Rectangle screenBounds = kernelState.getBounds();
+        Rectangle collisionSpace;
+        Point collisionOffset;
+        Point positionOffset;
+
+        // check that resource is measurable
+        if (resource instanceof MeasurableResource) {
+            resourceBounds = ((MeasurableResource) resource).getCelBounds();
+        } else {
+            return;
+        }
+
+        // determine checkable position of resource
+        switch (gameObject.getScreenBoundsHandlingTypeEnum()) {
+            case NONE:
+                return;
+            case OUTER_RESOURCE_EDGE:
+                collisionSpace = new Rectangle(
+                    finalPosition.x,
+                    finalPosition.y,
+                    resourceBounds.width,
+                    resourceBounds.height
+                );
+                collisionOffset = new Point(
+                    0,
+                    0
+                );
+                positionOffset = new Point(
+                    0,
+                    0
+                );
+                break;
+            case INNER_RESOURCE_EDGE:
+                collisionSpace = new Rectangle(
+                    finalPosition.x,
+                    finalPosition.y,
+                    resourceBounds.width,
+                    resourceBounds.height
+                );
+                collisionOffset = new Point(
+                    resourceBounds.width,
+                    resourceBounds.height
+                );
+                positionOffset = new Point(
+                    0,
+                    0
+                );
+                break;
+            case CENTER_RESOURCE:
+                collisionSpace = new Rectangle(
+                    finalPosition.x + (resourceBounds.width / 2),
+                    finalPosition.y + (resourceBounds.height / 2),
+                    0,
+                    0
+                );
+                collisionOffset = new Point(
+                    0,
+                    0
+                );
+                positionOffset = new Point(
+                    resourceBounds.width / 2,
+                    resourceBounds.height / 2
+                );
+                break;
+            default:
+                throw new GameException(GameErrorCode.LOGIC_ERROR);
+        }
+
+        // check bounds
+        if (collisionSpace.getX() + collisionSpace.getWidth() - collisionOffset.getX() > screenBounds.getWidth()) {
+            finalPosition.x = (int) (screenBounds.getWidth() - positionOffset.getX());
+        }
+        if (collisionSpace.getY() + collisionSpace.getHeight() - collisionOffset.getY() > screenBounds.getHeight()) {
+            finalPosition.y = (int) (screenBounds.getHeight() - positionOffset.getY());
+        }
+        if (collisionSpace.getX() - collisionOffset.getX() < screenBounds.getX()) {
+            finalPosition.x = (int) (screenBounds.getX() - positionOffset.getX());
+        }
+        if (finalPosition.getY() - collisionOffset.getY() < screenBounds.getY()) {
+            finalPosition.y = (int) (screenBounds.getY() - positionOffset.getY());
+        }
     }
 }

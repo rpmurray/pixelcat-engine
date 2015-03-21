@@ -15,39 +15,94 @@ class GameObjectImpl implements GameObject {
     private Integer layer;
     private Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings;
     private Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences;
-    OrientationEnum currentOrientation;
+    private OrientationEnum currentOrientation;
     private Resource currentResource;
+    private CollisionHandlingTypeEnum collisionHandlingTypeEnum;
+    private ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum;
 
-    public GameObjectImpl(Integer x, Integer y,
+    GameObjectImpl(Integer x, Integer y,
                           Integer layer,
                           Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
                           Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
                           OrientationEnum currentOrientation,
                           Resource currentResource,
-                          Boolean animationEnabled) throws GameException {
-        setPosition(x, y);
-        this.layer = layer;
-        this.gameObjectHIDEventLogicBehaviorBindings = gameObjectHIDEventLogicBehaviorBindings;
-        this.orientationBoundAnimationSequences = orientationBoundAnimationSequences;
-        setCurrentOrientation(currentOrientation);
-        this.currentResource = currentResource;
-        if (animationEnabled) {
-            getCurrentAnimationSequence().play();
-        } else {
-            getCurrentAnimationSequence().pause();
-        }
+                          Boolean animationEnabled,
+                          CollisionHandlingTypeEnum collisionHandlingTypeEnum,
+                          ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
+        init(
+            x, y,
+            layer,
+            gameObjectHIDEventLogicBehaviorBindings,
+            orientationBoundAnimationSequences,
+            currentOrientation,
+            currentResource,
+            animationEnabled,
+            collisionHandlingTypeEnum,
+            screenBoundsHandlingTypeEnum
+        );
     }
 
-    public GameObjectImpl(Integer x, Integer y,
+    GameObjectImpl(Integer x, Integer y,
                           Integer layer,
                           Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
-                          Resource currentResource) {
+                          Resource currentResource,
+                          CollisionHandlingTypeEnum collisionHandlingTypeEnum,
+                          ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
+        init(
+            x, y,
+            layer,
+            gameObjectHIDEventLogicBehaviorBindings,
+            null,
+            null,
+            currentResource,
+            false,
+            collisionHandlingTypeEnum,
+            screenBoundsHandlingTypeEnum
+        );
+    }
+
+    private void init(Integer x, Integer y,
+                     Integer layer,
+                     Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
+                     Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
+                     OrientationEnum currentOrientation,
+                     Resource currentResource,
+                     Boolean animationEnabled,
+                     CollisionHandlingTypeEnum collisionHandlingTypeEnum,
+                     ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
+        // position
         setPosition(x, y);
+
+        // layer
         this.layer = layer;
+
+        // hid event logic behavior bindings
         this.gameObjectHIDEventLogicBehaviorBindings = gameObjectHIDEventLogicBehaviorBindings;
-        this.orientationBoundAnimationSequences = ImmutableMap.<OrientationEnum, AnimationSequence>of();
-        setCurrentOrientation(null);
+
+        // animation sequences + orientation
+        if (currentOrientation != null) {
+            this.orientationBoundAnimationSequences = orientationBoundAnimationSequences;
+            setCurrentOrientation(currentOrientation);
+        } else {
+            this.orientationBoundAnimationSequences = ImmutableMap.<OrientationEnum, AnimationSequence>of();
+            setCurrentOrientation(null);
+        }
+
+        // resource
         this.currentResource = currentResource;
+
+        // animation
+        if (currentOrientation != null) {
+            if (animationEnabled) {
+                getCurrentAnimationSequence().play();
+            } else {
+                getCurrentAnimationSequence().pause();
+            }
+        }
+
+        // collisions + screen bounds
+        this.collisionHandlingTypeEnum = collisionHandlingTypeEnum;
+        this.screenBoundsHandlingTypeEnum = screenBoundsHandlingTypeEnum;
     }
 
     public void setPosition(Point position) {
@@ -104,5 +159,13 @@ class GameObjectImpl implements GameObject {
         }
 
         return orientationBoundAnimationSequences.get(currentOrientation);
+    }
+
+    public CollisionHandlingTypeEnum getCollisionHandlingTypeEnum() {
+        return collisionHandlingTypeEnum;
+    }
+
+    public ScreenBoundsHandlingTypeEnum getScreenBoundsHandlingTypeEnum() {
+        return screenBoundsHandlingTypeEnum;
     }
 }

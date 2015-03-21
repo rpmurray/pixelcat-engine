@@ -24,5 +24,5 @@ public interface AnimationSequence {
 
     public void advanceSequence();
 
-    public void advanceSequenceByTime(Long currentTimeInMilliseconds);
+    public void advanceSequenceByTime();
 }

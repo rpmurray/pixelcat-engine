@@ -22,13 +22,21 @@ public class GameObjectFactory {
         return instance;
     }
 
+    public GameObjectManager createGameObjectManager(Integer layers) throws GameException {
+        GameObjectManager gameObjectManager = new GameObjectManagerImpl(layers);
+
+        return gameObjectManager;
+    }
+
     public GameObject createGameObject(Integer x, Integer y,
                                        Integer layer,
                                        Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
                                        Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
                                        OrientationEnum currentOrientation,
                                        Resource currentResource,
-                                       Boolean animationEnabled) throws GameException {
+                                       Boolean animationEnabled,
+                                       CollisionHandlingTypeEnum collisionHandlingTypeEnum,
+                                       ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
         GameObject gameObject = new GameObjectImpl(
             x, y,
             layer,
@@ -36,7 +44,9 @@ public class GameObjectFactory {
             orientationBoundAnimationSequences,
             currentOrientation,
             currentResource,
-            animationEnabled
+            animationEnabled,
+            collisionHandlingTypeEnum,
+            screenBoundsHandlingTypeEnum
         );
 
         return gameObject;
@@ -45,12 +55,16 @@ public class GameObjectFactory {
     public GameObject createGameObject(Integer x, Integer y,
                                        Integer layer,
                                        Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
-                                       Resource currentResource) {
+                                       Resource currentResource,
+                                       CollisionHandlingTypeEnum collisionHandlingTypeEnum,
+                                       ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
         GameObject gameObject = new GameObjectImpl(
             x, y,
             layer,
             gameObjectHIDEventLogicBehaviorBindings,
-            currentResource
+            currentResource,
+            collisionHandlingTypeEnum,
+            screenBoundsHandlingTypeEnum
         );
 
         return gameObject;

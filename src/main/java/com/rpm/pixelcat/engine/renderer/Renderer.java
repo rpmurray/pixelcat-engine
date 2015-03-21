@@ -61,7 +61,15 @@ public class Renderer {
                         (int) (spriteBounds.getY() + spriteBounds.getHeight()),
                         null
                     );
-                    PRINTER.printTrace("Rendering image -> " + spriteResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
+                    PRINTER.printTrace(
+                        "Rendering image -> " + spriteResource +
+                        " L" + gameObject.getLayer() +
+                        "@(" + (int) spriteBounds.getWidth() + "," + (int) spriteBounds.getHeight() + ")" +
+                        ":{" + (int) spriteBounds.getX() + ":" + (int) (spriteBounds.getX() + spriteBounds.getWidth()) +
+                        "," + (int) spriteBounds.getY() + ":" + (int) (spriteBounds.getY() + spriteBounds.getHeight()) + "}" +
+                        ":[" + (int) position.getX() + ":" + (int) (position.getX() + spriteBounds.getWidth()) +
+                        ":" + (int) position.getY() + ":" + (int) (position.getY() + spriteBounds.getHeight()) + "]"
+                    );
                 } else if (resource instanceof TextResource) {
                     // setup
                     TextResource textResource = (TextResource) resource;
@@ -79,7 +87,12 @@ public class Renderer {
                         (int) position.getX(),
                         (int) position.getY()
                     );
-                    PRINTER.printTrace("Rendering text -> " + textResource + " L" + gameObject.getLayer() + "@[" + position.getX() + "," + position.getY() + "]");
+                    PRINTER.printTrace(
+                        "Rendering text -> " + textResource +
+                        " L" + gameObject.getLayer() +
+                        "@{" + textResource.getText().length() + "}" +
+                        ":[" + position.getX() + "," + position.getY() + "]"
+                    );
                 } else {
                     PRINTER.printError(new GameException(GameErrorCode.UNSUPPORTED_RESOURCE_FOR_RENDERING, resource));
                 }

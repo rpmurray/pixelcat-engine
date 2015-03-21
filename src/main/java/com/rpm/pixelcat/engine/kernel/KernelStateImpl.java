@@ -4,9 +4,12 @@ import com.rpm.pixelcat.engine.common.Printer;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
+import com.rpm.pixelcat.engine.logic.clock.GameClockFactory;
+import com.rpm.pixelcat.engine.logic.clock.GameClockManager;
 import org.apache.log4j.Level;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -15,18 +18,27 @@ class KernelStateImpl implements KernelState {
     private HashSet<Exception> errors;
     private HashMap<KernelStatePropertyEnum, Object> properties;
     private Rectangle bounds;
-    private Long clockTime;
+    private GameClockManager masterGameClockManager;
 
-    KernelStateImpl(Rectangle bounds, Long clockTime) {
+    KernelStateImpl(Rectangle bounds) {
         this.hidEvents = new HashSet<>();
         this.errors = new HashSet<>();
         this.properties = new HashMap<>();
         this.bounds = bounds;
-        this.clockTime = clockTime;
+        this.masterGameClockManager = GameClockFactory.getInstance().createGameClockManager();
     }
 
     void init() throws GameException {
+        // create master game clocks
+        masterGameClockManager.addGameClock(MASTER_GAME_CLOCK);
+        masterGameClockManager.addGameClock(LOOP_GAME_CLOCK);
+
+        // set properties
+        setProperty(KernelStatePropertyEnum.FRAME_RATE, 60);
+        setProperty(KernelStatePropertyEnum.FONT_DISPLAY_ENABLED, false);
+        setProperty(KernelStatePropertyEnum.EXIT_SIGNAL, false);
         setProperty(KernelStatePropertyEnum.LOG_LVL, Level.WARN);
+        setProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, new ArrayList<>());
     }
 
     public void addHIDEvent(HIDEventEnum hidEvent) {
@@ -64,6 +76,18 @@ class KernelStateImpl implements KernelState {
     public void setProperty(KernelStatePropertyEnum name, Object value) throws GameException {
         // property-specific handling
         switch (name) {
+            case GAME_LOOP_DURATION_MS:
+                // do not allow these cases to be set manually
+                throw new GameException(GameErrorCode.LOGIC_ERROR);
+            case FRAME_RATE:
+                // validate
+                if ((Integer) value > 1000) {
+                    throw new GameException(GameErrorCode.LOGIC_ERROR);
+                }
+
+                // set loop time
+                properties.put(KernelStatePropertyEnum.GAME_LOOP_DURATION_MS, 1000 / (Integer) value);
+                break;
             case LOG_LVL:
                 // validate input
                 if (!(value instanceof Level)) {
@@ -108,11 +132,7 @@ class KernelStateImpl implements KernelState {
         this.bounds = bounds;
     }
 
-    public Long getClockTime() {
-        return clockTime;
-    }
-
-    void setClockTime(Long clockTime) {
-        this.clockTime = clockTime;
+    public GameClockManager getMasterGameClockManager() {
+        return masterGameClockManager;
     }
 }

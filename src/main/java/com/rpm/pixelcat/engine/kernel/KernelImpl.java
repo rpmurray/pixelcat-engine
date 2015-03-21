@@ -9,12 +9,15 @@ import com.rpm.pixelcat.engine.hid.HIDEventManager;
 import com.rpm.pixelcat.engine.hid.HIDKeyboardEventTypeEnum;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.exception.ExitException;
+import com.rpm.pixelcat.engine.logic.LogicHandlerFactory;
+import com.rpm.pixelcat.engine.logic.gameobject.GameObjectManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 
 class KernelImpl extends JPanel implements Kernel, KeyListener {
@@ -23,15 +26,11 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
     private Rectangle screen; // screen area
     private com.rpm.pixelcat.engine.renderer.Renderer renderer; // renderer
     private KernelStateImpl kernelState; // game kernelState
-    private LogicHandler logic; // game logic
+    private LogicHandler logicHandler; // game logic
     private HIDEventManager hidEventManager; // human interface device manager
 
     // utilities
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(KernelImpl.class);
-
-    // constants
-    private static final Integer FPS = 60;
-    private static final Integer LOOP_TIME = 1000/ FPS;
 
     KernelImpl() {
         super();
@@ -51,17 +50,17 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
         try {
             Integer loopCounter = 0;
             while(true) {
+                // record clock time
+                kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).addEvent("loop started");
+
                 // debug game loop
                 PRINTER.printDebug("Game loop counter: " + loopCounter++);
-
-                // record clock time
-                Long loopStartClockTime = System.currentTimeMillis();
 
                 // run game logic every frame
                 run(kernelInjectionMap);
 
                 // sleep for remainder of frame loop time
-                sleep(loopStartClockTime);
+                sleep();
             }
         } catch (ExitException e) {
             // game quit, not an issue
@@ -85,12 +84,12 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
     }
 
     private void initKernelState() throws GameException {
-        kernelState = new KernelStateImpl(screen, System.currentTimeMillis());
+        kernelState = new KernelStateImpl(screen);
         kernelState.init();
     }
 
-    private void initLogicHandler() throws IOException, URISyntaxException, GameException {
-        logic = new LogicHandler(kernelState);
+    private void initLogicHandler() {
+        logicHandler = LogicHandlerFactory.getInstance().createLogicHandler();
         addKeyListener(this);
     }
 
@@ -115,6 +114,14 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
         hidEventManager = new HIDEventManager(kernelState);
     }
 
+    public KernelState getKernelState() {
+        return kernelState;
+    }
+
+    public void registerGameObjectManagers(List<GameObjectManager> gameObjectManagers) throws GameException {
+        kernelState.setProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, gameObjectManagers);
+    }
+
     public void run(Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap) throws GameException {
         // synthesize special HID events
         hidEventManager.generateSynthesizedEvents();
@@ -125,7 +132,7 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
         }
 
         // process logic
-        logic.process(kernelState);
+        logicHandler.process(kernelState);
 
         // handle errors
         handleErrors();
@@ -137,17 +144,19 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
         cleanUp();
     }
 
-    public void sleep(Long loopStartClockTime) throws Exception {
-        kernelState.setClockTime(System.currentTimeMillis());
-        Long loopTimeElapsed = kernelState.getClockTime() - loopStartClockTime;
-        Long loopRemainingTime = LOOP_TIME - loopTimeElapsed;
+    public void sleep() throws Exception {
+        Long loopTimeElapsed = kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).getElapsed("loop started");
+        kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).addEvent("loop logic ended");
+        Long loopRemainingTime = (Integer) kernelState.getProperty(KernelStatePropertyEnum.GAME_LOOP_DURATION_MS) - loopTimeElapsed;
         if (loopRemainingTime < 0) {
-                PRINTER.printWarning("The game loop exceeded the allotted time window for the current FPS configuration. [" + loopRemainingTime + "ms]");
+            PRINTER.printWarning("The game loop exceeded the allotted time window for the current FPS configuration. [" + loopRemainingTime + "ms]");
         } else if (loopRemainingTime >= 0) {
-                PRINTER.printInfo("The game loop was within the allotted time window for the current FPS configuration [" + loopRemainingTime + "ms]");
+            PRINTER.printInfo("The game loop was within the allotted time window for the current FPS configuration [" + loopRemainingTime + "ms]");
 
             if (loopRemainingTime > 0) {
+                kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).addEvent("sleep started");
                 Thread.sleep(loopRemainingTime);
+                kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).addEvent("sleep ended");
             }
         }
     }
@@ -170,7 +179,11 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
         kernelState.setBounds(screen);
 
         // render frame
-        renderer.render((Graphics2D) g, kernelState, logic.getLayeredGameObjects());
+        try {
+            renderer.render((Graphics2D) g, kernelState, logicHandler.getLayeredGameObjects(kernelState));
+        } catch (GameException e) {
+            kernelState.addError(e);
+        }
     }
 
     public void keyPressed(KeyEvent key) {

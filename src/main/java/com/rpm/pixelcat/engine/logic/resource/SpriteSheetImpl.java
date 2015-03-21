@@ -5,16 +5,30 @@ import com.rpm.pixelcat.engine.exception.GameException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class SpriteSheetImpl implements SpriteSheet {
+class SpriteSheetImpl implements SpriteSheet {
     String filename;
     Integer celWidth;
     Integer celHeight;
+    Integer topGutter;
+    Integer bottomGutter;
+    Integer leftGutter;
+    Integer rightGutter;
     BufferedImage texture;
 
-    SpriteSheetImpl(String filename, Integer celWidth, Integer celHeight) {
+    SpriteSheetImpl(String filename,
+                    Integer celWidth,
+                    Integer celHeight,
+                    Integer leftGutter,
+                    Integer rightGutter,
+                    Integer topGutter,
+                    Integer bottomGutter) {
         this.filename = filename;
         this.celWidth = celWidth;
         this.celHeight = celHeight;
+        this.leftGutter = leftGutter;
+        this.rightGutter = rightGutter;
+        this.topGutter = topGutter;
+        this.bottomGutter = bottomGutter;
     }
 
     public Boolean isLoaded() {
@@ -28,7 +42,12 @@ public class SpriteSheetImpl implements SpriteSheet {
     }
 
     public Rectangle getSpriteCelBounds(Integer xIndex, Integer yIndex) {
-        Rectangle spriteCelLocation = new Rectangle(xIndex * celWidth, yIndex * celHeight, celWidth, celHeight);
+        Rectangle spriteCelLocation = new Rectangle(
+            xIndex * celWidth + leftGutter,
+            yIndex * celHeight + topGutter,
+            celWidth - leftGutter - rightGutter,
+            celHeight - topGutter - bottomGutter
+        );
 
         return spriteCelLocation;
     }
@@ -43,6 +62,10 @@ public class SpriteSheetImpl implements SpriteSheet {
             "filename='" + filename + '\'' +
             ", celWidth=" + celWidth +
             ", celHeight=" + celHeight +
+            ", topGutter=" + topGutter +
+            ", bottomGutter=" + bottomGutter +
+            ", leftGutter=" + leftGutter +
+            ", rightGutter=" + rightGutter +
             ", texture=" + texture +
             '}';
     }

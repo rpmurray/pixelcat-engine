@@ -7,27 +7,27 @@ import java.util.Set;
 
 public class GameObjectLogicBehavior {
     private GameObjectLogicBehaviorEnum behaviorType;
-    private Set<GameObjectLogicParameter> gameObjectLogicParameters;
+    private Set<GameObjectLogicBehaviorParameter> gameObjectLogicBehaviorParameters;
 
     public GameObjectLogicBehavior(GameObjectLogicBehaviorEnum behaviorType,
-                                   Set<GameObjectLogicParameter> gameObjectLogicParameters) {
+                                   Set<GameObjectLogicBehaviorParameter> gameObjectLogicBehaviorParameters) {
         this.behaviorType =behaviorType;
-        this.gameObjectLogicParameters = gameObjectLogicParameters;
+        this.gameObjectLogicBehaviorParameters = gameObjectLogicBehaviorParameters;
     }
 
     public GameObjectLogicBehaviorEnum getBehaviorType() {
         return behaviorType;
     }
 
-    public Set<GameObjectLogicParameter> getGameObjectLogicParameters() {
-        return gameObjectLogicParameters;
+    public Set<GameObjectLogicBehaviorParameter> getGameObjectLogicBehaviorParameters() {
+        return gameObjectLogicBehaviorParameters;
     }
 
-    public GameObjectLogicParameter getGameObjectLogicParameterByClass(Class gameObjectLogicParameterClass)
+    public GameObjectLogicBehaviorParameter getGameObjectLogicParameterByClass(Class gameObjectLogicParameterClass)
            throws GameException {
-        for (GameObjectLogicParameter gameObjectLogicParameter: gameObjectLogicParameters) {
-            if (gameObjectLogicParameter.getClass().equals(gameObjectLogicParameterClass)) {
-                return gameObjectLogicParameter;
+        for (GameObjectLogicBehaviorParameter gameObjectLogicBehaviorParameter : gameObjectLogicBehaviorParameters) {
+            if (gameObjectLogicBehaviorParameter.getClass().equals(gameObjectLogicParameterClass)) {
+                return gameObjectLogicBehaviorParameter;
             }
         }
 
@@ -38,7 +38,7 @@ public class GameObjectLogicBehavior {
     public String toString() {
         return "GameObjectLogicBehavior{" +
             "behaviorType=" + behaviorType +
-            ", gameObjectLogicParameters=" + gameObjectLogicParameters +
+            ", gameObjectLogicParameters=" + gameObjectLogicBehaviorParameters +
             '}';
     }
 }

@@ -2,6 +2,8 @@ package com.rpm.pixelcat.engine.logic.animation;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.logic.clock.GameClock;
+import com.rpm.pixelcat.engine.logic.clock.GameClockFactory;
 import com.rpm.pixelcat.engine.logic.resource.Resource;
 
 import java.util.ArrayList;
@@ -10,7 +12,7 @@ import java.util.List;
 public class AnimationSequenceImpl implements AnimationSequence {
     List<Resource> cels;
     Integer currentIndex;
-    Long lastAdvanceTimeInMilliseconds;
+    GameClock animationClock;
     Long millisecondsPerCel;
     Boolean isPaused;
     Boolean isAnimationAccelerationEnabled;
@@ -32,13 +34,14 @@ public class AnimationSequenceImpl implements AnimationSequence {
     public AnimationSequenceImpl() {
         cels = new ArrayList<>();
         currentIndex = null;
-        lastAdvanceTimeInMilliseconds = 0L;
         millisecondsPerCel = 0L;
         isPaused = true;
         isAnimationAccelerationEnabled = true;
         millisecondsForAnimationAcceleration = 0L;
         animationVelocity = 1.0;
         animationAcceleration = 0.0;
+        animationClock = GameClockFactory.getInstance().createGameClock();
+        animationClock.addEvent("animation cycle start");
     }
 
     public void addCel(Resource cel) {
@@ -96,17 +99,17 @@ public class AnimationSequenceImpl implements AnimationSequence {
         currentIndex = currentIndex + 1 == cels.size() ? 0 : currentIndex + 1;
     }
 
-    public void advanceSequenceByTime(Long currentTimeInMilliseconds) {
+    public void advanceSequenceByTime() {
         if (isPaused) {
             return;
         }
 
-        if ((currentTimeInMilliseconds - lastAdvanceTimeInMilliseconds) * animationVelocity > millisecondsPerCel) {
+        if (animationClock.getElapsed("animation cycle start") * animationVelocity > millisecondsPerCel) {
+            animationClock.addEvent("animation cycle start");
             if (isAnimationAccelerationEnabled && animationVelocity < 1.0) {
                 animationVelocity += animationAcceleration;
             }
 
-            lastAdvanceTimeInMilliseconds = currentTimeInMilliseconds;
             currentIndex = currentIndex + 1 == cels.size() ? 0 : currentIndex + 1;
         }
     }

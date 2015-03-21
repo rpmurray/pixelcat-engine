@@ -45,16 +45,16 @@ public class HIDEventManager {
         // handle key code triggered hid events
         switch (keyCode) {
             case KeyEvent.VK_UP:
-                hidEvent = HIDEventEnum.UP;
+                hidEvent = HIDEventEnum.PRIMARY_UP;
                 break;
             case KeyEvent.VK_DOWN:
-                hidEvent = HIDEventEnum.DOWN;
+                hidEvent = HIDEventEnum.PRIMARY_DOWN;
                 break;
             case KeyEvent.VK_LEFT:
-                hidEvent = HIDEventEnum.LEFT;
+                hidEvent = HIDEventEnum.PRIMARY_LEFT;
                 break;
             case KeyEvent.VK_RIGHT:
-                hidEvent = HIDEventEnum.RIGHT;
+                hidEvent = HIDEventEnum.PRIMARY_RIGHT;
                 break;
             case KeyEvent.VK_1:
                 hidEvent = HIDEventEnum.SET_LOG_LVL_FATAL;
@@ -77,8 +77,11 @@ public class HIDEventManager {
             case KeyEvent.VK_F:
                 hidEvent = HIDEventEnum.FONT_DEBUG_TOGGLE;
                 break;
+            case KeyEvent.VK_ENTER:
+                hidEvent = HIDEventEnum.NEXT;
+                break;
             case KeyEvent.VK_ESCAPE:
-                hidEvent = HIDEventEnum.EXIT;
+                hidEvent = HIDEventEnum.BACK;
                 break;
             default:
                 throw new GameException(GameErrorCode.HID_KEYBOARD_EVENT_UNSUPPORTED);
@@ -89,13 +92,13 @@ public class HIDEventManager {
 
     public void generateSynthesizedEvents() {
         // no directional keyboard events
-        if (!kernelState.hasHIDEvent(HIDEventEnum.UP) &&
-            !kernelState.hasHIDEvent(HIDEventEnum.DOWN) &&
-            !kernelState.hasHIDEvent(HIDEventEnum.LEFT) &&
-            !kernelState.hasHIDEvent(HIDEventEnum.RIGHT)) {
-            kernelState.addHIDEvent(HIDEventEnum.NO_DIRECTION);
+        if (!kernelState.hasHIDEvent(HIDEventEnum.PRIMARY_UP) &&
+            !kernelState.hasHIDEvent(HIDEventEnum.PRIMARY_DOWN) &&
+            !kernelState.hasHIDEvent(HIDEventEnum.PRIMARY_LEFT) &&
+            !kernelState.hasHIDEvent(HIDEventEnum.PRIMARY_RIGHT)) {
+            kernelState.addHIDEvent(HIDEventEnum.PRIMARY_NO_DIRECTION);
         } else {
-            kernelState.removeHIDEvent(HIDEventEnum.NO_DIRECTION);
+            kernelState.removeHIDEvent(HIDEventEnum.PRIMARY_NO_DIRECTION);
         }
     }
 }

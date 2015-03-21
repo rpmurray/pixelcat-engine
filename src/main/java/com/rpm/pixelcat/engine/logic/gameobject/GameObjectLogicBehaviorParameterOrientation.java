@@ -1,9 +1,9 @@
 package com.rpm.pixelcat.engine.logic.gameobject;
 
-public class GameObjectLogicParameterOrientation implements GameObjectLogicParameter {
+class GameObjectLogicBehaviorParameterOrientation implements GameObjectLogicBehaviorParameter {
     private OrientationEnum orientation;
 
-    public GameObjectLogicParameterOrientation(OrientationEnum orientation) {
+    GameObjectLogicBehaviorParameterOrientation(OrientationEnum orientation) {
         this.orientation = orientation;
     }
 

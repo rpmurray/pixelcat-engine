@@ -1,39 +1,15 @@
 package com.rpm.pixelcat.engine.logic.gameobject;
 
-public class LayerManager {
-    private Integer layerCount;
+public interface LayerManager {
+    public void addLayer();
 
-    private static LayerManager instance;
+    public void addLayers(Integer count);
 
-    private LayerManager() {
-        layerCount = 0;
-    }
+    public void removeLayer();
 
-    public static LayerManager getInstance() {
-        if (instance == null) {
-            instance = new LayerManager();
-        }
+    public void removeLayers(Integer count);
 
-        return instance;
-    }
+    public Integer getLayerCount();
 
-    public void addLayer() {
-        layerCount++;
-    }
-
-    public void addLayers(Integer count) {
-        layerCount += count;
-    }
-
-    public void removeLayer() {
-        layerCount--;
-    }
-
-    public void removeLayers(Integer count) {
-        layerCount -= count;
-    }
-
-    public Integer getLayerCount() {
-        return layerCount;
-    }
+    public Boolean isValidLayer(Integer layer);
 }

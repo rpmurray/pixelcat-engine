@@ -31,4 +31,8 @@ public interface GameObject {
     public void setCurrentOrientation(OrientationEnum currentOrientation);
 
     public AnimationSequence getCurrentAnimationSequence() throws GameException;
+
+    public CollisionHandlingTypeEnum getCollisionHandlingTypeEnum();
+
+    public ScreenBoundsHandlingTypeEnum getScreenBoundsHandlingTypeEnum();
 }
