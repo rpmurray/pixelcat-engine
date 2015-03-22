@@ -40,7 +40,7 @@ public class GameException extends Exception {
     public String toString() {
         return "GameException{" +
             "errorCode=" + errorCode +
-            "data=<" + data + ">" +
+            ", data=<" + data + ">" +
             '}';
     }
 }

@@ -22,7 +22,7 @@ public class GameObjectManagerImpl implements GameObjectManager {
 
     public void addGameObject(GameObject gameObject) throws GameException {
         if (!layerManager.isValidLayer(gameObject.getLayer())) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new GameException(GameErrorCode.LOGIC_ERROR, gameObject);
         }
 
         gameObjects.add(gameObject);

@@ -146,4 +146,12 @@ public class GameClockImpl implements GameClock {
     public Integer getEventsCount() {
         return events.size();
     }
+
+    @Override
+    public String toString() {
+        return "GameClockImpl{" +
+            "epochTime=" + epochTime +
+            ", events=" + events +
+            '}';
+    }
 }

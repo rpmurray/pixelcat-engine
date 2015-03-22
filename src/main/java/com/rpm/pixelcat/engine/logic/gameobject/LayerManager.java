@@ -9,6 +9,8 @@ public interface LayerManager {
 
     public void removeLayers(Integer count);
 
+    public void setLayerCount(Integer layerCount);
+
     public Integer getLayerCount();
 
     public Boolean isValidLayer(Integer layer);

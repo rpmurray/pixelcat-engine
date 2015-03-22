@@ -242,16 +242,43 @@ public class GameObjectsHandler {
         // init game object manager
         GameObjectManager gameObjectManager = GameObjectFactory.getInstance().createGameObjectManager(kernelState.getBounds().height);
 
-        // bush game object setup
-        SpriteSheet bushSpriteSheet = resourceFactory.createSpriteSheet("bush_sprite_sheet.png", 18, 19, 1);
+        // dynamically generate grass background
+        SpriteSheet grassBGSpriteSheet = resourceFactory.createSpriteSheet("grass_bg.png", 1950, 2);
+        for (Integer i = 0; i < kernelState.getBounds().height / 2; i++) {
+            String gameObjectName = "grassBG" + (i % 2 == 0 ? "Green" : "Brown") + i;
+            gameObjects.put(gameObjectName, generateGrassBGObject(grassBGSpriteSheet, i));
+            gameObjectManager.addGameObject(gameObjects.get(gameObjectName));
+        }
 
         // dynamically generate bushes
-        for (Integer i = 0; i < 300; i++) {
-            gameObjects.put("bush" + i, generateBushObject(bushSpriteSheet));
-            gameObjectManager.addGameObject(gameObjects.get("bush" + i));
+        SpriteSheet bushSpriteSheet = resourceFactory.createSpriteSheet("bush_sprite_sheet.png", 18, 19, 1);
+        for (Integer i = 0; i < 1000; i++) {
+            String gameObjectName = "bush" + i;
+            gameObjects.put(gameObjectName, generateBushObject(bushSpriteSheet));
+            gameObjectManager.addGameObject(gameObjects.get(gameObjectName));
         }
 
         return gameObjectManager;
+    }
+
+    private GameObject generateGrassBGObject(SpriteSheet grassBGSpriteSheet, Integer yIndex) throws GameException {
+        // define resource
+        Resource resource = resourceFactory.createImageResource(
+            0, yIndex % 2 == 0 ? 0 : 1,
+            grassBGSpriteSheet
+        );
+
+        // generate game object
+        GameObject gameObject = gameObjectFactory.createGameObject(
+            0, yIndex * 2,
+            0,
+            ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
+            resource,
+            CollisionHandlingTypeEnum.NONE,
+            ScreenBoundsHandlingTypeEnum.NONE
+        );
+
+        return gameObject;
     }
 
     private GameObject generateBushObject(SpriteSheet bushSpriteSheet)
@@ -295,9 +322,9 @@ public class GameObjectsHandler {
         }
 
         // game object
-        Integer y = randomGenerator.nextInt(kernelState.getBounds().height + 1);
+        Integer y = randomGenerator.nextInt(kernelState.getBounds().height);
         GameObject gameObject = gameObjectFactory.createGameObject(
-            randomGenerator.nextInt(kernelState.getBounds().width + 1), y,
+            randomGenerator.nextInt(kernelState.getBounds().width), y,
             y,
             ImmutableSet.of(),
             ImmutableMap.of(
@@ -330,7 +357,7 @@ public class GameObjectsHandler {
         gameObjects.put(
             "pixelCatTitle",
             gameObjectFactory.createGameObject(
-                (bounds.width - 200) / 2, (bounds.height - 100) / 2 - 100,
+                bounds.width / 2 - 95, bounds.height / 2 - 150,
                 1,
                 ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
                 ImmutableMap.of(
@@ -366,7 +393,7 @@ public class GameObjectsHandler {
         gameObjects.put(
             "pixelCatBlurb",
             gameObjectFactory.createGameObject(
-                bounds.width / 2 - 200, bounds.height / 2 - 30,
+                bounds.width / 2 - 220, bounds.height / 2 - 30,
                 1,
                 ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
                 pixelCatBlurbInitialResource,
@@ -375,6 +402,44 @@ public class GameObjectsHandler {
             )
         );
         gameObjectManager.addGameObject(gameObjects.get("pixelCatBlurb"));
+
+        // instructions1
+        Resource instructionsInitialResource1 = resourceFactory.createTextResource(
+            "Press enter to continue, escape to exit...",
+            new Font("Courier New", Font.BOLD, 12)
+        );
+        String instructionsGameObjectName1 = "instructions1";
+        gameObjects.put(
+            instructionsGameObjectName1,
+            gameObjectFactory.createGameObject(
+                bounds.width / 2 - 140, bounds.height / 2 + 50,
+                1,
+                ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
+                instructionsInitialResource1,
+                CollisionHandlingTypeEnum.NONE,
+                ScreenBoundsHandlingTypeEnum.NONE
+            )
+        );
+        gameObjectManager.addGameObject(gameObjects.get(instructionsGameObjectName1));
+
+        // instructions2
+        Resource instructionsInitialResource2 = resourceFactory.createTextResource(
+            "- Or, just have fun moving the nyan cat with the arrow keys! -",
+            new Font("Courier New", Font.BOLD, 12)
+        );
+        String instructionsGameObjectName2 = "instructions2";
+        gameObjects.put(
+            instructionsGameObjectName2,
+            gameObjectFactory.createGameObject(
+                bounds.width / 2 - 220, bounds.height / 2 + 65,
+                1,
+                ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
+                instructionsInitialResource2,
+                CollisionHandlingTypeEnum.NONE,
+                ScreenBoundsHandlingTypeEnum.NONE
+            )
+        );
+        gameObjectManager.addGameObject(gameObjects.get(instructionsGameObjectName2));
 
         return gameObjectManager;
     }

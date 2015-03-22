@@ -18,4 +18,12 @@ class TextResourceImpl implements TextResource {
     public Font getFont() {
         return font;
     }
+
+    @Override
+    public String toString() {
+        return "TextResourceImpl{" +
+            "text='" + text + '\'' +
+            ", font=" + font +
+            '}';
+    }
 }

@@ -21,14 +21,14 @@ class GameObjectImpl implements GameObject {
     private ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum;
 
     GameObjectImpl(Integer x, Integer y,
-                          Integer layer,
-                          Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
-                          Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
-                          OrientationEnum currentOrientation,
-                          Resource currentResource,
-                          Boolean animationEnabled,
-                          CollisionHandlingTypeEnum collisionHandlingTypeEnum,
-                          ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
+                   Integer layer,
+                   Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
+                   Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
+                   OrientationEnum currentOrientation,
+                   Resource currentResource,
+                   Boolean animationEnabled,
+                   CollisionHandlingTypeEnum collisionHandlingTypeEnum,
+                   ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
         init(
             x, y,
             layer,
@@ -167,5 +167,19 @@ class GameObjectImpl implements GameObject {
 
     public ScreenBoundsHandlingTypeEnum getScreenBoundsHandlingTypeEnum() {
         return screenBoundsHandlingTypeEnum;
+    }
+
+    @Override
+    public String toString() {
+        return "GameObjectImpl{" +
+            "position=" + position +
+            ", layer=" + layer +
+            ", gameObjectHIDEventLogicBehaviorBindings=" + gameObjectHIDEventLogicBehaviorBindings +
+            ", orientationBoundAnimationSequences=" + orientationBoundAnimationSequences +
+            ", currentOrientation=" + currentOrientation +
+            ", currentResource=" + currentResource +
+            ", collisionHandlingTypeEnum=" + collisionHandlingTypeEnum +
+            ", screenBoundsHandlingTypeEnum=" + screenBoundsHandlingTypeEnum +
+            '}';
     }
 }

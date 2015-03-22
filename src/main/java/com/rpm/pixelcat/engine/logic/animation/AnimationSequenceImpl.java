@@ -113,4 +113,19 @@ public class AnimationSequenceImpl implements AnimationSequence {
             currentIndex = currentIndex + 1 == cels.size() ? 0 : currentIndex + 1;
         }
     }
+
+    @Override
+    public String toString() {
+        return "AnimationSequenceImpl{" +
+            "cels=" + cels +
+            ", currentIndex=" + currentIndex +
+            ", animationClock=" + animationClock +
+            ", millisecondsPerCel=" + millisecondsPerCel +
+            ", isPaused=" + isPaused +
+            ", isAnimationAccelerationEnabled=" + isAnimationAccelerationEnabled +
+            ", millisecondsForAnimationAcceleration=" + millisecondsForAnimationAcceleration +
+            ", animationVelocity=" + animationVelocity +
+            ", animationAcceleration=" + animationAcceleration +
+            '}';
+    }
 }

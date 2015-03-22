@@ -27,11 +27,15 @@ class LayerManagerImpl implements LayerManager {
         layerCount -= count;
     }
 
+    public void setLayerCount(Integer layerCount) {
+        this.layerCount = layerCount;
+    }
+
     public Integer getLayerCount() {
         return layerCount;
     }
 
     public Boolean isValidLayer(Integer layer) {
-        return layer >= 0 && layer <= layerCount;
+        return layer >= 0 && layer < layerCount;
     }
 }

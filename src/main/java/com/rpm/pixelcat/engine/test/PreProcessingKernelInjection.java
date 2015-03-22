@@ -31,7 +31,7 @@ public class PreProcessingKernelInjection implements KernelInjection {
         if (levelHandler.getCurrentLevel().equals(LevelHandler.LEVEL_ONE)) {
             // handle nyan cat render level
             gameObjectsHandler.getGameObject("nyanCat").setLayer(
-                gameObjectsHandler.getGameObjectManager(GameObjectsHandler.GAME_OBJECT_MANAGER_COMMON).getLayerManager().getLayerCount() - 1
+                gameObjectsHandler.getGameObject("nyanCat").getPosition().y
             );
         }
 
@@ -48,8 +48,11 @@ public class PreProcessingKernelInjection implements KernelInjection {
                     KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS,
                     gameObjectsHandler.getGameObjectManagerSet(nextLevel)
                 );
+                gameObjectsHandler.getGameObjectManager(GameObjectsHandler.GAME_OBJECT_MANAGER_COMMON).getLayerManager().setLayerCount(
+                    kernelState.getBounds().height
+                );
                 gameObjectsHandler.getGameObject("nyanCat").setLayer(
-                    gameObjectsHandler.getGameObjectManager(GameObjectsHandler.GAME_OBJECT_MANAGER_COMMON).getLayerManager().getLayerCount() - 1
+                    gameObjectsHandler.getGameObject("nyanCat").getPosition().y
                 );
             }
         }
