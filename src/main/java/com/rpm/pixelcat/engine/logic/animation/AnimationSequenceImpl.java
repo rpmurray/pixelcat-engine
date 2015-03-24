@@ -99,7 +99,7 @@ public class AnimationSequenceImpl implements AnimationSequence {
         currentIndex = currentIndex + 1 == cels.size() ? 0 : currentIndex + 1;
     }
 
-    public void advanceSequenceByTime() {
+    public void advanceSequenceByTime() throws GameException {
         if (isPaused) {
             return;
         }

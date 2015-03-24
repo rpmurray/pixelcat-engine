@@ -4,7 +4,7 @@ public class GameClockEventImpl implements GameClockEvent {
     private Long timer;
     private String tag;
 
-    GameClockEventImpl(Long timer, String tag) {
+    GameClockEventImpl(String tag, Long timer) {
         this.timer = timer;
         this.tag = tag;
     }

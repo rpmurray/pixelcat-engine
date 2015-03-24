@@ -1,27 +1,35 @@
 package com.rpm.pixelcat.engine.logic.clock;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.rpm.pixelcat.engine.exception.GameErrorCode;
+import com.rpm.pixelcat.engine.exception.GameException;
+
+import java.util.*;
 
 public class GameClockImpl implements GameClock {
     private final Long epochTime;
-    private List<GameClockEvent> events;
+    private Map<String, List<Long>> events;
 
     GameClockImpl() {
         epochTime = System.currentTimeMillis();
-        events = new ArrayList<>();
-        events.add(new GameClockEventImpl(0L, TIMER_EVENT_GAME_CLOCK_ORIGIN));
+        events = new HashMap<>();
+        events.put(TIMER_EVENT_GAME_CLOCK_ORIGIN, new ArrayList<>());
+        events.get(TIMER_EVENT_GAME_CLOCK_ORIGIN).add(0L);
     }
 
     public GameClockEvent addEvent(String tag) {
         // get time
         Long timer = getTimer();
 
-        // create event
-        GameClockEvent event = new GameClockEventImpl(timer, tag);
+        // create tag if it doesn't exist
+        if (!events.containsKey(tag)) {
+            events.put(tag, new ArrayList<>());
+        }
 
         // record event
-        events.add(event);
+        events.get(tag).add(timer);
+
+        // create game clock event for return
+        GameClockEvent event = new GameClockEventImpl(tag, timer);
 
         return event;
     }
@@ -53,48 +61,100 @@ public class GameClockImpl implements GameClock {
         return getDelta(timer1, clock2.getTimer());
     }
 
-    public GameClockEvent getEvent(Integer index) {
+    public GameClockEvent getTagEvent(String tag, Integer index) throws GameException {
+        // create game clock event for return
+        GameClockEvent event = new GameClockEventImpl(tag, getTagTimer(tag, index));
+
+        return event;
+    }
+
+    public Long getTagTimer(String tag, Integer index) throws GameException {
         // validation
-        if (index < 0 || index >= events.size()) {
-            index = 0;
+        if (!events.containsKey(tag)) {
+            throw new GameException(GameErrorCode.GAME_CLOCK_ERROR);
+        }
+        if (index < 0 || index >= events.get(tag).size()) {
+            throw new GameException(GameErrorCode.GAME_CLOCK_ERROR);
         }
 
-        return events.get(index);
+        return events.get(tag).get(index);
+    }
+
+    public GameClockEvent getMostRecentTagEvent(String tag) throws GameException {
+        // create game clock event for return
+        GameClockEvent event = new GameClockEventImpl(tag, getMostRecentTagTimer(tag));
+
+        return event;
+    }
+
+    public Long getMostRecentTagTimer(String tag) throws GameException {
+        // validation
+        if (!events.containsKey(tag)) {
+            throw new GameException(GameErrorCode.GAME_CLOCK_ERROR);
+        }
+
+        // get timer events for tag
+        List<Long> tagEvents = events.get(tag);
+
+        // validation
+        if (tagEvents.size() == 0) {
+            throw new GameException(GameErrorCode.GAME_CLOCK_ERROR);
+        }
+
+        return tagEvents.get(tagEvents.size() - 1);
     }
 
     public GameClockEvent getOriginEvent() {
-        return events.get(0);
+        // create game clock event for return
+        GameClockEvent event = new GameClockEventImpl(TIMER_EVENT_GAME_CLOCK_ORIGIN, getOriginTimer());
+
+        return event;
     }
 
-    public List<GameClockEvent> getEvents(String tag) {
-        // setup
-        List<GameClockEvent> foundEvents = new ArrayList<>();
+    public Long getOriginTimer() {
+        // create game clock event for return
+        Long timer = events.get(TIMER_EVENT_GAME_CLOCK_ORIGIN).get(0);
 
-        // find event
-        for (GameClockEvent event: events) {
-            if (event.getTag().equals(tag)) {
-                foundEvents.add(event);
-            }
+        return timer;
+    }
+
+    public List<GameClockEvent> getTagEvents(String tag) {
+        // setup
+        List<Long> timerEvents = getTagTimers(tag);
+
+        // create game clock events for return
+        List<GameClockEvent> gameClockEvents = new ArrayList<>();
+        for (Long timer: timerEvents) {
+            gameClockEvents.add(new GameClockEventImpl(tag, timer));
         }
 
-        return foundEvents;
+        return gameClockEvents;
     }
 
-    public List<GameClockEvent> getEvents() {
-        return events;
+    public List<Long> getTagTimers(String tag) {
+        return events.get(tag);
     }
 
-    public Long getElapsed() {
-        // get start + end timer
-        Long startTimer = getEvent(getEventsCount() - 1).getTimer();
-        Long endTimer = getTimer();
+    public Map<String, List<GameClockEvent>> getAllEvents() {
+        // setup
+        Map<String, List<GameClockEvent>> eventsMap = new HashMap<>();
 
-        return getDelta(startTimer, endTimer);
+        // loop through all tags and build events
+        for (String tag: events.keySet()) {
+            eventsMap.put(tag, getTagEvents(tag));
+        }
+
+        return eventsMap;
     }
 
-    public Long getElapsedAndAddEvent(String tag) {
+    public Map<String, List<Long>> getAllTimers() {
+         return events;
+    }
+
+    public Long getElapsedAndAddEvent(String tag) throws GameException {
         // get start timer
-        Long startTimer = getEvent(getEventsCount() - 1).getTimer();
+        List<Long> timers = getTagTimers(tag);
+        Long startTimer = timers.get(timers.size() - 1);
 
         // add event
         GameClockEvent endEvent = addEvent(tag);
@@ -105,46 +165,47 @@ public class GameClockImpl implements GameClock {
         return getDelta(startTimer, endTimer);
     }
 
-    public Long getElapsed(String tag) {
+    public Long getElapsed(String tag) throws GameException {
         // get start + end timers
-        List<GameClockEvent> startEvents = getEvents(tag);
+        List<Long> timers = getTagTimers(tag);
         Long startTimer;
-        if (startEvents.size() == 0) {
-            return 0L;
+        if (timers.size() == 0) {
+            throw new GameException(GameErrorCode.GAME_CLOCK_ERROR);
         } else {
-            startTimer = startEvents.get(startEvents.size() - 1).getTimer();
+            startTimer = timers.get(timers.size() - 1);
         }
         Long endTimer = getTimer();
 
         return getDelta(startTimer, endTimer);
     }
 
-    public Long getElapsed(String tag1, String tag2) {
+    public Long getElapsed(String tag1, String tag2) throws GameException {
         // get timer1 + timer2
-        List<GameClockEvent> events1 = getEvents(tag1);
-        if (events1.size() == 0) {
-            return 0L;
-        }
-        Long timer1 = events1.get(events1.size() - 1).getTimer();
-        List<GameClockEvent> events2 = getEvents(tag1);
-        if (events2.size() == 0) {
-            return 0L;
-        }
-        Long timer2 = events1.get(events2.size() - 1).getTimer();
+        Long timer1 = getMostRecentTagTimer(tag1);
+        Long timer2 = getMostRecentTagTimer(tag2);
 
         return getDelta(timer1, timer2);
     }
 
-    public Long getElapsed(Integer index1, Integer index2) {
+    public Long getElapsed(String tag1, Integer index1, String tag2, Integer index2) throws GameException {
         // get timer1 + timer2
-        Long timer1 = getEvent(index1).getTimer();
-        Long timer2 = getEvent(index2).getTimer();
+        Long timer1 = getTagTimer(tag1, index1);
+        Long timer2 = getTagTimer(tag2, index2);
 
         return getDelta(timer1, timer2);
     }
 
-    public Integer getEventsCount() {
-        return events.size();
+    public Set<String> getTags() {
+        return events.keySet();
+    }
+
+    public Integer getCount() {
+        Integer count = 0;
+        for(String tag: events.keySet()) {
+            count += events.get(tag).size();
+        }
+
+        return count;
     }
 
     @Override

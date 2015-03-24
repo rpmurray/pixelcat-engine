@@ -4,6 +4,7 @@ public enum GameErrorCode {
     UNSUPPORTED_RESOURCE_FOR_RENDERING(20001L, "Found resource does not match a supported renderable entity and will be skipped."),
 
     LOGIC_ERROR(30001L, "Unspecified logic error during game logic processing."),
+    GAME_CLOCK_ERROR(39101L, "Unspecified game clock error."),
 
     HID_KEYBOARD_EVENT_TYPE_UNSUPPORTED(40001L, "Supplied keyboard event type not supported."),
     HID_KEYBOARD_EVENT_UNSUPPORTED(40002L,"Supplied keyboard event not supported."),
