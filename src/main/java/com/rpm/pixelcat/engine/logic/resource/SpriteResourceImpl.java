@@ -3,6 +3,7 @@ package com.rpm.pixelcat.engine.logic.resource;
 import com.rpm.pixelcat.engine.exception.GameException;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 class SpriteResourceImpl implements SpriteResource {
     SpriteSheet spriteSheet;

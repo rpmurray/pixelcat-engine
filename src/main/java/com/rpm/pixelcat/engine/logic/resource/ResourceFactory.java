@@ -17,8 +17,14 @@ public class ResourceFactory {
         return instance;
     }
 
-    public SpriteResource createImageResource(Integer xIndex, Integer yIndex, SpriteSheet spriteSheet) {
+    public SpriteResource createSpriteResource(Integer xIndex, Integer yIndex, SpriteSheet spriteSheet) {
         SpriteResource resource = new SpriteResourceImpl(spriteSheet, xIndex, yIndex);
+
+        return resource;
+    }
+
+    public ImageResource createImageResource(SpriteResource mainResource, SpriteResource collisionMapResource) {
+        ImageResource resource = new ImageResourceImpl(mainResource, collisionMapResource);
 
         return resource;
     }

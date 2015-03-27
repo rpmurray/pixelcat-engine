@@ -90,8 +90,16 @@ public class GameObjectsHandler {
         GameObjectManager gameObjectManager = GameObjectFactory.getInstance().createGameObjectManager(5);
 
         // nyan cat character
-        SpriteSheet nyanCatSpriteSheet = resourceFactory.createSpriteSheet("nyancat_sprite_sheet.png", 60, 30, 0, 25, 0, 10);
-        Resource nyanCatInitialResource = resourceFactory.createImageResource(0, 0, nyanCatSpriteSheet);
+        SpriteSheet nyanCatSpriteSheet = resourceFactory.createSpriteSheet(
+            "nyancat_sprite_sheet.png",
+            60, 30,
+            0, 25,
+            0, 10
+        );
+        Resource nyanCatInitialResource = resourceFactory.createImageResource(
+            resourceFactory.createSpriteResource(0, 0, nyanCatSpriteSheet),
+            null
+        );
         gameObjects.put(
             "nyanCat",
             gameObjectFactory.createGameObject(
@@ -204,12 +212,30 @@ public class GameObjectsHandler {
                     OrientationEnum.LEFT,
                     animationFactory.createAnimationSequence(
                         ImmutableList.of(
-                            resourceFactory.createImageResource(0, 1, nyanCatSpriteSheet),
-                            resourceFactory.createImageResource(1, 1, nyanCatSpriteSheet),
-                            resourceFactory.createImageResource(2, 1, nyanCatSpriteSheet),
-                            resourceFactory.createImageResource(3, 1, nyanCatSpriteSheet),
-                            resourceFactory.createImageResource(4, 1, nyanCatSpriteSheet),
-                            resourceFactory.createImageResource(5, 1, nyanCatSpriteSheet)
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(0, 1, nyanCatSpriteSheet),
+                                null
+                            ),
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(1, 1, nyanCatSpriteSheet),
+                                null
+                            ),
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(2, 1, nyanCatSpriteSheet),
+                                null
+                            ),
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(3, 1, nyanCatSpriteSheet),
+                                null
+                            ),
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(4, 1, nyanCatSpriteSheet),
+                                null
+                            ),
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(5, 1, nyanCatSpriteSheet),
+                                null
+                            )
                         ),
                         100L
                     ),
@@ -217,11 +243,26 @@ public class GameObjectsHandler {
                     animationFactory.createAnimationSequence(
                         ImmutableList.of(
                             nyanCatInitialResource,
-                            resourceFactory.createImageResource(1, 0, nyanCatSpriteSheet),
-                            resourceFactory.createImageResource(2, 0, nyanCatSpriteSheet),
-                            resourceFactory.createImageResource(3, 0, nyanCatSpriteSheet),
-                            resourceFactory.createImageResource(4, 0, nyanCatSpriteSheet),
-                            resourceFactory.createImageResource(5, 0, nyanCatSpriteSheet)
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(1, 0, nyanCatSpriteSheet),
+                                null
+                            ),
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(2, 0, nyanCatSpriteSheet),
+                                null
+                            ),
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(3, 0, nyanCatSpriteSheet),
+                                null
+                            ),
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(4, 0, nyanCatSpriteSheet),
+                                null
+                            ),
+                            resourceFactory.createImageResource(
+                                resourceFactory.createSpriteResource(5, 0, nyanCatSpriteSheet),
+                                null
+                            )
                         ),
                         100L
                     )
@@ -263,7 +304,7 @@ public class GameObjectsHandler {
 
     private GameObject generateGrassBGObject(SpriteSheet grassBGSpriteSheet, Integer yIndex) throws GameException {
         // define resource
-        Resource resource = resourceFactory.createImageResource(
+        Resource resource = resourceFactory.createSpriteResource(
             0, yIndex % 2 == 0 ? 0 : 1,
             grassBGSpriteSheet
         );
@@ -289,32 +330,32 @@ public class GameObjectsHandler {
         List<Resource> animationCels;
         switch (animationKey) {
             case 0:
-                initialResource = resourceFactory.createImageResource(0, 0, bushSpriteSheet);
+                initialResource = resourceFactory.createSpriteResource(0, 0, bushSpriteSheet);
                 animationCels = ImmutableList.of(
                     initialResource,
-                    resourceFactory.createImageResource(1, 0, bushSpriteSheet),
-                    resourceFactory.createImageResource(2, 0, bushSpriteSheet)
+                    resourceFactory.createSpriteResource(1, 0, bushSpriteSheet),
+                    resourceFactory.createSpriteResource(2, 0, bushSpriteSheet)
                 );
                 break;
             case 1:
-                initialResource = resourceFactory.createImageResource(1, 0, bushSpriteSheet);
+                initialResource = resourceFactory.createSpriteResource(1, 0, bushSpriteSheet);
                 animationCels = ImmutableList.of(
-                    resourceFactory.createImageResource(0, 0, bushSpriteSheet),
+                    resourceFactory.createSpriteResource(0, 0, bushSpriteSheet),
                     initialResource,
-                    resourceFactory.createImageResource(2, 0, bushSpriteSheet)
+                    resourceFactory.createSpriteResource(2, 0, bushSpriteSheet)
                 );
                 break;
             case 2:
-                initialResource = resourceFactory.createImageResource(2, 0, bushSpriteSheet);
+                initialResource = resourceFactory.createSpriteResource(2, 0, bushSpriteSheet);
                 animationCels = ImmutableList.of(
-                    resourceFactory.createImageResource(0, 0, bushSpriteSheet),
-                    resourceFactory.createImageResource(1, 0, bushSpriteSheet),
+                    resourceFactory.createSpriteResource(0, 0, bushSpriteSheet),
+                    resourceFactory.createSpriteResource(1, 0, bushSpriteSheet),
                     initialResource
                 );
                 break;
             default:
                 PRINTER.printWarning("Animation key miss on random generation... [" + animationKey + "]");
-                initialResource = resourceFactory.createImageResource(0, 0, bushSpriteSheet);
+                initialResource = resourceFactory.createSpriteResource(0, 0, bushSpriteSheet);
                 animationCels = ImmutableList.of(
                     initialResource
                 );
@@ -353,7 +394,7 @@ public class GameObjectsHandler {
 
         // title
         SpriteSheet pixelCatTitleSpriteSheet = resourceFactory.createSpriteSheet("pixelcat_title_sprite_sheet.png", 190, 80, 0, 0, 0, 5);
-        Resource pixelCatTitleInitialResource = resourceFactory.createImageResource(0, 0, pixelCatTitleSpriteSheet);
+        Resource pixelCatTitleInitialResource = resourceFactory.createSpriteResource(0, 0, pixelCatTitleSpriteSheet);
         gameObjects.put(
             "pixelCatTitle",
             gameObjectFactory.createGameObject(
@@ -365,13 +406,13 @@ public class GameObjectsHandler {
                     animationFactory.createAnimationSequence(
                         ImmutableList.of(
                             pixelCatTitleInitialResource,
-                            resourceFactory.createImageResource(0, 1, pixelCatTitleSpriteSheet),
-                            resourceFactory.createImageResource(0, 2, pixelCatTitleSpriteSheet),
-                            resourceFactory.createImageResource(0, 3, pixelCatTitleSpriteSheet),
-                            resourceFactory.createImageResource(0, 4, pixelCatTitleSpriteSheet),
-                            resourceFactory.createImageResource(0, 5, pixelCatTitleSpriteSheet),
-                            resourceFactory.createImageResource(0, 6, pixelCatTitleSpriteSheet),
-                            resourceFactory.createImageResource(0, 7, pixelCatTitleSpriteSheet)
+                            resourceFactory.createSpriteResource(0, 1, pixelCatTitleSpriteSheet),
+                            resourceFactory.createSpriteResource(0, 2, pixelCatTitleSpriteSheet),
+                            resourceFactory.createSpriteResource(0, 3, pixelCatTitleSpriteSheet),
+                            resourceFactory.createSpriteResource(0, 4, pixelCatTitleSpriteSheet),
+                            resourceFactory.createSpriteResource(0, 5, pixelCatTitleSpriteSheet),
+                            resourceFactory.createSpriteResource(0, 6, pixelCatTitleSpriteSheet),
+                            resourceFactory.createSpriteResource(0, 7, pixelCatTitleSpriteSheet)
                         ),
                         50L
                     )
