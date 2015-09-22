@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 class GameObjectImpl implements GameObject {
+    private GameObjectProperties properties;
     private Point position;
     private Integer layer;
     private Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings;
@@ -22,6 +23,7 @@ class GameObjectImpl implements GameObject {
 
     GameObjectImpl(Integer x, Integer y,
                    Integer layer,
+                   GameObjectProperties properties,
                    Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
                    Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
                    OrientationEnum currentOrientation,
@@ -32,6 +34,7 @@ class GameObjectImpl implements GameObject {
         init(
             x, y,
             layer,
+            properties,
             gameObjectHIDEventLogicBehaviorBindings,
             orientationBoundAnimationSequences,
             currentOrientation,
@@ -43,14 +46,16 @@ class GameObjectImpl implements GameObject {
     }
 
     GameObjectImpl(Integer x, Integer y,
-                          Integer layer,
-                          Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
-                          Resource currentResource,
-                          CollisionHandlingTypeEnum collisionHandlingTypeEnum,
-                          ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
+                   Integer layer,
+                   GameObjectProperties properties,
+                   Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
+                   Resource currentResource,
+                   CollisionHandlingTypeEnum collisionHandlingTypeEnum,
+                   ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
         init(
             x, y,
             layer,
+            properties,
             gameObjectHIDEventLogicBehaviorBindings,
             null,
             null,
@@ -62,19 +67,23 @@ class GameObjectImpl implements GameObject {
     }
 
     private void init(Integer x, Integer y,
-                     Integer layer,
-                     Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
-                     Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
-                     OrientationEnum currentOrientation,
-                     Resource currentResource,
-                     Boolean animationEnabled,
-                     CollisionHandlingTypeEnum collisionHandlingTypeEnum,
-                     ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
+                      Integer layer,
+                      GameObjectProperties properties,
+                      Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings,
+                      Map<OrientationEnum, AnimationSequence> orientationBoundAnimationSequences,
+                      OrientationEnum currentOrientation,
+                      Resource currentResource,
+                      Boolean animationEnabled,
+                      CollisionHandlingTypeEnum collisionHandlingTypeEnum,
+                      ScreenBoundsHandlingTypeEnum screenBoundsHandlingTypeEnum) throws GameException {
         // position
         setPosition(x, y);
 
         // layer
         this.layer = layer;
+
+        // properties
+        this.properties = properties;
 
         // hid event logic behavior bindings
         this.gameObjectHIDEventLogicBehaviorBindings = gameObjectHIDEventLogicBehaviorBindings;
@@ -131,6 +140,10 @@ class GameObjectImpl implements GameObject {
 
     public Integer getLayer() {
         return layer;
+    }
+
+    public GameObjectProperties getProperties() {
+        return properties;
     }
 
     public Set<GameObjectHIDEventLogicBehaviorBinding> getGameObjectHIDEventLogicBehaviorBindings() {

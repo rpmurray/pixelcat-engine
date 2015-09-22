@@ -27,7 +27,6 @@ public class GameObjectsHandler {
     private Map<String, List<GameObjectManager>> gameObjectManagerSets;
 
     private static ResourceFactory resourceFactory = ResourceFactory.getInstance();
-    private static GameObjectFactory gameObjectFactory = GameObjectFactory.getInstance();
     private static AnimationFactory animationFactory = AnimationFactory.getInstance();
     private static Random randomGenerator = new Random();
 
@@ -87,7 +86,8 @@ public class GameObjectsHandler {
 
     private GameObjectManager generateCommonElements() throws GameException {
         // init game object manager
-        GameObjectManager gameObjectManager = GameObjectFactory.getInstance().createGameObjectManager(5);
+        GameObjectManager gameObjectManager = GameObjectManager.create(5);
+        GameObjectFactory gameObjectFactory = gameObjectManager.getGameObjectFactory();
 
         // nyan cat character
         SpriteSheet nyanCatSpriteSheet = resourceFactory.createSpriteSheet(
@@ -281,13 +281,14 @@ public class GameObjectsHandler {
 
     private GameObjectManager generateLevelOneElements() throws GameException {
         // init game object manager
-        GameObjectManager gameObjectManager = GameObjectFactory.getInstance().createGameObjectManager(kernelState.getBounds().height);
+        GameObjectManager gameObjectManager = GameObjectManager.create(kernelState.getBounds().height);
+        GameObjectFactory gameObjectFactory = gameObjectManager.getGameObjectFactory();
 
         // dynamically generate grass background
         SpriteSheet grassBGSpriteSheet = resourceFactory.createSpriteSheet("grass_bg.png", 1950, 2);
         for (Integer i = 0; i < kernelState.getBounds().height / 2; i++) {
             String gameObjectName = "grassBG" + (i % 2 == 0 ? "Green" : "Brown") + i;
-            gameObjects.put(gameObjectName, generateGrassBGObject(grassBGSpriteSheet, i));
+            gameObjects.put(gameObjectName, generateGrassBGObject(gameObjectFactory, grassBGSpriteSheet, i));
             gameObjectManager.addGameObject(gameObjects.get(gameObjectName));
         }
 
@@ -295,14 +296,14 @@ public class GameObjectsHandler {
         SpriteSheet bushSpriteSheet = resourceFactory.createSpriteSheet("bush_sprite_sheet.png", 18, 19, 1);
         for (Integer i = 0; i < 1000; i++) {
             String gameObjectName = "bush" + i;
-            gameObjects.put(gameObjectName, generateBushObject(bushSpriteSheet));
+            gameObjects.put(gameObjectName, generateBushObject(gameObjectFactory, bushSpriteSheet));
             gameObjectManager.addGameObject(gameObjects.get(gameObjectName));
         }
 
         return gameObjectManager;
     }
 
-    private GameObject generateGrassBGObject(SpriteSheet grassBGSpriteSheet, Integer yIndex) throws GameException {
+    private GameObject generateGrassBGObject(GameObjectFactory gameObjectFactory, SpriteSheet grassBGSpriteSheet, Integer yIndex) throws GameException {
         // define resource
         Resource resource = resourceFactory.createSpriteResource(
             0, yIndex % 2 == 0 ? 0 : 1,
@@ -322,7 +323,7 @@ public class GameObjectsHandler {
         return gameObject;
     }
 
-    private GameObject generateBushObject(SpriteSheet bushSpriteSheet)
+    private GameObject generateBushObject(GameObjectFactory gameObjectFactory, SpriteSheet bushSpriteSheet)
             throws GameException {
         // initial resource + animation cels
         Integer animationKey = randomGenerator.nextInt(3);
@@ -390,7 +391,8 @@ public class GameObjectsHandler {
         Rectangle bounds = kernelState.getBounds();
 
         // init game object manager
-        GameObjectManager gameObjectManager = GameObjectFactory.getInstance().createGameObjectManager(2);
+        GameObjectManager gameObjectManager = GameObjectManager.create(2);
+        GameObjectFactory gameObjectFactory = gameObjectManager.getGameObjectFactory();
 
         // title
         SpriteSheet pixelCatTitleSpriteSheet = resourceFactory.createSpriteSheet("pixelcat_title_sprite_sheet.png", 190, 80, 0, 0, 0, 5);

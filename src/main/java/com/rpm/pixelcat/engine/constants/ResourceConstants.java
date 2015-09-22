@@ -2,6 +2,7 @@ package com.rpm.pixelcat.engine.constants;
 
 public enum ResourceConstants {
     IMAGE_RESOURCE_PATH("images"),
+    FONT_RESOURCE_PATH("fonts"),
     ;
 
     private final String value;

@@ -22,6 +22,8 @@ public interface GameObject {
 
     public Integer getLayer();
 
+    public GameObjectProperties getProperties();
+
     public Set<GameObjectHIDEventLogicBehaviorBinding> getGameObjectHIDEventLogicBehaviorBindings();
 
     public Boolean hasAnimation();

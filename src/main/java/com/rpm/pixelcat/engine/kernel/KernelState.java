@@ -34,6 +34,8 @@ public interface KernelState {
 
     public Boolean getPropertyFlag(KernelStatePropertyEnum name);
 
+    public void setBounds(Rectangle bounds);
+
     public Rectangle getBounds();
 
     public GameClockManager getMasterGameClockManager();

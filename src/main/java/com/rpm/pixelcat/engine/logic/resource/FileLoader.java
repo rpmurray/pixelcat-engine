@@ -5,7 +5,9 @@ import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.InputStream;
 
 public class FileLoader {
@@ -37,5 +39,18 @@ public class FileLoader {
         }
 
         return bufferedImage;
+    }
+
+    public Font loadFont(String fileName) throws GameException {
+        Font font;
+
+        try {
+            String filePath = ResourceConstants.FONT_RESOURCE_PATH.getValue() + "/" + fileName;
+            font = Font.createFont(Font.TRUETYPE_FONT, new File(filePath));
+        } catch (Exception e) {
+            throw new GameException(GameErrorCode.INTERNAL_ERROR, e);
+        }
+
+        return font;
     }
 }

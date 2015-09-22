@@ -3,21 +3,41 @@ package com.rpm.pixelcat.engine.logic.gameobject;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.kernel.KernelState;
+import com.rpm.pixelcat.engine.logic.gameobject.dao.HashMapPropertiesDB;
+import com.rpm.pixelcat.engine.logic.gameobject.dao.PropertiesDB;
+import com.rpm.pixelcat.engine.logic.gameobject.dao.PropertiesStorageEnum;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class GameObjectManagerImpl implements GameObjectManager {
+    private GameObjectFactoryImpl gameObjectFactory;
     private List<GameObject> gameObjects;
     private LayerManager layerManager;
 
-    public GameObjectManagerImpl(Integer layers) throws GameException {
+    public GameObjectManagerImpl(Integer layers, PropertiesStorageEnum propertiesStorageEnum) throws GameException {
         // init game objects
         gameObjects = new ArrayList<>();
 
         // layer setup
         layerManager = new LayerManagerImpl(layers);
+
+        // game object factory setup
+        PropertiesDB propertiesDB;
+        switch (propertiesStorageEnum) {
+            case XML:
+                throw new GameException(GameErrorCode.INTERNAL_ERROR, "Unsupported game object properties DB");
+            case HASH_MAP:
+            default:
+                propertiesDB = new HashMapPropertiesDB();
+                break;
+        }
+        gameObjectFactory = new GameObjectFactoryImpl(propertiesDB);
+    }
+
+    public GameObjectFactoryImpl getGameObjectFactory() {
+        return gameObjectFactory;
     }
 
     public void addGameObject(GameObject gameObject) throws GameException {

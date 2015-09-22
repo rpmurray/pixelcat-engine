@@ -128,7 +128,7 @@ class KernelStateImpl implements KernelState {
         return bounds;
     }
 
-    void setBounds(Rectangle bounds) {
+    public void setBounds(Rectangle bounds) {
         this.bounds = bounds;
     }
 
