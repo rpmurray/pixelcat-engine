@@ -16,4 +16,32 @@ public interface Printer {
     public static void setLevel(Level level) {
         PrinterUtil.setLevel(level);
     }
+
+    public static Class<Level> getLogLevelClass() {
+        return PrinterUtil.getLogLevelClass();
+    }
+
+    public static Level getLogLevelFatal() {
+        return PrinterUtil.getLogLevelFatal();
+    }
+
+    public static Level getLogLevelError() {
+        return PrinterUtil.getLogLevelError();
+    }
+
+    public static Level getLogLevelWarn() {
+        return PrinterUtil.getLogLevelWarn();
+    }
+
+    public static Level getLogLevelInfo() {
+        return PrinterUtil.getLogLevelInfo();
+    }
+
+    public static Level getLogLevelDebug() {
+        return PrinterUtil.getLogLevelDebug();
+    }
+
+    public static Level getLogLevelTrace() {
+        return PrinterUtil.getLogLevelTrace();
+    }
 }

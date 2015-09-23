@@ -4,6 +4,7 @@ import com.rpm.pixelcat.engine.common.Printer;
 import com.rpm.pixelcat.engine.common.PrinterFactory;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
+import com.rpm.pixelcat.engine.kernel.KernelActionEnum;
 import com.rpm.pixelcat.engine.kernel.KernelInjection;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
@@ -23,8 +24,8 @@ public class PreProcessingKernelInjection implements KernelInjection {
         PRINTER.printTrace("Test kernel-injected pre-processor started...");
 
         // handle exit trigger
-        if (kernelState.hasHIDEvent(HIDEventEnum.BACK)) {
-            kernelState.setProperty(KernelStatePropertyEnum.EXIT_SIGNAL, true);
+        if (kernelState.hasHIDEvent(HIDEventEnum.ESC)) {
+            kernelState.addKernelAction(KernelActionEnum.EXIT);
         }
 
         // level one specifics
@@ -36,12 +37,12 @@ public class PreProcessingKernelInjection implements KernelInjection {
         }
 
         // handle level transition
-        if (kernelState.hasHIDEvent(HIDEventEnum.NEXT)) {
-            kernelState.removeHIDEvent(HIDEventEnum.NEXT);
+        if (kernelState.hasHIDEvent(HIDEventEnum.ENTER)) {
+            kernelState.removeHIDEvent(HIDEventEnum.ENTER);
             String currentLevel = levelHandler.getCurrentLevel();
             String nextLevel = levelHandler.getNextLevel();
             if (nextLevel == null) {
-                kernelState.setProperty(KernelStatePropertyEnum.EXIT_SIGNAL, true);
+                kernelState.addKernelAction(KernelActionEnum.EXIT);
             } else {
                 PRINTER.printInfo("Level transition triggered [" + currentLevel + ">>>" + nextLevel + "]...");
                 kernelState.setProperty(

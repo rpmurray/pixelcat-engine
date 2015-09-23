@@ -3,10 +3,10 @@ package com.rpm.pixelcat.engine.kernel;
 import com.rpm.pixelcat.engine.common.Printer;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.hid.HIDEventBinder;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.logic.clock.GameClockFactory;
 import com.rpm.pixelcat.engine.logic.clock.GameClockManager;
-import org.apache.log4j.Level;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -15,6 +15,7 @@ import java.util.HashSet;
 
 class KernelStateImpl implements KernelState {
     private HashSet<HIDEventEnum> hidEvents;
+    private HashSet<KernelActionEnum> kernelActions;
     private HashSet<Exception> errors;
     private HashMap<KernelStatePropertyEnum, Object> properties;
     private Rectangle bounds;
@@ -22,6 +23,7 @@ class KernelStateImpl implements KernelState {
 
     KernelStateImpl(Rectangle bounds) {
         this.hidEvents = new HashSet<>();
+        this.kernelActions = new HashSet<>();
         this.errors = new HashSet<>();
         this.properties = new HashMap<>();
         this.bounds = bounds;
@@ -36,29 +38,60 @@ class KernelStateImpl implements KernelState {
         // set properties
         setProperty(KernelStatePropertyEnum.FRAME_RATE, 60);
         setProperty(KernelStatePropertyEnum.FONT_DISPLAY_ENABLED, false);
-        setProperty(KernelStatePropertyEnum.EXIT_SIGNAL, false);
-        setProperty(KernelStatePropertyEnum.LOG_LVL, Level.WARN);
+        setProperty(KernelStatePropertyEnum.LOG_LVL, Printer.getLogLevelWarn());
+        setProperty(KernelStatePropertyEnum.HID_EVENT_BINDER, HIDEventBinder.create());
+        setProperty(KernelStatePropertyEnum.KERNEL_ACTION_BINDER, KernelActionBinder.create());
         setProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, new ArrayList<>());
     }
 
     public void addHIDEvent(HIDEventEnum hidEvent) {
-        this.hidEvents.add(hidEvent);
+        hidEvents.add(hidEvent);
     }
 
     public void removeHIDEvent(HIDEventEnum hidEvent) {
-        this.hidEvents.remove(hidEvent);
+        hidEvents.remove(hidEvent);
     }
 
     public void clearHIDEvents() {
         hidEvents.clear();
     }
 
-    public Boolean hasHIDEvent(HIDEventEnum event) {
-        return this.hidEvents.contains(event);
+    public void resetTransientHIDEvents() {
+        // wipe out scroll up and scroll down which don't have a "reset" listener event
+        hidEvents.remove(HIDEventEnum.SCROLL_UP);
+        hidEvents.remove(HIDEventEnum.SCROLL_DOWN);
+    }
+
+    public Boolean hasHIDEvent(HIDEventEnum hidEvent) {
+        return hidEvents.contains(hidEvent);
     }
 
     public HashSet<HIDEventEnum> getHIDEvents() {
-        return this.hidEvents;
+        return hidEvents;
+    }
+
+    public void addKernelAction(KernelActionEnum kernelAction) {
+        kernelActions.add(kernelAction);
+    }
+
+    public void removeKernelAction(KernelActionEnum kernelAction) {
+        kernelActions.remove(kernelAction);
+    }
+
+    public void clearKernelActions() {
+        kernelActions.clear();
+    }
+
+    public void resetTransientKernelActions() {
+        // none to reset
+    }
+
+    public Boolean hasKernelAction(KernelActionEnum kernelAction) {
+        return kernelActions.contains(kernelAction);
+    }
+
+    public HashSet<KernelActionEnum> getKernelActions() {
+        return kernelActions;
     }
 
     public void addError(Exception exception) {
@@ -76,7 +109,7 @@ class KernelStateImpl implements KernelState {
     public void setProperty(KernelStatePropertyEnum name, Object value) throws GameException {
         // property-specific handling
         switch (name) {
-            case GAME_LOOP_DURATION_MS:
+            case GAME_LOOP_DURATION_NS:
                 // do not allow these cases to be set manually
                 throw new GameException(GameErrorCode.LOGIC_ERROR);
             case FRAME_RATE:
@@ -86,16 +119,16 @@ class KernelStateImpl implements KernelState {
                 }
 
                 // set loop time
-                properties.put(KernelStatePropertyEnum.GAME_LOOP_DURATION_MS, 1000 / (Integer) value);
+                properties.put(KernelStatePropertyEnum.GAME_LOOP_DURATION_NS, 1000000000 / (Integer) value);
                 break;
             case LOG_LVL:
                 // validate input
-                if (!(value instanceof Level)) {
+                if (!(Printer.getLogLevelClass().isInstance(value))) {
                     throw new GameException(GameErrorCode.LOGIC_ERROR);
                 }
 
                 // update logging level in printer
-                Printer.setLevel((Level) value);
+                Printer.setLevel(Printer.getLogLevelClass().cast(value));
                 break;
             default:
                 // do nothing special

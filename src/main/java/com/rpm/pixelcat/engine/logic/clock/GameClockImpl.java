@@ -10,15 +10,19 @@ public class GameClockImpl implements GameClock {
     private Map<String, List<Long>> events;
 
     GameClockImpl() {
-        epochTime = System.currentTimeMillis();
+        epochTime = getRawTimer();
         events = new HashMap<>();
         events.put(TIMER_EVENT_GAME_CLOCK_ORIGIN, new ArrayList<>());
         events.get(TIMER_EVENT_GAME_CLOCK_ORIGIN).add(0L);
     }
 
+    private static Long getRawTimer() {
+        return System.nanoTime();
+    }
+
     public GameClockEvent addEvent(String tag) {
         // get time
-        Long timer = getTimer();
+        Long timer = getNormalizedTimer();
 
         // create tag if it doesn't exist
         if (!events.containsKey(tag)) {
@@ -34,15 +38,15 @@ public class GameClockImpl implements GameClock {
         return event;
     }
 
-    public Long getTimer() {
-        return System.currentTimeMillis() - epochTime;
+    public Long getNormalizedTimer() {
+        return getRawTimer() - epochTime;
     }
 
-    public Long normalizeTimer(Long timer) {
-        // generate normalized time
-        Long normalizedTime = timer + epochTime;
+    public Long denormalizeTimer(Long timer) {
+        // generate denormalized timer
+        Long denormalizedTimer = timer + epochTime;
 
-        return normalizedTime;
+        return denormalizedTimer;
     }
 
     public Long getDelta(Long timer1, Long timer2) {
@@ -50,15 +54,15 @@ public class GameClockImpl implements GameClock {
     }
 
     public Long getDelta(GameClock clock1, GameClock clock2) {
-        return getDelta(clock1.getTimer(), clock2.getTimer());
+        return getDelta(clock1.getOriginTimer(), clock2.getOriginTimer());
     }
 
     public Long getDelta(GameClock clock1, Long timer2) {
-        return getDelta(clock1.getTimer(), timer2);
+        return getDelta(clock1.getOriginTimer(), timer2);
     }
 
     public Long getDelta(Long timer1, GameClock clock2) {
-        return getDelta(timer1, clock2.getTimer());
+        return getDelta(timer1, clock2.getOriginTimer());
     }
 
     public GameClockEvent getTagEvent(String tag, Integer index) throws GameException {
@@ -174,7 +178,7 @@ public class GameClockImpl implements GameClock {
         } else {
             startTimer = timers.get(timers.size() - 1);
         }
-        Long endTimer = getTimer();
+        Long endTimer = getNormalizedTimer();
 
         return getDelta(startTimer, endTimer);
     }

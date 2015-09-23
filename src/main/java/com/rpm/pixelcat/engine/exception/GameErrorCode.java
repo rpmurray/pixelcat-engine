@@ -6,8 +6,10 @@ public enum GameErrorCode {
     LOGIC_ERROR(30001L, "Unspecified logic error during game logic processing."),
     GAME_CLOCK_ERROR(39101L, "Unspecified game clock error."),
 
-    HID_KEYBOARD_EVENT_TYPE_UNSUPPORTED(40001L, "Supplied keyboard event type not supported."),
-    HID_KEYBOARD_EVENT_UNSUPPORTED(40002L,"Supplied keyboard event not supported."),
+    HID_EVENT_TYPE_UNSUPPORTED(40001L, "Supplied hid event type not supported."),
+    HID_EVENT_UNSUPPORTED(40002L,"Supplied hid event not supported."),
+
+    KERNEL_ACTION_UNSUPPORTED(50001L,"Supplied kernel action not supported."),
 
     EXIT_CONDITION(990001L, "Game exiting"),
     INTERNAL_ERROR(99999L, "Some undefined internal error occured"),

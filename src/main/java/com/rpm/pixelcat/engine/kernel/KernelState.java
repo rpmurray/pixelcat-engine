@@ -22,6 +22,18 @@ public interface KernelState {
 
     public HashSet<HIDEventEnum> getHIDEvents();
 
+    public void addKernelAction(KernelActionEnum kernelAction);
+
+    public void removeKernelAction(KernelActionEnum kernelAction);
+
+    public void clearKernelActions();
+
+    public void resetTransientKernelActions();
+
+    public Boolean hasKernelAction(KernelActionEnum kernelAction);
+
+    public HashSet<KernelActionEnum> getKernelActions();
+
     public void addError(Exception exception);
 
     public void clearErrors();

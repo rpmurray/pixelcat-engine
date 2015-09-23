@@ -4,30 +4,28 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.rpm.pixelcat.engine.common.Printer;
 import com.rpm.pixelcat.engine.common.PrinterFactory;
+import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.logic.LogicHandler;
 import com.rpm.pixelcat.engine.hid.HIDEventManager;
-import com.rpm.pixelcat.engine.hid.HIDKeyboardEventTypeEnum;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.exception.ExitException;
 import com.rpm.pixelcat.engine.logic.LogicHandlerFactory;
 import com.rpm.pixelcat.engine.logic.gameobject.GameObjectManager;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
-class KernelImpl extends JPanel implements Kernel, KeyListener {
+class KernelImpl implements Kernel {
     // components
-    private JFrame frame; // jframe to put the graphics into
-    private Rectangle screen; // screen area
     private com.rpm.pixelcat.engine.renderer.Renderer renderer; // renderer
+    private Rectangle screen; // screen area
     private KernelStateImpl kernelState; // game kernelState
     private LogicHandler logicHandler; // game logic
     private HIDEventManager hidEventManager; // human interface device manager
+    private GraphicsPanel graphicsPanel; // graphics panel
 
     // utilities
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(KernelImpl.class);
@@ -38,12 +36,12 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
 
     public void init() throws IOException, URISyntaxException, GameException {
         initGuice();
-        initScreen();
         initRenderer();
+        initScreen();
         initKernelState();
         initHIDEventManager();
         initLogicHandler();
-        initFrame();
+        initGraphicsPanel();
     }
 
     public void kernelMain(Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap) throws Exception {
@@ -83,6 +81,12 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
         renderer = new com.rpm.pixelcat.engine.renderer.Renderer();
     }
 
+    private void initScreen() {
+        // set up screen
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        screen = new Rectangle(0, 0, (int) screenSize.getWidth() - 200, (int) screenSize.getHeight() - 400);
+    }
+
     private void initKernelState() throws GameException {
         kernelState = new KernelStateImpl(screen);
         kernelState.init();
@@ -90,28 +94,14 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
 
     private void initLogicHandler() {
         logicHandler = LogicHandlerFactory.getInstance().createLogicHandler();
-        addKeyListener(this);
-    }
-
-    private void initScreen() {
-        // set up screen
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        screen = new Rectangle(0, 0, (int) screenSize.getWidth() - 200, (int) screenSize.getHeight() - 400);
-        this.setFocusable(true);
-    }
-
-    private void initFrame() {
-        // set up frame
-        frame = new JFrame("Video Game");
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setLocation(100, 50);
-        frame.setSize(screen.width, screen.height);
-        frame.setContentPane(this);
-        frame.setVisible(true);
     }
 
     private void initHIDEventManager() {
-        hidEventManager = new HIDEventManager(kernelState);
+        hidEventManager = HIDEventManager.create(kernelState);
+    }
+
+    private void initGraphicsPanel() {
+        graphicsPanel = new GraphicsPanel(kernelState, renderer, logicHandler, hidEventManager);
     }
 
     public KernelState getKernelState() {
@@ -126,6 +116,9 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
         // synthesize special HID events
         hidEventManager.generateSynthesizedEvents();
 
+        // handle mapping hid events to kernel actions
+        mapHIDEventsToKernelActions();
+
         // handle pre-processing kernel injection
         if (kernelInjectionMap.containsKey(KernelInjectionEventEnum.PRE_PROCESSING)) {
             kernelInjectionMap.get(KernelInjectionEventEnum.PRE_PROCESSING).run(kernelState);
@@ -138,7 +131,7 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
         handleErrors();
 
         // repaint panel
-        frame.repaint();
+        graphicsPanel.getFrame().repaint();
 
         // clean up
         cleanUp();
@@ -147,16 +140,44 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
     public void sleep() throws Exception {
         Long loopTimeElapsed = kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).getElapsed("loop started");
         kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).addEvent("loop logic ended");
-        Long loopRemainingTime = (Integer) kernelState.getProperty(KernelStatePropertyEnum.GAME_LOOP_DURATION_MS) - loopTimeElapsed;
+        Integer loopDuration = (Integer) kernelState.getProperty(KernelStatePropertyEnum.GAME_LOOP_DURATION_NS);
+        Long loopRemainingTime = loopDuration - loopTimeElapsed;
         if (loopRemainingTime < 0) {
-            PRINTER.printWarning("The game loop exceeded the allotted time window for the current FPS configuration. [" + loopRemainingTime + "ms]");
+            PRINTER.printWarning(
+                "The game loop exceeded the allotted time window for the current FPS configuration. [" +
+                String.format("%,d", loopRemainingTime) + "ns left of " +
+                String.format("%,d", loopDuration) + "ns]"
+            );
         } else if (loopRemainingTime >= 0) {
-            PRINTER.printInfo("The game loop was within the allotted time window for the current FPS configuration [" + loopRemainingTime + "ms]");
+            PRINTER.printInfo(
+                "The game loop was within the allotted time window for the current FPS configuration [" +
+                String.format("%,d", loopRemainingTime) + "ns left of " +
+                String.format("%,d", loopDuration) + "ns]"
+            );
 
             if (loopRemainingTime > 0) {
                 kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).addEvent("sleep started");
-                Thread.sleep(loopRemainingTime);
+                PRINTER.printInfo("Sleep " + loopRemainingTime + "ms");
+                Thread.sleep(loopRemainingTime/1000000);
                 kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).addEvent("sleep ended");
+            }
+        }
+    }
+
+    private void mapHIDEventsToKernelActions() {
+        // fetch kernel action binder
+        KernelActionBinder kernelActionBinder = (KernelActionBinder) kernelState.getProperty(KernelStatePropertyEnum.KERNEL_ACTION_BINDER);
+
+        // process hid events + generate kernel actions
+        for (HIDEventEnum hidEvent : kernelState.getHIDEvents()) {
+            try {
+                // fetch binding
+                KernelActionEnum kernelAction = kernelActionBinder.binding(hidEvent);
+
+                // set kernel action
+                kernelState.addKernelAction(kernelAction);
+            } catch (GameException e) {
+                // do nothing, this just means there wasn't an action bound for this hid event
             }
         }
     }
@@ -166,42 +187,13 @@ class KernelImpl extends JPanel implements Kernel, KeyListener {
     }
 
     private void cleanUp() {
+        // reset certain temporary hid events
+        kernelState.resetTransientHIDEvents();
+
+        // reset certain temporary kernel actions
+        kernelState.resetTransientKernelActions();
+
         // wipe out errors
         kernelState.clearErrors();
-    }
-
-    // Now the instance methods:
-    public void paintComponent(Graphics g) {
-        // Get the drawing area bounds for game logic
-        screen = g.getClipBounds();
-
-        // update logic handler with new display bounds
-        kernelState.setBounds(screen);
-
-        // render frame
-        try {
-            renderer.render((Graphics2D) g, kernelState, logicHandler.getLayeredGameObjects(kernelState));
-        } catch (GameException e) {
-            kernelState.addError(e);
-        }
-    }
-
-    public void keyPressed(KeyEvent key) {
-        try {
-            hidEventManager.handleKeyboardEvent(HIDKeyboardEventTypeEnum.KEY_PRESS, key);
-        } catch (GameException e) {
-            kernelState.addError(e);
-        }
-    }
-
-    public void keyReleased(KeyEvent key) {
-        try {
-            hidEventManager.handleKeyboardEvent(HIDKeyboardEventTypeEnum.KEY_RELEASE, key);
-        } catch (GameException e) {
-            kernelState.addError(e);
-        }
-    }
-
-    public void keyTyped(KeyEvent key) {
     }
 }

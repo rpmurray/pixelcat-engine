@@ -104,7 +104,7 @@ public class AnimationSequenceImpl implements AnimationSequence {
             return;
         }
 
-        if (animationClock.getElapsed("animation cycle start") * animationVelocity > millisecondsPerCel) {
+        if (GameClock.toMS(animationClock.getElapsed("animation cycle start")) * animationVelocity > millisecondsPerCel) {
             animationClock.addEvent("animation cycle start");
             if (isAnimationAccelerationEnabled && animationVelocity < 1.0) {
                 animationVelocity += animationAcceleration;

@@ -1,14 +1,14 @@
 package com.rpm.pixelcat.engine.logic;
 
 import com.google.common.collect.ImmutableMap;
+import com.rpm.pixelcat.engine.common.Printer;
+import com.rpm.pixelcat.engine.kernel.KernelActionEnum;
 import com.rpm.pixelcat.engine.logic.gameobject.GameObject;
 import com.rpm.pixelcat.engine.logic.gameobject.GameObjectManager;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.exception.ExitException;
-import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
-import org.apache.log4j.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,10 +60,7 @@ public class LogicHandlerImpl implements LogicHandler {
     }
 
     private void checkExit(KernelState kernelState) throws ExitException {
-        if (kernelState.getPropertyFlag(KernelStatePropertyEnum.EXIT_SIGNAL)) {
-            // remove event so it isn't processed again
-            kernelState.removeHIDEvent(HIDEventEnum.BACK);
-
+        if (kernelState.hasKernelAction(KernelActionEnum.EXIT)) {
             // trigger an exit
             throw new ExitException();
         }
@@ -82,39 +79,39 @@ public class LogicHandlerImpl implements LogicHandler {
         setKernelStateProperty(
             kernelState,
             KernelStatePropertyEnum.LOG_LVL,
-            ImmutableMap.<HIDEventEnum, Object>builder().put(
-                HIDEventEnum.SET_LOG_LVL_FATAL, Level.FATAL
+            ImmutableMap.<KernelActionEnum, Object>builder().put(
+                KernelActionEnum.SET_LOG_LVL_FATAL, Printer.getLogLevelFatal()
             ).put(
-                HIDEventEnum.SET_LOG_LVL_ERROR, Level.ERROR
+                KernelActionEnum.SET_LOG_LVL_ERROR, Printer.getLogLevelError()
             ).put(
-                HIDEventEnum.SET_LOG_LVL_WARN, Level.WARN
+                KernelActionEnum.SET_LOG_LVL_WARN, Printer.getLogLevelWarn()
             ).put(
-                HIDEventEnum.SET_LOG_LVL_INFO, Level.INFO
+                KernelActionEnum.SET_LOG_LVL_INFO, Printer.getLogLevelInfo()
             ).put(
-                HIDEventEnum.SET_LOG_LVL_DEBUG, Level.DEBUG
+                KernelActionEnum.SET_LOG_LVL_DEBUG, Printer.getLogLevelDebug()
             ).put(
-                HIDEventEnum.SET_LOG_LVL_TRACE, Level.TRACE
+                KernelActionEnum.SET_LOG_LVL_TRACE, Printer.getLogLevelTrace()
             ).build()
         );
     }
 
     private void handleFontDisplay(KernelState kernelState) throws GameException {
         // font debugger
-        toggleKernelStateProperty(kernelState, HIDEventEnum.FONT_DEBUG_TOGGLE, KernelStatePropertyEnum.FONT_DISPLAY_ENABLED);
+        toggleKernelStateProperty(kernelState, KernelActionEnum.FONT_DEBUG_TOGGLE, KernelStatePropertyEnum.FONT_DISPLAY_ENABLED);
     }
 
     private void setKernelStateProperty(KernelState kernelState,
                                         KernelStatePropertyEnum kernelStateProperty,
-                                        Map<HIDEventEnum, Object> hidEventKernelStatePropertyMap)
+                                        Map<KernelActionEnum, Object> kernelActionBindings)
                  throws GameException {
-        for (HIDEventEnum hidEvent: hidEventKernelStatePropertyMap.keySet()) {
+        for (KernelActionEnum kernelAction: kernelActionBindings.keySet()) {
             // setup
-            Object kernelStatePropertyValue = hidEventKernelStatePropertyMap.get(hidEvent);
+            Object kernelStatePropertyValue = kernelActionBindings.get(kernelAction);
 
             // check hid event and set kernel state property
-            if (kernelState.hasHIDEvent(hidEvent)) {
-                // remove HID event so it isn't processed twice
-                kernelState.removeHIDEvent(hidEvent);
+            if (kernelState.hasKernelAction(kernelAction)) {
+                // remove kernel action so it isn't processed twice
+                kernelState.removeKernelAction(kernelAction);
 
                 // set kernel state property
                 kernelState.setProperty(kernelStateProperty, kernelStatePropertyValue);
@@ -123,12 +120,12 @@ public class LogicHandlerImpl implements LogicHandler {
     }
 
     private void toggleKernelStateProperty(KernelState kernelState,
-                                           HIDEventEnum hidEvent,
+                                           KernelActionEnum kernelAction,
                                            KernelStatePropertyEnum kernelStateProperty)
                  throws GameException {
-        if (kernelState.hasHIDEvent(hidEvent)) {
-            // remove HID event so it isn't processed twice
-            kernelState.removeHIDEvent(hidEvent);
+        if (kernelState.hasKernelAction(kernelAction)) {
+            // remove kernel action so it isn't processed twice
+            kernelState.removeKernelAction(kernelAction);
 
             // toggle kernel state property
             if (kernelState.getPropertyFlag(kernelStateProperty)) {

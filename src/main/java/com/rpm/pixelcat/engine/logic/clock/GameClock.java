@@ -11,9 +11,7 @@ public interface GameClock {
 
     public GameClockEvent addEvent(String tag);
 
-    public Long getTimer();
-
-    public Long normalizeTimer(Long timer);
+    public Long denormalizeTimer(Long timer);
 
     public Long getDelta(Long timer1, Long timer2);
 
@@ -54,4 +52,8 @@ public interface GameClock {
     public Set<String> getTags();
 
     public Integer getCount();
+
+    public static Long toMS(Long ns) {
+        return ns / 1000000;
+    }
 }

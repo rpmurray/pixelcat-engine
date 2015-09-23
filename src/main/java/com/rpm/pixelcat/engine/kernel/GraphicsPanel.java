@@ -1,18 +1,23 @@
 package com.rpm.pixelcat.engine.kernel;
 
 import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.hid.HIDEventManager;
+import com.rpm.pixelcat.engine.hid.HIDEventTypeEnum;
 import com.rpm.pixelcat.engine.logic.LogicHandler;
 import com.rpm.pixelcat.engine.renderer.Renderer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
-public class GraphicsPanel extends JPanel {
+class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+    private JFrame frame; // jframe to put the graphics into
     private KernelState kernelState;
     private Renderer renderer;
     private LogicHandler logicHandler;
+    private HIDEventManager hidEventManager;
 
-    public GraphicsPanel(KernelState kernelState, Renderer renderer, LogicHandler logicHandler) {
+    public GraphicsPanel(KernelState kernelState, Renderer renderer, LogicHandler logicHandler, HIDEventManager hidEventManager) {
         // handle parent
         super();
 
@@ -20,6 +25,40 @@ public class GraphicsPanel extends JPanel {
         this.kernelState = kernelState;
         this.renderer = renderer;
         this.logicHandler = logicHandler;
+        this.hidEventManager = hidEventManager;
+
+        init();
+    }
+
+    private void init() {
+        initScreen();
+        initListeners();
+        initFrame();
+    }
+
+    private void initScreen() {
+        this.setFocusable(true);
+    }
+
+    private void initListeners() {
+        addKeyListener(this);
+        addMouseListener(this);
+        addMouseMotionListener(this);
+        addMouseWheelListener(this);
+    }
+
+    private void initFrame() {
+        // set up frame
+        frame = new JFrame("Video Game");
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setLocation(100, 50);
+        frame.setSize(kernelState.getBounds().width, kernelState.getBounds().height);
+        frame.setVisible(true);
+        frame.setContentPane(this);
+    }
+
+    public JFrame getFrame() {
+        return frame;
     }
 
     public void paintComponent(Graphics graphics) {
@@ -38,5 +77,73 @@ public class GraphicsPanel extends JPanel {
 
         // notify parent thread
         //notifyAll();
+    }
+
+    public void keyPressed(KeyEvent event) {
+        try {
+            hidEventManager.handleKeyboardEvent(HIDEventTypeEnum.PRESS, event);
+        } catch (GameException e) {
+            kernelState.addError(e);
+        }
+    }
+
+    public void keyReleased(KeyEvent event) {
+        try {
+            hidEventManager.handleKeyboardEvent(HIDEventTypeEnum.RELEASE, event);
+        } catch (GameException e) {
+            kernelState.addError(e);
+        }
+    }
+
+    public void keyTyped(KeyEvent event) {
+        // do nothing
+    }
+
+    public void mouseExited(MouseEvent event) {
+        // do nothing
+    }
+
+    public void mouseEntered(MouseEvent event) {
+        // do nothing
+    }
+
+    public void mouseMoved(MouseEvent event) {
+        try {
+            kernelState.setProperty(KernelStatePropertyEnum.MOUSE_POSITION, event.getLocationOnScreen());
+        } catch (GameException e) {
+            kernelState.addError(e);
+        }
+    }
+
+    public void mousePressed(MouseEvent mouseEvent) {
+        try {
+            hidEventManager.handleMouseEvent(HIDEventTypeEnum.PRESS, mouseEvent);
+        } catch (GameException e) {
+            kernelState.addError(e);
+        }
+    }
+
+    public void mouseReleased(MouseEvent mouseEvent) {
+        try {
+            hidEventManager.handleMouseEvent(HIDEventTypeEnum.RELEASE, mouseEvent);
+        } catch (GameException e) {
+            kernelState.addError(e);
+        }
+    }
+
+    public void mouseClicked(MouseEvent mouseEvent) {
+        // do nothing
+    }
+
+    public void mouseDragged(MouseEvent mouseEvent) {
+        // do nothing
+    }
+
+    public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
+        try {
+            hidEventManager.handleMouseEvent(HIDEventTypeEnum.SCROLL, mouseWheelEvent);
+        } catch (GameException e) {
+            kernelState.addError(e);
+        }
     }
 }

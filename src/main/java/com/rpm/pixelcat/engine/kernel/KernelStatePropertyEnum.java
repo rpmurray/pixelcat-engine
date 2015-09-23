@@ -13,15 +13,19 @@ public enum KernelStatePropertyEnum {
     LOG_LVL,
     // font display
     FONT_DISPLAY_ENABLED,
-    // exit signal
-    EXIT_SIGNAL,
+    // mouse position
+    MOUSE_POSITION,
+    // hid event bindings
+    HID_EVENT_BINDER,
+    // kernel action bindings
+    KERNEL_ACTION_BINDER,
 
     ////                  ////
     // READ ONLY PROPERTIES //
     ////                  ////
 
     // game loop duration in ms
-    GAME_LOOP_DURATION_MS,
+    GAME_LOOP_DURATION_NS,
 
     ;
 }
