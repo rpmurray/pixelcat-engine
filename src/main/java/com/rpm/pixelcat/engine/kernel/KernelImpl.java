@@ -15,6 +15,7 @@ import com.rpm.pixelcat.engine.logic.gameobject.GameObjectManager;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,15 +31,10 @@ class KernelImpl implements Kernel {
     // utilities
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(KernelImpl.class);
 
-    KernelImpl() {
-        super();
-    }
-
-    public void init() throws IOException, URISyntaxException, GameException {
+    public void init(HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties) throws IOException, URISyntaxException, GameException {
         initGuice();
         initRenderer();
-        initScreen();
-        initKernelState();
+        initKernelState(kernelStateInitProperties);
         initHIDEventManager();
         initLogicHandler();
         initGraphicsPanel();
@@ -81,15 +77,9 @@ class KernelImpl implements Kernel {
         renderer = new com.rpm.pixelcat.engine.renderer.Renderer();
     }
 
-    private void initScreen() {
-        // set up screen
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        screen = new Rectangle(0, 0, (int) screenSize.getWidth() - 200, (int) screenSize.getHeight() - 400);
-    }
-
-    private void initKernelState() throws GameException {
-        kernelState = new KernelStateImpl(screen);
-        kernelState.init();
+    private void initKernelState(HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties) throws GameException {
+        kernelState = new KernelStateImpl();
+        kernelState.init(kernelStateInitProperties);
     }
 
     private void initLogicHandler() {

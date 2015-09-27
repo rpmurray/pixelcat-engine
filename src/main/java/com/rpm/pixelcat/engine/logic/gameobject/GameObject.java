@@ -1,40 +1,18 @@
 package com.rpm.pixelcat.engine.logic.gameobject;
 
 import com.rpm.pixelcat.engine.exception.GameException;
-import com.rpm.pixelcat.engine.logic.animation.AnimationSequence;
-import com.rpm.pixelcat.engine.logic.resource.Resource;
-
-import java.awt.*;
-import java.util.Set;
+import com.rpm.pixelcat.engine.logic.gameobject.feature.Feature;
 
 public interface GameObject {
-    public void setCurrentResource(Resource resource);
+    public void registerFeature(Feature feature, Boolean status);
 
-    public Resource getCurrentResource();
+    public <F extends Feature> Boolean hasFeature(Class<F> featureClass);
 
-    public void setPosition(Integer x, Integer y);
+    public <F extends Feature> F getFeature(Class<F> featureClass) throws GameException;
 
-    public void setPosition(Point position);
+    public <F extends Feature> void deactivateFeature(Class<F> featureClass) throws GameException;
 
-    public Point getPosition();
+    public <F extends Feature> void activateFeature(Class<F> featureClass) throws GameException;
 
-    public void setLayer(Integer layer);
-
-    public Integer getLayer();
-
-    public GameObjectProperties getProperties();
-
-    public Set<GameObjectHIDEventLogicBehaviorBinding> getGameObjectHIDEventLogicBehaviorBindings();
-
-    public Boolean hasAnimation();
-
-    public OrientationEnum getCurrentOrientation() throws GameException;
-
-    public void setCurrentOrientation(OrientationEnum currentOrientation);
-
-    public AnimationSequence getCurrentAnimationSequence() throws GameException;
-
-    public CollisionHandlingTypeEnum getCollisionHandlingTypeEnum();
-
-    public ScreenBoundsHandlingTypeEnum getScreenBoundsHandlingTypeEnum();
+    public <F extends Feature> Boolean isFeatureActive(Class<F> featureClass) throws GameException;
 }

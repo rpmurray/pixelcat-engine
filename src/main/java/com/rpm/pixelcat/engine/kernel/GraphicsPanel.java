@@ -52,7 +52,10 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
         frame = new JFrame("Video Game");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLocation(100, 50);
-        frame.setSize(kernelState.getBounds().width, kernelState.getBounds().height);
+        frame.setSize(
+            ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).width,
+            ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height
+        );
         frame.setVisible(true);
         frame.setContentPane(this);
     }
@@ -66,7 +69,11 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
         Rectangle screen = graphics.getClipBounds();
 
         // update logic handler with new display bounds
-        kernelState.setBounds(screen);
+        try {
+            kernelState.setProperty(KernelStatePropertyEnum.SCREEN_BOUNDS, screen);
+        } catch (GameException e) {
+            kernelState.addError(e);
+        }
 
         // render frame
         try {

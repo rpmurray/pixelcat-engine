@@ -12,7 +12,8 @@ public enum GameErrorCode {
     KERNEL_ACTION_UNSUPPORTED(50001L,"Supplied kernel action not supported."),
 
     EXIT_CONDITION(990001L, "Game exiting"),
-    INTERNAL_ERROR(99999L, "Some undefined internal error occured"),
+    UNSUPPORTED_FUNCTIONALITY(99998L, "Functionality that is attempting to be executed is incomplete or unsupported."),
+    INTERNAL_ERROR(99999L, "Some undefined internal error occurred."),
     ;
 
     private Long code;

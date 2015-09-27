@@ -6,6 +6,7 @@ import com.rpm.pixelcat.engine.common.PrinterFactory;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.kernel.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class TestMain {
@@ -16,12 +17,13 @@ public class TestMain {
             // create kernel
             Kernel kernel = KernelFactory.getInstance().createKernel();
 
-            // initialize
-            kernel.init();
-            KernelState kernelState = kernel.getKernelState();
+            // set up general kernel state initialization properties
+            HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties = new HashMap<>();
+            kernelStateInitProperties.put(KernelStatePropertyEnum.LOG_LVL, Printer.getLogLevelInfo());
 
-            // set up general kernel state properties
-            kernelState.setProperty(KernelStatePropertyEnum.LOG_LVL, Printer.getLogLevelInfo());
+            // initialize
+            kernel.init(kernelStateInitProperties);
+            KernelState kernelState = kernel.getKernelState();
 
             // set up general kernel action mappings
             KernelActionBinder kernelActionBinder = (KernelActionBinder) kernelState.getProperty(KernelStatePropertyEnum.KERNEL_ACTION_BINDER);

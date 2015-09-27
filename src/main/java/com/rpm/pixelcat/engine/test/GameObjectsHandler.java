@@ -8,8 +8,11 @@ import com.rpm.pixelcat.engine.common.PrinterFactory;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.kernel.KernelState;
+import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
 import com.rpm.pixelcat.engine.logic.animation.AnimationFactory;
 import com.rpm.pixelcat.engine.logic.gameobject.*;
+import com.rpm.pixelcat.engine.logic.gameobject.behavior.*;
+import com.rpm.pixelcat.engine.logic.physics.screen.ScreenBoundsHandlingTypeEnum;
 import com.rpm.pixelcat.engine.logic.resource.Resource;
 import com.rpm.pixelcat.engine.logic.resource.ResourceFactory;
 import com.rpm.pixelcat.engine.logic.resource.SpriteSheet;
@@ -106,105 +109,105 @@ public class GameObjectsHandler {
                 50, 50,
                 0,
                 ImmutableSet.of(
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_UP,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.MOVE_UP,
-                            ImmutableSet.<GameObjectLogicBehaviorParameter>of(
-                                GameObjectLogicBehaviorParameterFactory.getInstance().createMagnitudeParameter(
+                        new Behavior(
+                            BehaviorEnum.MOVE_UP,
+                            ImmutableSet.<BehaviorParameter>of(
+                                BehaviorParameterFactory.getInstance().createMagnitudeParameter(
                                     2.0
                                 )
                             )
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_UP,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.ANIMATION_PLAY,
-                            ImmutableSet.<GameObjectLogicBehaviorParameter>of()
+                        new Behavior(
+                            BehaviorEnum.ANIMATION_PLAY,
+                            ImmutableSet.<BehaviorParameter>of()
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_DOWN,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.MOVE_DOWN,
-                            ImmutableSet.<GameObjectLogicBehaviorParameter>of(
-                                GameObjectLogicBehaviorParameterFactory.getInstance().createMagnitudeParameter(
+                        new Behavior(
+                            BehaviorEnum.MOVE_DOWN,
+                            ImmutableSet.<BehaviorParameter>of(
+                                BehaviorParameterFactory.getInstance().createMagnitudeParameter(
                                     2.0
                                 )
                             )
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_DOWN,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.ANIMATION_PLAY,
-                            ImmutableSet.<GameObjectLogicBehaviorParameter>of()
+                        new Behavior(
+                            BehaviorEnum.ANIMATION_PLAY,
+                            ImmutableSet.<BehaviorParameter>of()
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_LEFT,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.MOVE_LEFT,
-                            ImmutableSet.<GameObjectLogicBehaviorParameter>of(
-                                GameObjectLogicBehaviorParameterFactory.getInstance().createMagnitudeParameter(
+                        new Behavior(
+                            BehaviorEnum.MOVE_LEFT,
+                            ImmutableSet.<BehaviorParameter>of(
+                                BehaviorParameterFactory.getInstance().createMagnitudeParameter(
                                     2.0
                                 )
                             )
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_LEFT,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.ANIMATION_PLAY,
-                            ImmutableSet.<GameObjectLogicBehaviorParameter>of()
+                        new Behavior(
+                            BehaviorEnum.ANIMATION_PLAY,
+                            ImmutableSet.<BehaviorParameter>of()
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_LEFT,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
+                        new Behavior(
+                            BehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
                             ImmutableSet.of(
-                                GameObjectLogicBehaviorParameterFactory.getInstance().createOrientationParameter(
+                                BehaviorParameterFactory.getInstance().createOrientationParameter(
                                     OrientationEnum.LEFT
                                 )
                             )
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_RIGHT,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.MOVE_RIGHT,
-                            ImmutableSet.<GameObjectLogicBehaviorParameter>of(
-                                GameObjectLogicBehaviorParameterFactory.getInstance().createMagnitudeParameter(
+                        new Behavior(
+                            BehaviorEnum.MOVE_RIGHT,
+                            ImmutableSet.<BehaviorParameter>of(
+                                BehaviorParameterFactory.getInstance().createMagnitudeParameter(
                                     2.0
                                 )
                             )
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_RIGHT,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.ANIMATION_PLAY,
-                            ImmutableSet.<GameObjectLogicBehaviorParameter>of()
+                        new Behavior(
+                            BehaviorEnum.ANIMATION_PLAY,
+                            ImmutableSet.<BehaviorParameter>of()
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_RIGHT,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
+                        new Behavior(
+                            BehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
                             ImmutableSet.of(
-                                GameObjectLogicBehaviorParameterFactory.getInstance().createOrientationParameter(
+                                BehaviorParameterFactory.getInstance().createOrientationParameter(
                                     OrientationEnum.RIGHT
                                 )
                             )
                         )
                     ),
-                    new GameObjectHIDEventLogicBehaviorBinding(
+                    new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_NO_DIRECTION,
-                        new GameObjectLogicBehavior(
-                            GameObjectLogicBehaviorEnum.ANIMATION_STOP,
-                            ImmutableSet.<GameObjectLogicBehaviorParameter>of()
+                        new Behavior(
+                            BehaviorEnum.ANIMATION_STOP,
+                            ImmutableSet.<BehaviorParameter>of()
                         )
                     )
                 ),
@@ -281,12 +284,12 @@ public class GameObjectsHandler {
 
     private GameObjectManager generateLevelOneElements() throws GameException {
         // init game object manager
-        GameObjectManager gameObjectManager = GameObjectManager.create(kernelState.getBounds().height);
+        GameObjectManager gameObjectManager = GameObjectManager.create(((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height);
         GameObjectFactory gameObjectFactory = gameObjectManager.getGameObjectFactory();
 
         // dynamically generate grass background
         SpriteSheet grassBGSpriteSheet = resourceFactory.createSpriteSheet("grass_bg.png", 1950, 2);
-        for (Integer i = 0; i < kernelState.getBounds().height / 2; i++) {
+        for (Integer i = 0; i < ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height / 2; i++) {
             String gameObjectName = "grassBG" + (i % 2 == 0 ? "Green" : "Brown") + i;
             gameObjects.put(gameObjectName, generateGrassBGObject(gameObjectFactory, grassBGSpriteSheet, i));
             gameObjectManager.addGameObject(gameObjects.get(gameObjectName));
@@ -314,7 +317,7 @@ public class GameObjectsHandler {
         GameObject gameObject = gameObjectFactory.createGameObject(
             0, yIndex * 2,
             0,
-            ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
+            ImmutableSet.<HIDBehaviorBinding>of(),
             resource,
             CollisionHandlingTypeEnum.NONE,
             ScreenBoundsHandlingTypeEnum.NONE
@@ -364,9 +367,9 @@ public class GameObjectsHandler {
         }
 
         // game object
-        Integer y = randomGenerator.nextInt(kernelState.getBounds().height);
+        Integer y = randomGenerator.nextInt(((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height);
         GameObject gameObject = gameObjectFactory.createGameObject(
-            randomGenerator.nextInt(kernelState.getBounds().width), y,
+            randomGenerator.nextInt(((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).width), y,
             y,
             ImmutableSet.of(),
             ImmutableMap.of(
@@ -388,7 +391,7 @@ public class GameObjectsHandler {
 
     private GameObjectManager generateStartScreenElements() throws GameException {
         // setup
-        Rectangle bounds = kernelState.getBounds();
+        Rectangle bounds = ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS));
 
         // init game object manager
         GameObjectManager gameObjectManager = GameObjectManager.create(2);
@@ -402,7 +405,7 @@ public class GameObjectsHandler {
             gameObjectFactory.createGameObject(
                 bounds.width / 2 - 95, bounds.height / 2 - 150,
                 1,
-                ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
+                ImmutableSet.<HIDBehaviorBinding>of(),
                 ImmutableMap.of(
                     OrientationEnum.FRONT,
                     animationFactory.createAnimationSequence(
@@ -438,7 +441,7 @@ public class GameObjectsHandler {
             gameObjectFactory.createGameObject(
                 bounds.width / 2 - 220, bounds.height / 2 - 30,
                 1,
-                ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
+                ImmutableSet.<HIDBehaviorBinding>of(),
                 pixelCatBlurbInitialResource,
                 CollisionHandlingTypeEnum.NONE,
                 ScreenBoundsHandlingTypeEnum.NONE
@@ -457,7 +460,7 @@ public class GameObjectsHandler {
             gameObjectFactory.createGameObject(
                 bounds.width / 2 - 140, bounds.height / 2 + 50,
                 1,
-                ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
+                ImmutableSet.<HIDBehaviorBinding>of(),
                 instructionsInitialResource1,
                 CollisionHandlingTypeEnum.NONE,
                 ScreenBoundsHandlingTypeEnum.NONE
@@ -476,7 +479,7 @@ public class GameObjectsHandler {
             gameObjectFactory.createGameObject(
                 bounds.width / 2 - 220, bounds.height / 2 + 65,
                 1,
-                ImmutableSet.<GameObjectHIDEventLogicBehaviorBinding>of(),
+                ImmutableSet.<HIDBehaviorBinding>of(),
                 instructionsInitialResource2,
                 CollisionHandlingTypeEnum.NONE,
                 ScreenBoundsHandlingTypeEnum.NONE

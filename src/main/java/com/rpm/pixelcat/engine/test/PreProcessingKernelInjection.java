@@ -9,6 +9,8 @@ import com.rpm.pixelcat.engine.kernel.KernelInjection;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
 
+import java.awt.*;
+
 public class PreProcessingKernelInjection implements KernelInjection {
     private LevelHandler levelHandler;
     private GameObjectsHandler gameObjectsHandler;
@@ -50,7 +52,7 @@ public class PreProcessingKernelInjection implements KernelInjection {
                     gameObjectsHandler.getGameObjectManagerSet(nextLevel)
                 );
                 gameObjectsHandler.getGameObjectManager(GameObjectsHandler.GAME_OBJECT_MANAGER_COMMON).getLayerManager().setLayerCount(
-                    kernelState.getBounds().height
+                    ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height
                 );
                 gameObjectsHandler.getGameObject("nyanCat").setLayer(
                     gameObjectsHandler.getGameObject("nyanCat").getPosition().y

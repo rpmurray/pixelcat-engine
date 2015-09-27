@@ -21,27 +21,64 @@ class KernelStateImpl implements KernelState {
     private Rectangle bounds;
     private GameClockManager masterGameClockManager;
 
-    KernelStateImpl(Rectangle bounds) {
+    KernelStateImpl() {
         this.hidEvents = new HashSet<>();
         this.kernelActions = new HashSet<>();
         this.errors = new HashSet<>();
         this.properties = new HashMap<>();
-        this.bounds = bounds;
         this.masterGameClockManager = GameClockFactory.getInstance().createGameClockManager();
     }
 
-    void init() throws GameException {
+    void init(HashMap<KernelStatePropertyEnum, Object> initProperties) throws GameException {
         // create master game clocks
         masterGameClockManager.addGameClock(MASTER_GAME_CLOCK);
         masterGameClockManager.addGameClock(LOOP_GAME_CLOCK);
 
         // set properties
-        setProperty(KernelStatePropertyEnum.FRAME_RATE, 60);
-        setProperty(KernelStatePropertyEnum.FONT_DISPLAY_ENABLED, false);
-        setProperty(KernelStatePropertyEnum.LOG_LVL, Printer.getLogLevelWarn());
-        setProperty(KernelStatePropertyEnum.HID_EVENT_BINDER, HIDEventBinder.create());
-        setProperty(KernelStatePropertyEnum.KERNEL_ACTION_BINDER, KernelActionBinder.create());
-        setProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, new ArrayList<>());
+        for (KernelStatePropertyEnum propertyKey : KernelStatePropertyEnum.values()) {
+            // setup
+            Object propertyValue;
+
+            // get defaults
+            HashMap<KernelStatePropertyEnum, Object> defaultProperties = getDefaultProperties();
+
+            // determine property value
+            if (initProperties.containsKey(propertyKey)) {
+                propertyValue = initProperties.get(propertyKey);
+            } else if (defaultProperties.containsKey(propertyKey)) {
+                propertyValue = defaultProperties.get(propertyKey);
+            } else {
+                // skip cases that don't have a defined init or default value
+                continue;
+            }
+
+            // set property
+            setProperty(propertyKey, propertyValue);
+        }
+    }
+
+    HashMap<KernelStatePropertyEnum, Object> getDefaultProperties() {
+        // init
+        HashMap<KernelStatePropertyEnum, Object> defaultProperties = new HashMap<>();
+
+        // define defaults
+        defaultProperties.put(KernelStatePropertyEnum.SCREEN_BOUNDS, getDefaultScreenBounds());
+        defaultProperties.put(KernelStatePropertyEnum.FRAME_RATE, 60);
+        defaultProperties.put(KernelStatePropertyEnum.FONT_DISPLAY_ENABLED, false);
+        defaultProperties.put(KernelStatePropertyEnum.LOG_LVL, Printer.getLogLevelWarn());
+        defaultProperties.put(KernelStatePropertyEnum.HID_EVENT_BINDER, HIDEventBinder.create());
+        defaultProperties.put(KernelStatePropertyEnum.KERNEL_ACTION_BINDER, KernelActionBinder.create());
+        defaultProperties.put(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, new ArrayList<>());
+
+        return defaultProperties;
+    }
+
+    private Rectangle getDefaultScreenBounds() {
+        // set up screen
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Rectangle screenBounds = new Rectangle(0, 0, (int) screenSize.getWidth() - 200, (int) screenSize.getHeight() - 400);
+
+        return screenBounds;
     }
 
     public void addHIDEvent(HIDEventEnum hidEvent) {

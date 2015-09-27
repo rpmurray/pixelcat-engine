@@ -20,7 +20,7 @@ public class Renderer {
 
     public void render(Graphics2D g, KernelState kernelState, ArrayList<ArrayList<GameObject>> layeredGameObjects) {
         // Clear the drawing area, then draw logic components
-        Rectangle bounds = kernelState.getBounds();
+        Rectangle bounds = (Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS);
         g.clearRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
         for (ArrayList<GameObject> gameObjects: layeredGameObjects) {
@@ -49,7 +49,7 @@ public class Renderer {
 
         // font rendering -- debug
         if (kernelState.getPropertyFlag(KernelStatePropertyEnum.FONT_DISPLAY_ENABLED)) {
-            debugFonts(g, kernelState.getBounds());
+            debugFonts(g, (Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS));
         }
     }
 
