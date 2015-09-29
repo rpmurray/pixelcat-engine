@@ -7,17 +7,19 @@ import com.rpm.pixelcat.engine.logic.resource.Resource;
 import java.awt.*;
 
 public interface Renderable extends Feature {
-    public Resource getRenderableResource(GameObject gameObject) throws GameException;
+    Resource getRenderableResource(GameObject gameObject) throws GameException;
 
-    public void setPosition(Point position);
+    void setPosition(Point position);
 
-    public Point getPosition();
+    Point getPosition();
 
-    public void setLayer(Integer layer);
+    void setLayer(Integer layer);
 
-    public Integer getLayer();
+    Integer getLayer();
 
-    public static Renderable create() throws GameException {
-        return Feature.create(Renderable.class);
+    static Renderable create(Point position, Integer layer) throws GameException {
+        Renderable renderable = new RenderableImpl(position, layer);
+
+        return renderable;
     }
 }

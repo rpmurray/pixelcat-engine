@@ -4,11 +4,12 @@ import com.rpm.pixelcat.engine.exception.GameException;
 
 import java.awt.*;
 
-class ImageResourceImpl implements ImageResource {
+class ImageResourceImpl extends ResourceImpl implements ImageResource {
     private SpriteResource mainResource;
     private SpriteResource collisionMaskResource;
 
     ImageResourceImpl(SpriteResource mainResource, SpriteResource collisionMaskResource) {
+        super(ImageResource.class.toString());
         this.mainResource = mainResource;
         this.collisionMaskResource = collisionMaskResource;
     }

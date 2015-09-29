@@ -1,4 +1,6 @@
 package com.rpm.pixelcat.engine.logic.gameobject.feature;
 
-public class CameraLibraryImpl extends FeatureImpl implements CameraLibrary {
+import com.rpm.pixelcat.engine.logic.camera.Camera;
+
+class CameraLibraryImpl extends LibraryTemplateImpl<Camera> implements CameraLibrary {
 }

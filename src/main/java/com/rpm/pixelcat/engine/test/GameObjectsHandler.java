@@ -10,8 +10,11 @@ import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
 import com.rpm.pixelcat.engine.logic.animation.AnimationFactory;
+import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 import com.rpm.pixelcat.engine.logic.gameobject.*;
 import com.rpm.pixelcat.engine.logic.gameobject.behavior.*;
+import com.rpm.pixelcat.engine.logic.gameobject.feature.HIDBehaviorBindingSet;
+import com.rpm.pixelcat.engine.logic.gameobject.feature.Renderable;
 import com.rpm.pixelcat.engine.logic.physics.screen.ScreenBoundsHandlingTypeEnum;
 import com.rpm.pixelcat.engine.logic.resource.Resource;
 import com.rpm.pixelcat.engine.logic.resource.ResourceFactory;
@@ -90,7 +93,6 @@ public class GameObjectsHandler {
     private GameObjectManager generateCommonElements() throws GameException {
         // init game object manager
         GameObjectManager gameObjectManager = GameObjectManager.create(5);
-        GameObjectFactory gameObjectFactory = gameObjectManager.getGameObjectFactory();
 
         // nyan cat character
         SpriteSheet nyanCatSpriteSheet = resourceFactory.createSpriteSheet(
@@ -103,30 +105,33 @@ public class GameObjectsHandler {
             resourceFactory.createSpriteResource(0, 0, nyanCatSpriteSheet),
             null
         );
-        gameObjects.put(
-            "nyanCat",
-            gameObjectFactory.createGameObject(
-                50, 50,
-                0,
-                ImmutableSet.of(
-                    new HIDBehaviorBinding(
-                        HIDEventEnum.PRIMARY_UP,
-                        new Behavior(
-                            BehaviorEnum.MOVE_UP,
-                            ImmutableSet.<BehaviorParameter>of(
-                                BehaviorParameterFactory.getInstance().createMagnitudeParameter(
-                                    2.0
-                                )
+        GameObject nyanCat = gameObjectManager.createGameObject().registerFeature(
+            Renderable.create(
+                new Point(50, 50),
+                0
+            )
+        ).registerFeature(
+            HIDBehaviorBindingSet.create().add(
+                new HIDBehaviorBinding(
+                    HIDEventEnum.PRIMARY_UP,
+                    new Behavior(
+                        BehaviorEnum.MOVE_UP,
+                        ImmutableSet.<BehaviorParameter>of(
+                            BehaviorParameterFactory.getInstance().createMagnitudeParameter(
+                                2.0
                             )
                         )
-                    ),
+                    )
+                )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_UP,
                         new Behavior(
                             BehaviorEnum.ANIMATION_PLAY,
                             ImmutableSet.<BehaviorParameter>of()
                         )
-                    ),
+                    )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_DOWN,
                         new Behavior(
@@ -137,14 +142,16 @@ public class GameObjectsHandler {
                                 )
                             )
                         )
-                    ),
+                    )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_DOWN,
                         new Behavior(
                             BehaviorEnum.ANIMATION_PLAY,
                             ImmutableSet.<BehaviorParameter>of()
                         )
-                    ),
+                    )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_LEFT,
                         new Behavior(
@@ -155,25 +162,28 @@ public class GameObjectsHandler {
                                 )
                             )
                         )
-                    ),
+                    )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_LEFT,
                         new Behavior(
                             BehaviorEnum.ANIMATION_PLAY,
                             ImmutableSet.<BehaviorParameter>of()
                         )
-                    ),
+                    )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_LEFT,
                         new Behavior(
                             BehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
                             ImmutableSet.of(
-                                BehaviorParameterFactory.getInstance().createOrientationParameter(
-                                    OrientationEnum.LEFT
+                                BehaviorParameterFactory.getInstance().createCameraParameter(
+                                    "left"
                                 )
                             )
                         )
-                    ),
+                    )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_RIGHT,
                         new Behavior(
@@ -184,25 +194,28 @@ public class GameObjectsHandler {
                                 )
                             )
                         )
-                    ),
+                    )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_RIGHT,
                         new Behavior(
                             BehaviorEnum.ANIMATION_PLAY,
                             ImmutableSet.<BehaviorParameter>of()
                         )
-                    ),
+                    )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_RIGHT,
                         new Behavior(
                             BehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
                             ImmutableSet.of(
-                                BehaviorParameterFactory.getInstance().createOrientationParameter(
-                                    OrientationEnum.RIGHT
+                                BehaviorParameterFactory.getInstance().createCameraParameter(
+                                    "right"
                                 )
                             )
                         )
-                    ),
+                    )
+            ).add(
                     new HIDBehaviorBinding(
                         HIDEventEnum.PRIMARY_NO_DIRECTION,
                         new Behavior(
@@ -210,7 +223,8 @@ public class GameObjectsHandler {
                             ImmutableSet.<BehaviorParameter>of()
                         )
                     )
-                ),
+            )
+        );
                 ImmutableMap.of(
                     OrientationEnum.LEFT,
                     animationFactory.createAnimationSequence(
@@ -275,9 +289,7 @@ public class GameObjectsHandler {
                 false,
                 CollisionHandlingTypeEnum.FULL,
                 ScreenBoundsHandlingTypeEnum.CENTER_RESOURCE
-            )
-        );
-        gameObjectManager.addGameObject(getGameObject("nyanCat"));
+        gameObjectManager.add(nyanCat);
 
         return gameObjectManager;
     }
@@ -285,7 +297,6 @@ public class GameObjectsHandler {
     private GameObjectManager generateLevelOneElements() throws GameException {
         // init game object manager
         GameObjectManager gameObjectManager = GameObjectManager.create(((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height);
-        GameObjectFactory gameObjectFactory = gameObjectManager.getGameObjectFactory();
 
         // dynamically generate grass background
         SpriteSheet grassBGSpriteSheet = resourceFactory.createSpriteSheet("grass_bg.png", 1950, 2);
@@ -306,7 +317,7 @@ public class GameObjectsHandler {
         return gameObjectManager;
     }
 
-    private GameObject generateGrassBGObject(GameObjectFactory gameObjectFactory, SpriteSheet grassBGSpriteSheet, Integer yIndex) throws GameException {
+    private GameObject generateGrassBGObject(SpriteSheet grassBGSpriteSheet, Integer yIndex) throws GameException {
         // define resource
         Resource resource = resourceFactory.createSpriteResource(
             0, yIndex % 2 == 0 ? 0 : 1,
@@ -326,7 +337,7 @@ public class GameObjectsHandler {
         return gameObject;
     }
 
-    private GameObject generateBushObject(GameObjectFactory gameObjectFactory, SpriteSheet bushSpriteSheet)
+    private GameObject generateBushObject(SpriteSheet bushSpriteSheet)
             throws GameException {
         // initial resource + animation cels
         Integer animationKey = randomGenerator.nextInt(3);
@@ -395,7 +406,6 @@ public class GameObjectsHandler {
 
         // init game object manager
         GameObjectManager gameObjectManager = GameObjectManager.create(2);
-        GameObjectFactory gameObjectFactory = gameObjectManager.getGameObjectFactory();
 
         // title
         SpriteSheet pixelCatTitleSpriteSheet = resourceFactory.createSpriteSheet("pixelcat_title_sprite_sheet.png", 190, 80, 0, 0, 0, 5);

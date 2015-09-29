@@ -4,7 +4,7 @@ class LayerManagerImpl implements LayerManager {
     private Integer layerCount;
 
     LayerManagerImpl() {
-        this(0);
+        this(1);
     }
 
     LayerManagerImpl(Integer layerCount) {

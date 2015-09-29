@@ -8,6 +8,7 @@ import com.rpm.pixelcat.engine.kernel.KernelActionEnum;
 import com.rpm.pixelcat.engine.kernel.KernelInjection;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
+import com.rpm.pixelcat.engine.logic.gameobject.feature.Renderable;
 
 import java.awt.*;
 
@@ -33,8 +34,8 @@ public class PreProcessingKernelInjection implements KernelInjection {
         // level one specifics
         if (levelHandler.getCurrentLevel().equals(LevelHandler.LEVEL_ONE)) {
             // handle nyan cat render level
-            gameObjectsHandler.getGameObject("nyanCat").setLayer(
-                gameObjectsHandler.getGameObject("nyanCat").getPosition().y
+            gameObjectsHandler.getGameObject("nyanCat").getFeature(Renderable.class).setLayer(
+                gameObjectsHandler.getGameObject("nyanCat").getFeature(Renderable.class).getPosition().y
             );
         }
 
@@ -54,8 +55,8 @@ public class PreProcessingKernelInjection implements KernelInjection {
                 gameObjectsHandler.getGameObjectManager(GameObjectsHandler.GAME_OBJECT_MANAGER_COMMON).getLayerManager().setLayerCount(
                     ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height
                 );
-                gameObjectsHandler.getGameObject("nyanCat").setLayer(
-                    gameObjectsHandler.getGameObject("nyanCat").getPosition().y
+                gameObjectsHandler.getGameObject("nyanCat").getFeature(Renderable.class).setLayer(
+                    gameObjectsHandler.getGameObject("nyanCat").getFeature(Renderable.class).getPosition().y
                 );
             }
         }

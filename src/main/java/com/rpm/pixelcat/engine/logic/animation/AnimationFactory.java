@@ -1,7 +1,5 @@
 package com.rpm.pixelcat.engine.logic.animation;
 
-import com.rpm.pixelcat.engine.logic.resource.Resource;
-
 import java.util.List;
 
 public class AnimationFactory {
@@ -15,7 +13,7 @@ public class AnimationFactory {
         return instance;
     }
 
-    public AnimationSequence createAnimationSequence(List<Resource> cels, Long millisecondsPerCel) {
+    public AnimationSequence createAnimationSequence(List<String> cels, Long millisecondsPerCel) {
         AnimationSequence animationSequence = new AnimationSequenceImpl(cels, millisecondsPerCel);
 
         return animationSequence;

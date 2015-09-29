@@ -4,6 +4,7 @@ import com.rpm.pixelcat.engine.common.Printer;
 import com.rpm.pixelcat.engine.common.PrinterFactory;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
+import com.rpm.pixelcat.engine.logic.gameobject.feature.Renderable;
 import com.rpm.pixelcat.engine.logic.resource.ImageResource;
 import com.rpm.pixelcat.engine.logic.resource.SpriteResource;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 public class Renderer {
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(Renderer.class);
 
-    public void render(Graphics2D g, KernelState kernelState, ArrayList<ArrayList<GameObject>> layeredGameObjects) {
+    public void render(Graphics2D g, KernelState kernelState, ArrayList<ArrayList<GameObject>> layeredGameObjects) throws GameException {
         // Clear the drawing area, then draw logic components
         Rectangle bounds = (Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS);
         g.clearRect(bounds.x, bounds.y, bounds.width, bounds.height);
@@ -31,16 +32,17 @@ public class Renderer {
                 }
 
                 // setup
-                Point position = gameObject.getPosition();
-                Resource resource = gameObject.getCurrentResource();
+                Renderable renderFeature = gameObject.getFeature(Renderable.class);
+                Point position = renderFeature.getPosition();
+                Resource resource = renderFeature.getRenderableResource(gameObject);
 
                 // render specific resource by type
                 if (resource instanceof ImageResource) {
-                    renderSpriteResource(g, ((ImageResource) resource).getMainResource(), position, gameObject.getLayer());
+                    renderSpriteResource(g, ((ImageResource) resource).getMainResource(), position, renderFeature.getLayer());
                 } else if (resource instanceof SpriteResource) {
-                    renderSpriteResource(g, (SpriteResource) resource, position, gameObject.getLayer());
+                    renderSpriteResource(g, (SpriteResource) resource, position, renderFeature.getLayer());
                 } else if (resource instanceof TextResource) {
-                    renderTextResource(g, (TextResource) resource, position, gameObject.getLayer());
+                    renderTextResource(g, (TextResource) resource, position, renderFeature.getLayer());
                 } else {
                     PRINTER.printError(new GameException(GameErrorCode.UNSUPPORTED_RESOURCE_FOR_RENDERING, resource));
                 }

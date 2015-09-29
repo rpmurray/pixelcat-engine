@@ -23,7 +23,7 @@ public class BehaviorParameterFactory {
         return parameter;
     }
 
-    public BehaviorParameterCamera createOrientationParameter(String cameraId) {
+    public BehaviorParameterCamera createCameraParameter(String cameraId) {
         BehaviorParameterCamera parameter = new BehaviorParameterCamera(
             cameraId
         );

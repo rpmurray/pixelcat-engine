@@ -9,36 +9,47 @@ import com.rpm.pixelcat.engine.logic.resource.Resource;
 
 import java.awt.*;
 
-public class RenderableImpl extends FeatureImpl implements Renderable {
+class RenderableImpl extends FeatureImpl implements Renderable {
     private Point position;
     private Integer layer;
+
+    public RenderableImpl(Point position, Integer layer) {
+        this.position = position;
+        this.layer = layer;
+    }
 
     public Resource getRenderableResource(GameObject gameObject) throws GameException {
         // setup
         Resource resource;
 
         // determine use case
-        if (gameObject.hasFeature(CameraLibrary.class)) {
+        if (gameObject.isFeatureActive(CameraLibrary.class)) {
+            // setup
+            String resourceId;
+
             // fetch camera library
             CameraLibrary cameraLibrary = gameObject.getFeature(CameraLibrary.class);
 
             // fetch current camera
             Camera camera = cameraLibrary.getCurrent();
 
-            // determine case
-            if (true) {
-                // fetch animation sequence
-                //TODO
+            // fetch camera view
+            if (camera.getType().equals(AnimationSequence.class) && gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
+                // fetch animation sequence ID
+                String animationSequenceId = camera.getView();
 
-                // fetch resource
-                // TODO
+                // fetch resource ID from animation sequence
+                resourceId = gameObject.getFeature(AnimationSequenceLibrary.class).get(animationSequenceId).getCurrentCel();
+            } else if (gameObject.isFeatureActive(ResourceLibrary.class)){
+                // fetch resource ID
+                resourceId = camera.getView();
             } else {
-                // fetch resource
-                //TODO
+                throw new GameException(GameErrorCode.LOGIC_ERROR);
             }
-            //TODO: remove
-            throw new GameException(GameErrorCode.UNSUPPORTED_FUNCTIONALITY);
-        } else if (gameObject.hasFeature(AnimationSequenceLibrary.class)) {
+
+            // fetch resource
+            resource = gameObject.getFeature(ResourceLibrary.class).get(resourceId);
+        } else if (gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
             // fetch animation sequence library
             AnimationSequenceLibrary animationSequenceLibrary = gameObject.getFeature(AnimationSequenceLibrary.class);
 
@@ -46,8 +57,11 @@ public class RenderableImpl extends FeatureImpl implements Renderable {
             AnimationSequence animationSequence = animationSequenceLibrary.getCurrent();
 
             // fetch resource
-            resource = animationSequence.getCurrentCel();
-        } else if (gameObject.hasFeature(ResourceLibrary.class)) {
+            String resourceId = animationSequence.getCurrentCel();
+
+            // fetch resource
+            resource = gameObject.getFeature(ResourceLibrary.class).get(resourceId);
+        } else if (gameObject.isFeatureActive(ResourceLibrary.class)) {
             // fetch resource library
             ResourceLibrary resourceLibrary = gameObject.getFeature(ResourceLibrary.class);
 

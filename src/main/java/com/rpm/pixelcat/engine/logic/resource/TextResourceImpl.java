@@ -1,12 +1,15 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
+import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
+
 import java.awt.*;
 
-class TextResourceImpl implements TextResource {
+class TextResourceImpl extends IdGeneratorImpl implements TextResource {
     String text;
     Font font;
 
     TextResourceImpl(String text, Font font) {
+        super(TextResource.class.toString());
         this.text = text;
         this.font = font;
     }

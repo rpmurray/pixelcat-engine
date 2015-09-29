@@ -19,7 +19,7 @@ import com.rpm.pixelcat.engine.logic.resource.Resource;
 
 import java.awt.*;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 class GameObjectUpdater {
     private static GameObjectUpdater instance;
@@ -43,11 +43,11 @@ class GameObjectUpdater {
 
     private void updateForHIDEventGameLogicBindings(GameObject gameObject, KernelState kernelState) throws GameException {
         // setup
-        Set<HIDBehaviorBinding> hidBehaviorBindings = gameObject.getFeature(HIDBehaviorBindingSet.class).getAll();
+        Map<String, HIDBehaviorBinding> hidBehaviorBindings = gameObject.getFeature(HIDBehaviorBindingSet.class).getAll();
         HashSet<HIDEventEnum> triggeredHIDEvents = kernelState.getHIDEvents();
 
         // update object based on HID events
-        for (HIDBehaviorBinding hidBehaviorBinding : hidBehaviorBindings) {
+        for (HIDBehaviorBinding hidBehaviorBinding : hidBehaviorBindings.values()) {
             // setup
             HIDEventEnum boundHIDEvent = hidBehaviorBinding.getHidEventEnum();
             Behavior behavior = hidBehaviorBinding.getBehavior();
@@ -66,19 +66,19 @@ class GameObjectUpdater {
                     move(gameObject, kernelState, behavior);
                     break;
                 case ANIMATION_PLAY:
-                    if (!gameObject.hasFeature(AnimationSequenceLibrary.class)) {
+                    if (!gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
                         throw new GameException(GameErrorCode.LOGIC_ERROR);
                     }
                     gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().play();
                     break;
                 case ANIMATION_STOP:
-                    if (!gameObject.hasFeature(AnimationSequenceLibrary.class)) {
+                    if (!gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
                         throw new GameException(GameErrorCode.LOGIC_ERROR);
                     }
                     gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().pause();
                     break;
                 case ANIMATION_SEQUENCE_SWITCH:
-                    if (!gameObject.hasFeature(CameraLibrary.class)) {
+                    if (!gameObject.isFeatureActive(CameraLibrary.class)) {
                         throw new GameException(GameErrorCode.LOGIC_ERROR);
                     }
                     gameObject.getFeature(CameraLibrary.class).setCurrent(
@@ -91,7 +91,7 @@ class GameObjectUpdater {
 
     private void updateAnimation(GameObject gameObject, KernelState kernelState) throws GameException {
         // precondition check
-        if (!gameObject.hasFeature(AnimationSequenceLibrary.class)) {
+        if (!gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
             return;
         }
 

@@ -1,5 +1,6 @@
 package com.rpm.pixelcat.engine.logic.physics.screen;
 
+import com.rpm.pixelcat.engine.logic.common.IdGeneratorUtil;
 import com.rpm.pixelcat.engine.logic.physics.PhysicsBinding;
 
 public enum ScreenBoundsHandlingTypeEnum implements PhysicsBinding {
@@ -12,4 +13,13 @@ public enum ScreenBoundsHandlingTypeEnum implements PhysicsBinding {
     // use the center of the resource, allowing the resource to be half out of bounds
     CENTER_RESOURCE,
     ;
+    private String id;
+
+    ScreenBoundsHandlingTypeEnum() {
+        this.id = IdGeneratorUtil.generateId(ScreenBoundsHandlingTypeEnum.class.toString());
+    }
+
+    public String getId() {
+        return id;
+    }
 }

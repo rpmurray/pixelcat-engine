@@ -2,20 +2,23 @@ package com.rpm.pixelcat.engine.logic.gameobject;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 import com.rpm.pixelcat.engine.logic.gameobject.feature.Feature;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class GameObjectImpl implements GameObject {
+class GameObjectImpl extends IdGeneratorImpl implements GameObject {
     private Map<Class<? extends Feature>, Feature> features;
     private Map<Class<? extends Feature>, Boolean> featuresStatus;
     private GameObjectProperties properties;
 
     GameObjectImpl(GameObjectProperties properties) throws GameException {
-        init(
-            properties
-        );
+        // handle super
+        super(GameObject.class.toString());
+
+        // handle init
+        init(properties);
     }
 
     private void init(GameObjectProperties properties) throws GameException {
@@ -27,12 +30,18 @@ class GameObjectImpl implements GameObject {
         this.properties = properties;
     }
 
-    public void registerFeature(Feature feature, Boolean status) {
+    public GameObject registerFeature(Feature feature) {
+        return registerFeature(feature, true);
+    }
+
+    public GameObject registerFeature(Feature feature, Boolean status) {
         // register feature
         features.put(feature.getClass(), feature);
 
         // register feature status
         featuresStatus.put(feature.getClass(), status);
+
+        return this;
     }
 
     public <F extends Feature> Boolean hasFeature(Class<F> featureClass) {

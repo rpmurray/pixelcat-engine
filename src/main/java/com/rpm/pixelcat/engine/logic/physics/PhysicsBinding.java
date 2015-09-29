@@ -1,4 +1,6 @@
 package com.rpm.pixelcat.engine.logic.physics;
 
-public interface PhysicsBinding {
+import com.rpm.pixelcat.engine.logic.common.IdGenerator;
+
+public interface PhysicsBinding extends IdGenerator {
 }

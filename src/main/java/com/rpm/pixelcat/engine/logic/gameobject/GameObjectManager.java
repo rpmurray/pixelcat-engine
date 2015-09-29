@@ -4,31 +4,35 @@ import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.logic.gameobject.dao.PropertiesStorageEnum;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public interface GameObjectManager {
-    public GameObjectFactory getGameObjectFactory();
+    GameObject createGameObject() throws GameException;
 
-    public void addGameObject(GameObject gameObject) throws GameException;
+    void add(GameObject gameObject) throws GameException;
 
-    public void addGameObjects(List<GameObject> gameObjects) throws GameException;
+    void add(Set<GameObject> gameObjects) throws GameException;
 
-    public int getGameObjectsCount();
+    Boolean has(String id);
 
-    public ArrayList<ArrayList<GameObject>> getLayeredGameObjects();
+    GameObject get(String id) throws GameException;
 
-    public LayerManager getLayerManager();
+    Integer count();
 
-    public void process(KernelState kernelState) throws GameException;
+    List<List<GameObject>> getLayeredGameObjects() throws GameException;
 
-    public static GameObjectManager create(Integer layers) throws GameException {
+    LayerManager getLayerManager();
+
+    void process(KernelState kernelState) throws GameException;
+
+    static GameObjectManager create(Integer layers) throws GameException {
         GameObjectManagerImpl gameObjectManager = new GameObjectManagerImpl(layers, PropertiesStorageEnum.HASH_MAP);
 
         return gameObjectManager;
     }
 
-    public static GameObjectManager create(Integer layers, PropertiesStorageEnum propertiesStorageEnum) throws GameException {
+    static GameObjectManager create(Integer layers, PropertiesStorageEnum propertiesStorageEnum) throws GameException {
         GameObjectManagerImpl gameObjectManager = new GameObjectManagerImpl(layers, propertiesStorageEnum);
 
         return gameObjectManager;

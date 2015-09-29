@@ -1,12 +1,15 @@
 package com.rpm.pixelcat.engine.logic.gameobject.behavior;
 
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
+import com.rpm.pixelcat.engine.logic.common.IdGenerator;
+import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 
-public class HIDBehaviorBinding {
+public class HIDBehaviorBinding extends IdGeneratorImpl implements IdGenerator {
     private HIDEventEnum hidEventEnum;
     private Behavior behavior;
 
     public HIDBehaviorBinding(HIDEventEnum hidEventEnum, Behavior behavior) {
+        super(HIDBehaviorBinding.class.toString());
         this.hidEventEnum = hidEventEnum;
         this.behavior = behavior;
     }

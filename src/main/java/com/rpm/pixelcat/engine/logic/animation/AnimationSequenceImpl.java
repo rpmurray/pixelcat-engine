@@ -4,13 +4,14 @@ import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.logic.clock.GameClock;
 import com.rpm.pixelcat.engine.logic.clock.GameClockFactory;
+import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 import com.rpm.pixelcat.engine.logic.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnimationSequenceImpl implements AnimationSequence {
-    List<Resource> cels;
+public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationSequence {
+    List<String> cels;
     Integer currentIndex;
     GameClock animationClock;
     Long millisecondsPerCel;
@@ -20,7 +21,7 @@ public class AnimationSequenceImpl implements AnimationSequence {
     Double animationVelocity;
     Double animationAcceleration;
 
-    public AnimationSequenceImpl(List<Resource> cels, Long millisecondsPerCel) {
+    public AnimationSequenceImpl(List<String> cels, Long millisecondsPerCel) {
         this();
         addCels(cels);
         setMillisecondsPerCel(millisecondsPerCel);
@@ -32,6 +33,7 @@ public class AnimationSequenceImpl implements AnimationSequence {
     }
 
     public AnimationSequenceImpl() {
+        super(AnimationSequence.class.toString());
         cels = new ArrayList<>();
         currentIndex = null;
         millisecondsPerCel = 0L;
@@ -44,7 +46,7 @@ public class AnimationSequenceImpl implements AnimationSequence {
         animationClock.addEvent("animation cycle start");
     }
 
-    public void addCel(Resource cel) {
+    public void addCel(String cel) {
         if (cels.isEmpty()) {
             currentIndex = 0;
         }
@@ -52,7 +54,7 @@ public class AnimationSequenceImpl implements AnimationSequence {
         cels.add(cel);
     }
 
-    public void addCels(List<Resource> cels) {
+    public void addCels(List<String> cels) {
         if (this.cels.isEmpty()) {
             currentIndex = 0;
         }
@@ -71,7 +73,7 @@ public class AnimationSequenceImpl implements AnimationSequence {
         animationAcceleration = millisecondsPerCel.doubleValue() / timeInMilliseconds;
     }
 
-    public Resource getCurrentCel() throws GameException {
+    public String getCurrentCel() throws GameException {
         if (currentIndex == null) {
             throw new GameException(GameErrorCode.INTERNAL_ERROR);
         }
