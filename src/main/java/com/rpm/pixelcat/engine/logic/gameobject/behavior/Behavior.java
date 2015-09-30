@@ -1,5 +1,6 @@
 package com.rpm.pixelcat.engine.logic.gameobject.behavior;
 
+import com.google.common.collect.ImmutableSet;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
 
@@ -9,9 +10,13 @@ public class Behavior {
     private BehaviorEnum behaviorType;
     private Set<BehaviorParameter> behaviorParameters;
 
+    public Behavior(BehaviorEnum behaviorType) {
+        this(behaviorType, ImmutableSet.of());
+    }
+
     public Behavior(BehaviorEnum behaviorType,
                     Set<BehaviorParameter> behaviorParameters) {
-        this.behaviorType =behaviorType;
+        this.behaviorType = behaviorType;
         this.behaviorParameters = behaviorParameters;
     }
 

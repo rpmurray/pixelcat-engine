@@ -5,6 +5,7 @@ import com.rpm.pixelcat.engine.common.Printer;
 import com.rpm.pixelcat.engine.common.PrinterFactory;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.kernel.*;
+import com.rpm.pixelcat.engine.test.enumeration.LevelHandle;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,11 +33,11 @@ public class TestMain {
             kernelActionBinder.bind(HIDEventEnum.D, KernelActionEnum.FONT_DEBUG_TOGGLE);
 
             // init game objects
-            String startingLevel = LevelHandler.START_SCREEN;
+            LevelHandle startingLevel = LevelHandle.START_SCREEN;
             LevelHandler levelHandler = new LevelHandler(startingLevel);
             GameObjectsHandler gameObjectsHandler = new GameObjectsHandler(kernelState);
             gameObjectsHandler.init();
-            kernel.registerGameObjectManagers(gameObjectsHandler.getGameObjectManagerSet(startingLevel));
+            kernel.registerGameObjectManagers(gameObjectsHandler.getGameObjectManagerList(startingLevel));
 
             // define kernel injections
             Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap = ImmutableMap.<KernelInjectionEventEnum, KernelInjection>of(

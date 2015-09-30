@@ -8,9 +8,11 @@ import com.rpm.pixelcat.engine.logic.resource.Resource;
 import java.util.List;
 
 public interface AnimationSequence extends RenderableContainer, IdGenerator {
-    public void addCel(String cel);
+    public AnimationSequence addCel(String cel);
 
-    public void addCels(List<String> cels);
+    public AnimationSequence addCels(List<String> cels);
+
+    public AnimationSequence setCurrentCel(String id) throws GameException;
 
     public void setMillisecondsPerCel(Long millisecondsPerCel);
 

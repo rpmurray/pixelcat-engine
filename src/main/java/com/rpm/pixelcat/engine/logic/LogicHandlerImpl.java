@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 public class LogicHandlerImpl implements LogicHandler {
-    public ArrayList<ArrayList<GameObject>> getLayeredGameObjects(KernelState kernelState) throws GameException {
+    public List<List<GameObject>> getLayeredGameObjects(KernelState kernelState) throws GameException {
         // setup
-        ArrayList<ArrayList<GameObject>> consolidatedLayeredGameObjects = new ArrayList<>();
+        List<List<GameObject>> consolidatedLayeredGameObjects = new ArrayList<>();
 
         // retrieve game object managers
         List<GameObjectManager> gameObjectManagers = (List) kernelState.getProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS);
@@ -25,11 +25,11 @@ public class LogicHandlerImpl implements LogicHandler {
         // loop through each and consolidate
         for (GameObjectManager gameObjectManager: gameObjectManagers) {
             // setup
-            ArrayList<ArrayList<GameObject>> layeredGameObjects = gameObjectManager.getLayeredGameObjects();
+            List<List<GameObject>> layeredGameObjects = gameObjectManager.getLayeredGameObjects();
 
             // iterate through the layers
             Integer i = 0;
-            for (ArrayList<GameObject> gameObjects: layeredGameObjects) {
+            for (List<GameObject> gameObjects: layeredGameObjects) {
                 // save game objects in appropriate layer
                 if (consolidatedLayeredGameObjects.size() <= i || consolidatedLayeredGameObjects.get(i) == null) {
                     consolidatedLayeredGameObjects.add(i, gameObjects);

@@ -7,6 +7,13 @@ import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 import java.util.Map;
 
 abstract class BindingSetTemplateImpl<B extends IdGenerator> extends ContainerTemplateImpl<B> implements BindingSetTemplate<B> {
+    @Override
+    public BindingSetTemplate<B> add(B object) throws GameException {
+        super.add(object);
+
+        return this;
+    }
+
     public <C extends B> void remove(Class<C> bindingClass) throws GameException {
         // find by class
         String id = find(bindingClass);

@@ -181,10 +181,15 @@ class GameObjectUpdater {
             return;
         }
 
+        // check if screen bounds handling is not defined
+        if (!gameObject.hasFeature(PhysicsBindingSet.class) ||
+            !gameObject.isFeatureActive(PhysicsBindingSet.class) ||
+            !gameObject.getFeature(PhysicsBindingSet.class).has(ScreenBoundsHandlingTypeEnum.class)) {
+            return;
+        }
+
         // determine checkable position of resource
         switch (gameObject.getFeature(PhysicsBindingSet.class).get(ScreenBoundsHandlingTypeEnum.class)) {
-            case NONE:
-                return;
             case OUTER_RESOURCE_EDGE:
                 collisionSpace = new Rectangle(
                     finalPosition.x,

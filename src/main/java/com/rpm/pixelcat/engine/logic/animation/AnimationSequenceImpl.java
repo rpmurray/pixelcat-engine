@@ -46,20 +46,40 @@ public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationS
         animationClock.addEvent("animation cycle start");
     }
 
-    public void addCel(String cel) {
+    public AnimationSequence addCel(String cel) {
+        // validate
         if (cels.isEmpty()) {
             currentIndex = 0;
         }
 
+        // add cel
         cels.add(cel);
+
+        return this;
     }
 
-    public void addCels(List<String> cels) {
+    public AnimationSequence addCels(List<String> cels) {
+        // validate
         if (this.cels.isEmpty()) {
             currentIndex = 0;
         }
 
+        // add cels
         this.cels.addAll(cels);
+
+        return this;
+    }
+
+    public AnimationSequence setCurrentCel(String id) throws GameException {
+        // validate
+        if (!cels.contains(id)) {
+            throw new GameException(GameErrorCode.LOGIC_ERROR);
+        }
+
+        // update current index
+        currentIndex = cels.indexOf(id);
+
+        return this;
     }
 
     public void setMillisecondsPerCel(Long millisecondsPerCel) {

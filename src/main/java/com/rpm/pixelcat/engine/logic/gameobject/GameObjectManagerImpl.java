@@ -3,6 +3,7 @@ package com.rpm.pixelcat.engine.logic.gameobject;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.kernel.KernelState;
+import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 import com.rpm.pixelcat.engine.logic.gameobject.dao.HashMapPropertiesDB;
 import com.rpm.pixelcat.engine.logic.gameobject.dao.PropertiesDB;
 import com.rpm.pixelcat.engine.logic.gameobject.dao.PropertiesStorageEnum;
@@ -10,7 +11,7 @@ import com.rpm.pixelcat.engine.logic.gameobject.feature.Renderable;
 
 import java.util.*;
 
-public class GameObjectManagerImpl implements GameObjectManager {
+public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObjectManager {
     private PropertiesDB propertiesDB;
     private Map<String, GameObject> gameObjects;
     private LayerManager layerManager;
@@ -39,7 +40,7 @@ public class GameObjectManagerImpl implements GameObjectManager {
         return gameObject;
     }
 
-    public void add(GameObject gameObject) throws GameException {
+    public GameObjectManager add(GameObject gameObject) throws GameException {
         if (gameObject.hasFeature(Renderable.class)) {
             if (!layerManager.isValidLayer(gameObject.getFeature(Renderable.class).getLayer())) {
                 throw new GameException(GameErrorCode.LOGIC_ERROR, gameObject);
@@ -47,13 +48,17 @@ public class GameObjectManagerImpl implements GameObjectManager {
         }
 
         gameObjects.put(gameObject.getId(), gameObject);
+
+        return this;
     }
 
-    public void add(Set<GameObject> gameObjects) throws GameException {
+    public GameObjectManager add(Set<GameObject> gameObjects) throws GameException {
         // add one at a time
         for (GameObject gameObject : gameObjects) {
             add(gameObject);
         }
+
+        return this;
     }
 
     public Boolean has(String id) {

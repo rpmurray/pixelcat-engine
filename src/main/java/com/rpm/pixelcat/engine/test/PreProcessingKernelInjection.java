@@ -9,6 +9,9 @@ import com.rpm.pixelcat.engine.kernel.KernelInjection;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
 import com.rpm.pixelcat.engine.logic.gameobject.feature.Renderable;
+import com.rpm.pixelcat.engine.test.enumeration.GameObjectHandle;
+import com.rpm.pixelcat.engine.test.enumeration.GameObjectManagerHandle;
+import com.rpm.pixelcat.engine.test.enumeration.LevelHandle;
 
 import java.awt.*;
 
@@ -32,31 +35,31 @@ public class PreProcessingKernelInjection implements KernelInjection {
         }
 
         // level one specifics
-        if (levelHandler.getCurrentLevel().equals(LevelHandler.LEVEL_ONE)) {
+        if (levelHandler.getCurrentLevel().equals(LevelHandle.L1)) {
             // handle nyan cat render level
-            gameObjectsHandler.getGameObject("nyanCat").getFeature(Renderable.class).setLayer(
-                gameObjectsHandler.getGameObject("nyanCat").getFeature(Renderable.class).getPosition().y
+            gameObjectsHandler.getGameObject(GameObjectHandle.CAT_CHARACTER).getFeature(Renderable.class).setLayer(
+                gameObjectsHandler.getGameObject(GameObjectHandle.CAT_CHARACTER).getFeature(Renderable.class).getPosition().y
             );
         }
 
         // handle level transition
         if (kernelState.hasHIDEvent(HIDEventEnum.ENTER)) {
             kernelState.removeHIDEvent(HIDEventEnum.ENTER);
-            String currentLevel = levelHandler.getCurrentLevel();
-            String nextLevel = levelHandler.getNextLevel();
+            LevelHandle currentLevel = levelHandler.getCurrentLevel();
+            LevelHandle nextLevel = levelHandler.getNextLevel();
             if (nextLevel == null) {
                 kernelState.addKernelAction(KernelActionEnum.EXIT);
             } else {
                 PRINTER.printInfo("Level transition triggered [" + currentLevel + ">>>" + nextLevel + "]...");
                 kernelState.setProperty(
                     KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS,
-                    gameObjectsHandler.getGameObjectManagerSet(nextLevel)
+                    gameObjectsHandler.getGameObjectManagerList(nextLevel)
                 );
-                gameObjectsHandler.getGameObjectManager(GameObjectsHandler.GAME_OBJECT_MANAGER_COMMON).getLayerManager().setLayerCount(
+                gameObjectsHandler.getGameObjectManager(GameObjectManagerHandle.COMMON).getLayerManager().setLayerCount(
                     ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height
                 );
-                gameObjectsHandler.getGameObject("nyanCat").getFeature(Renderable.class).setLayer(
-                    gameObjectsHandler.getGameObject("nyanCat").getFeature(Renderable.class).getPosition().y
+                gameObjectsHandler.getGameObject(GameObjectHandle.CAT_CHARACTER).getFeature(Renderable.class).setLayer(
+                    gameObjectsHandler.getGameObject(GameObjectHandle.CAT_CHARACTER).getFeature(Renderable.class).getPosition().y
                 );
             }
         }

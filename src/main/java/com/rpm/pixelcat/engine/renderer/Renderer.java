@@ -14,17 +14,17 @@ import com.rpm.pixelcat.engine.logic.resource.Resource;
 import com.rpm.pixelcat.engine.logic.resource.TextResource;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.List;
 
 public class Renderer {
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(Renderer.class);
 
-    public void render(Graphics2D g, KernelState kernelState, ArrayList<ArrayList<GameObject>> layeredGameObjects) throws GameException {
+    public void render(Graphics2D g, KernelState kernelState, List<List<GameObject>> layeredGameObjects) throws GameException {
         // Clear the drawing area, then draw logic components
         Rectangle bounds = (Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS);
         g.clearRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-        for (ArrayList<GameObject> gameObjects: layeredGameObjects) {
+        for (List<GameObject> gameObjects: layeredGameObjects) {
             for (GameObject gameObject : gameObjects) {
                 // check for empty item
                 if (gameObject == null) {

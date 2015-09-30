@@ -6,15 +6,15 @@ import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 import java.util.Map;
 
 public interface ContainerTemplate<C extends IdGenerator> extends Feature {
-    public Boolean has(String id);
+    Boolean has(String id);
 
-    public C get(String id) throws GameException;
+    C get(String id) throws GameException;
 
-    public ContainerTemplate<C> add(C object) throws GameException;
+    ContainerTemplate<C> add(C object) throws GameException;
 
-    public void update(C object);
+    void update(C object);
 
-    public void remove(String id) throws GameException;
+    void remove(String id) throws GameException;
 
-    public Map<String, C> getAll();
+    Map<String, C> getAll();
 }

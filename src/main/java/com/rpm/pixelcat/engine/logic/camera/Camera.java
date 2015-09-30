@@ -4,14 +4,12 @@ import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 import com.rpm.pixelcat.engine.logic.common.RenderableContainer;
 
 public interface Camera extends IdGenerator {
-    Class<RenderableContainer> getType();
-
-    String getName();
+    Class<? extends RenderableContainer> getType();
 
     String getView();
 
-    static Camera create(String name, String view, Class<RenderableContainer> type) {
-        Camera camera = new CameraImpl(name, view, type);
+    static Camera create(String view, Class<? extends RenderableContainer> type) {
+        Camera camera = new CameraImpl(view, type);
 
         return camera;
     }
