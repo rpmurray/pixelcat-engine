@@ -6,13 +6,13 @@ import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-class SpriteResourceImpl extends IdGeneratorImpl implements SpriteResource {
+class SpriteResourceImpl extends ResourceImpl implements SpriteResource {
     SpriteSheet spriteSheet;
     Integer xIndex;
     Integer yIndex;
 
     SpriteResourceImpl(SpriteSheet spriteSheet, Integer xIndex, Integer yIndex) {
-        super(SpriteResource.class.toString());
+        super(SpriteResource.class.getSimpleName());
         this.spriteSheet = spriteSheet;
         this.xIndex = xIndex;
         this.yIndex = yIndex;

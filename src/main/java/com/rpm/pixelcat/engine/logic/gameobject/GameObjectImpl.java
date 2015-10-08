@@ -4,6 +4,7 @@ import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 import com.rpm.pixelcat.engine.logic.gameobject.feature.Feature;
+import com.rpm.pixelcat.engine.logic.gameobject.feature.FeatureImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,7 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
 
     GameObjectImpl(GameObjectProperties properties) throws GameException {
         // handle super
-        super(GameObject.class.toString());
+        super(GameObject.class.getSimpleName());
 
         // handle init
         init(properties);
@@ -30,16 +31,33 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
         this.properties = properties;
     }
 
-    public GameObject registerFeature(Feature feature) {
+    public <F extends Feature> GameObject registerFeature(F feature) throws GameException {
         return registerFeature(feature, true);
     }
 
-    public GameObject registerFeature(Feature feature, Boolean status) {
+    public <F extends Feature> GameObject registerFeature(F feature, Boolean status) throws GameException {
+        // setup
+        Class<? extends Feature> featureIntf = null;
+
+        // derive appropriate interface
+        for (Class intf : feature.getClass().getInterfaces()) {
+            if (feature.getClass().getSimpleName().equals(intf.getSimpleName() + "Impl") &&
+                !feature.getClass().equals(FeatureImpl.class) &&
+                intf.isInterface()) {
+                featureIntf = intf;
+            }
+        }
+
+        // if we didn't find a matching interface, throw an error
+        if (featureIntf == null) {
+            throw new GameException(GameErrorCode.LOGIC_ERROR, "Feature interface does not exist", feature);
+        }
+
         // register feature
-        features.put(feature.getClass(), feature);
+        features.put(featureIntf, feature);
 
         // register feature status
-        featuresStatus.put(feature.getClass(), status);
+        featuresStatus.put(featureIntf, status);
 
         return this;
     }
@@ -50,8 +68,11 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
 
     public <F extends Feature> F getFeature(Class<F> featureClass) throws GameException {
         // validate
-        if (!hasFeature(featureClass) || !isFeatureActive(featureClass)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+        if (!hasFeature(featureClass)) {
+            throw new GameException(GameErrorCode.LOGIC_ERROR, "Feature not avalable: " + featureClass.getSimpleName());
+        }
+        if (!isFeatureActive(featureClass)) {
+            throw new GameException(GameErrorCode.LOGIC_ERROR, "Feature not active: " + featureClass.getSimpleName());
         }
 
         // fetch feature
@@ -88,6 +109,20 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
 
         // fetch status
         Boolean status = featuresStatus.get(featureClass);
+
+        return status;
+    }
+
+    public <F extends Feature> Boolean isFeatureAvailable(Class<F> featureClass) {
+        // setup
+        Boolean status;
+
+        try {
+            // generate status
+            status = hasFeature(featureClass) && isFeatureActive(featureClass);
+        } catch (GameException e) {
+            return false;
+        }
 
         return status;
     }

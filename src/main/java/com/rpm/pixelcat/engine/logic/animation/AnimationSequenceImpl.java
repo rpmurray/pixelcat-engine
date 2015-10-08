@@ -33,7 +33,7 @@ public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationS
     }
 
     public AnimationSequenceImpl() {
-        super(AnimationSequence.class.toString());
+        super(AnimationSequence.class.getSimpleName());
         cels = new ArrayList<>();
         currentIndex = null;
         millisecondsPerCel = 0L;
@@ -82,15 +82,19 @@ public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationS
         return this;
     }
 
-    public void setMillisecondsPerCel(Long millisecondsPerCel) {
+    public AnimationSequence setMillisecondsPerCel(Long millisecondsPerCel) {
         this.millisecondsPerCel = millisecondsPerCel;
+
+        return this;
     }
 
-    public void setAnimationAcceleration(Long timeInMilliseconds) {
+    public AnimationSequence setAnimationAcceleration(Long timeInMilliseconds) {
         isAnimationAccelerationEnabled = true;
         millisecondsForAnimationAcceleration = timeInMilliseconds;
         animationVelocity = 0.0;
         animationAcceleration = millisecondsPerCel.doubleValue() / timeInMilliseconds;
+
+        return this;
     }
 
     public String getCurrentCel() throws GameException {
@@ -101,29 +105,37 @@ public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationS
         return cels.get(currentIndex);
     }
 
-    public void play() {
+    public AnimationSequence play() {
         isPaused = false;
+
+        return this;
     }
 
-    public void pause() {
+    public AnimationSequence pause() {
         isPaused = true;
+
+        return this;
     }
 
-    public void resetSequence() {
+    public AnimationSequence resetSequence() {
         currentIndex = 0;
+
+        return this;
     }
 
-    public void advanceSequence() {
+    public AnimationSequence advanceSequence() {
         if (isPaused) {
-            return;
+            return this;
         }
 
         currentIndex = currentIndex + 1 == cels.size() ? 0 : currentIndex + 1;
+
+        return this;
     }
 
-    public void advanceSequenceByTime() throws GameException {
+    public AnimationSequence advanceSequenceByTime() throws GameException {
         if (isPaused) {
-            return;
+            return this;
         }
 
         if (GameClock.toMS(animationClock.getElapsed("animation cycle start")) * animationVelocity > millisecondsPerCel) {
@@ -134,6 +146,8 @@ public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationS
 
             currentIndex = currentIndex + 1 == cels.size() ? 0 : currentIndex + 1;
         }
+
+        return this;
     }
 
     @Override

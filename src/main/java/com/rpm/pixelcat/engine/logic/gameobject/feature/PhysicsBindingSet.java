@@ -5,6 +5,6 @@ import com.rpm.pixelcat.engine.logic.physics.PhysicsBinding;
 
 public interface PhysicsBindingSet extends BindingSetTemplate<PhysicsBinding> {
     static PhysicsBindingSet create() throws GameException {
-        return Feature.create(PhysicsBindingSet.class);
+        return Feature.create(PhysicsBindingSetImpl.class);
     }
 }

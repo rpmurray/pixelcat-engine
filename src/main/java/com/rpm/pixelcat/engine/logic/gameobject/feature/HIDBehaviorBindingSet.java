@@ -5,6 +5,6 @@ import com.rpm.pixelcat.engine.logic.gameobject.behavior.HIDBehaviorBinding;
 
 public interface HIDBehaviorBindingSet extends BindingSetTemplate<HIDBehaviorBinding> {
     static HIDBehaviorBindingSet create() throws GameException {
-        return Feature.create(HIDBehaviorBindingSet.class);
+        return Feature.create(HIDBehaviorBindingSetImpl.class);
     }
 }

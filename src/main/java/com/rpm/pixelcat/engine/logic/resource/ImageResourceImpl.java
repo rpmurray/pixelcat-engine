@@ -9,7 +9,7 @@ class ImageResourceImpl extends ResourceImpl implements ImageResource {
     private SpriteResource collisionMaskResource;
 
     ImageResourceImpl(SpriteResource mainResource, SpriteResource collisionMaskResource) {
-        super(ImageResource.class.toString());
+        super(ImageResource.class.getSimpleName());
         this.mainResource = mainResource;
         this.collisionMaskResource = collisionMaskResource;
     }

@@ -5,7 +5,7 @@ import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 
 abstract class ResourceImpl extends IdGeneratorImpl implements Resource, IdGenerator {
     ResourceImpl() {
-        super("");
+        super(Resource.class.getSimpleName());
     }
 
     ResourceImpl(String base) {

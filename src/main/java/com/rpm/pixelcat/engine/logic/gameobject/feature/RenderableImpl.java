@@ -23,7 +23,7 @@ class RenderableImpl extends FeatureImpl implements Renderable {
         Resource resource;
 
         // determine use case
-        if (gameObject.isFeatureActive(CameraLibrary.class)) {
+        if (gameObject.isFeatureAvailable(CameraLibrary.class)) {
             // setup
             String resourceId;
 
@@ -34,13 +34,13 @@ class RenderableImpl extends FeatureImpl implements Renderable {
             Camera camera = cameraLibrary.getCurrent();
 
             // fetch camera view
-            if (camera.getType().equals(AnimationSequence.class) && gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
+            if (camera.getType().equals(AnimationSequence.class) && gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
                 // fetch animation sequence ID
                 String animationSequenceId = camera.getView();
 
                 // fetch resource ID from animation sequence
                 resourceId = gameObject.getFeature(AnimationSequenceLibrary.class).get(animationSequenceId).getCurrentCel();
-            } else if (gameObject.isFeatureActive(ResourceLibrary.class)){
+            } else if (gameObject.isFeatureAvailable(ResourceLibrary.class)) {
                 // fetch resource ID
                 resourceId = camera.getView();
             } else {
@@ -49,7 +49,7 @@ class RenderableImpl extends FeatureImpl implements Renderable {
 
             // fetch resource
             resource = gameObject.getFeature(ResourceLibrary.class).get(resourceId);
-        } else if (gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
+        } else if (gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
             // fetch animation sequence library
             AnimationSequenceLibrary animationSequenceLibrary = gameObject.getFeature(AnimationSequenceLibrary.class);
 
@@ -61,7 +61,7 @@ class RenderableImpl extends FeatureImpl implements Renderable {
 
             // fetch resource
             resource = gameObject.getFeature(ResourceLibrary.class).get(resourceId);
-        } else if (gameObject.isFeatureActive(ResourceLibrary.class)) {
+        } else if (gameObject.isFeatureAvailable(ResourceLibrary.class)) {
             // fetch resource library
             ResourceLibrary resourceLibrary = gameObject.getFeature(ResourceLibrary.class);
 

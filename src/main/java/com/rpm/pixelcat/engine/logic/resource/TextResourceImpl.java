@@ -4,12 +4,12 @@ import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 
 import java.awt.*;
 
-class TextResourceImpl extends IdGeneratorImpl implements TextResource {
+class TextResourceImpl extends ResourceImpl implements TextResource {
     String text;
     Font font;
 
     TextResourceImpl(String text, Font font) {
-        super(TextResource.class.toString());
+        super(TextResource.class.getSimpleName());
         this.text = text;
         this.font = font;
     }

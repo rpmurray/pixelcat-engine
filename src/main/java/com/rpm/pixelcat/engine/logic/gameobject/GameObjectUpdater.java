@@ -8,6 +8,7 @@ import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
 import com.rpm.pixelcat.engine.logic.animation.AnimationSequence;
+import com.rpm.pixelcat.engine.logic.camera.Camera;
 import com.rpm.pixelcat.engine.logic.gameobject.behavior.BehaviorParameterCamera;
 import com.rpm.pixelcat.engine.logic.gameobject.behavior.BehaviorParameterMagnitude;
 import com.rpm.pixelcat.engine.logic.gameobject.behavior.Behavior;
@@ -42,6 +43,11 @@ class GameObjectUpdater {
     }
 
     private void updateForHIDEventGameLogicBindings(GameObject gameObject, KernelState kernelState) throws GameException {
+        // validate
+        if (!gameObject.isFeatureAvailable(HIDBehaviorBindingSet.class)) {
+            return;
+        }
+
         // setup
         Map<String, HIDBehaviorBinding> hidBehaviorBindings = gameObject.getFeature(HIDBehaviorBindingSet.class).getAll();
         HashSet<HIDEventEnum> triggeredHIDEvents = kernelState.getHIDEvents();
@@ -66,24 +72,59 @@ class GameObjectUpdater {
                     move(gameObject, kernelState, behavior);
                     break;
                 case ANIMATION_PLAY:
-                    if (!gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
+                    if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
                         throw new GameException(GameErrorCode.LOGIC_ERROR);
                     }
                     gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().play();
                     break;
                 case ANIMATION_STOP:
-                    if (!gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
+                    if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
                         throw new GameException(GameErrorCode.LOGIC_ERROR);
                     }
                     gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().pause();
                     break;
-                case ANIMATION_SEQUENCE_SWITCH:
-                    if (!gameObject.isFeatureActive(CameraLibrary.class)) {
-                        throw new GameException(GameErrorCode.LOGIC_ERROR);
+                case CAMERA_SWITCH:
+                    // validate
+                    if (!gameObject.isFeatureAvailable(CameraLibrary.class)) {
+                        throw new GameException(GameErrorCode.LOGIC_ERROR, "CameraLibrary feature not supported when expected", gameObject);
                     }
+
+                    // assign new camera
                     gameObject.getFeature(CameraLibrary.class).setCurrent(
                         ((BehaviorParameterCamera) behavior.getBehaviorParameter(BehaviorParameterCamera.class)).getCameraId()
                     );
+
+                    // fetch new camera
+                    Camera camera = gameObject.getFeature(CameraLibrary.class).getCurrent();
+
+                    // assign new animation sequence, if applicable, and get new resource ID
+                    String resourceId;
+                    if (camera.getType().equals(AnimationSequence.class)) {
+                        // validate
+                        if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
+                            throw new GameException(GameErrorCode.LOGIC_ERROR, "AnimationSequenceLibrary feature not supported when expected", gameObject);
+                        }
+
+                        // assign new animation sequence
+                        gameObject.getFeature(AnimationSequenceLibrary.class).setCurrent(camera.getView());
+
+                        // fetch new resource ID
+                        resourceId = gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().getCurrentCel();
+                    } else if (camera.getType().equals(Resource.class)){
+                        // fetch new resource ID
+                        resourceId = camera.getView();
+                    } else {
+                        // unsupported case
+                        throw new GameException(GameErrorCode.LOGIC_ERROR, "Unsupported camera type", gameObject);
+                    }
+
+                    // validate
+                    if (!gameObject.isFeatureAvailable(ResourceLibrary.class)) {
+                        throw new GameException(GameErrorCode.LOGIC_ERROR, "ResourceLibrary feature not supported when expected", gameObject);
+                    }
+
+                    // assign new resource
+                    gameObject.getFeature(ResourceLibrary.class).setCurrent(resourceId);
                     break;
             }
         }
@@ -91,7 +132,7 @@ class GameObjectUpdater {
 
     private void updateAnimation(GameObject gameObject, KernelState kernelState) throws GameException {
         // precondition check
-        if (!gameObject.isFeatureActive(AnimationSequenceLibrary.class)) {
+        if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
             return;
         }
 
@@ -182,8 +223,7 @@ class GameObjectUpdater {
         }
 
         // check if screen bounds handling is not defined
-        if (!gameObject.hasFeature(PhysicsBindingSet.class) ||
-            !gameObject.isFeatureActive(PhysicsBindingSet.class) ||
+        if (!gameObject.isFeatureAvailable(PhysicsBindingSet.class) ||
             !gameObject.getFeature(PhysicsBindingSet.class).has(ScreenBoundsHandlingTypeEnum.class)) {
             return;
         }

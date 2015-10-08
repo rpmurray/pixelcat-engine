@@ -31,6 +31,11 @@ public class Renderer {
                     continue;
                 }
 
+                // check for non-renderable object
+                if (!gameObject.isFeatureAvailable(Renderable.class)) {
+                    continue;
+                }
+
                 // setup
                 Renderable renderFeature = gameObject.getFeature(Renderable.class);
                 Point position = renderFeature.getPosition();

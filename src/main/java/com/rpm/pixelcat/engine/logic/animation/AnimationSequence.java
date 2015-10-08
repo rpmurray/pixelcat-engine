@@ -3,7 +3,6 @@ package com.rpm.pixelcat.engine.logic.animation;
 import com.rpm.pixelcat.engine.exception.GameException;
 import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 import com.rpm.pixelcat.engine.logic.common.RenderableContainer;
-import com.rpm.pixelcat.engine.logic.resource.Resource;
 
 import java.util.List;
 
@@ -14,19 +13,19 @@ public interface AnimationSequence extends RenderableContainer, IdGenerator {
 
     public AnimationSequence setCurrentCel(String id) throws GameException;
 
-    public void setMillisecondsPerCel(Long millisecondsPerCel);
+    public AnimationSequence setMillisecondsPerCel(Long millisecondsPerCel);
 
-    public void setAnimationAcceleration(Long timeInMilliseconds);
+    public AnimationSequence setAnimationAcceleration(Long timeInMilliseconds);
 
     public String getCurrentCel() throws GameException;
 
-    public void play();
+    public AnimationSequence play();
 
-    public void pause();
+    public AnimationSequence pause();
 
-    public void resetSequence();
+    public AnimationSequence resetSequence();
 
-    public void advanceSequence();
+    public AnimationSequence advanceSequence();
 
-    public void advanceSequenceByTime() throws GameException;
+    public AnimationSequence advanceSequenceByTime() throws GameException;
 }

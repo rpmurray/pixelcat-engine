@@ -5,9 +5,9 @@ import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 import com.rpm.pixelcat.engine.logic.gameobject.feature.Feature;
 
 public interface GameObject extends IdGenerator {
-    GameObject registerFeature(Feature feature);
+    <F extends Feature> GameObject registerFeature(F feature) throws GameException;
 
-    GameObject registerFeature(Feature feature, Boolean status);
+    <F extends Feature> GameObject registerFeature(F feature, Boolean status) throws GameException;
 
     <F extends Feature> Boolean hasFeature(Class<F> featureClass);
 
@@ -18,6 +18,8 @@ public interface GameObject extends IdGenerator {
     <F extends Feature> void activateFeature(Class<F> featureClass) throws GameException;
 
     <F extends Feature> Boolean isFeatureActive(Class<F> featureClass) throws GameException;
+
+    <F extends Feature> Boolean isFeatureAvailable(Class<F> featureClass);
 
     GameObjectProperties getProperties();
 

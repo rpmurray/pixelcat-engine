@@ -103,16 +103,8 @@ class KernelImpl implements Kernel {
     }
 
     public void run(Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap) throws GameException {
-        // synthesize special HID events
-        hidEventManager.generateSynthesizedEvents();
-
-        // handle mapping hid events to kernel actions
-        mapHIDEventsToKernelActions();
-
-        // handle pre-processing kernel injection
-        if (kernelInjectionMap.containsKey(KernelInjectionEventEnum.PRE_PROCESSING)) {
-            kernelInjectionMap.get(KernelInjectionEventEnum.PRE_PROCESSING).run(kernelState);
-        }
+        // set up
+        setUp(kernelInjectionMap);
 
         // process logic
         logicHandler.process(kernelState);
@@ -125,6 +117,19 @@ class KernelImpl implements Kernel {
 
         // clean up
         cleanUp();
+    }
+
+    private void setUp(Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap) throws GameException {
+        // synthesize special HID events
+        hidEventManager.generateSynthesizedEvents();
+
+        // handle mapping hid events to kernel actions
+        mapHIDEventsToKernelActions();
+
+        // handle pre-processing kernel injection
+        if (kernelInjectionMap.containsKey(KernelInjectionEventEnum.PRE_PROCESSING)) {
+            kernelInjectionMap.get(KernelInjectionEventEnum.PRE_PROCESSING).run(kernelState);
+        }
     }
 
     public void sleep() throws Exception {
@@ -146,9 +151,10 @@ class KernelImpl implements Kernel {
             );
 
             if (loopRemainingTime > 0) {
+                Long sleepTime = loopRemainingTime/1000000;
                 kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).addEvent("sleep started");
-                PRINTER.printInfo("Sleep " + loopRemainingTime + "ms");
-                Thread.sleep(loopRemainingTime/1000000);
+                PRINTER.printInfo("Sleep " + sleepTime + "ms");
+                Thread.sleep(sleepTime);
                 kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK).addEvent("sleep ended");
             }
         }

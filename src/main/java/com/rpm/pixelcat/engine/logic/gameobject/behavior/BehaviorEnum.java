@@ -7,7 +7,7 @@ public enum BehaviorEnum {
     MOVE_RIGHT,
     ANIMATION_PLAY,
     ANIMATION_STOP,
-    ANIMATION_SEQUENCE_SWITCH,
+    CAMERA_SWITCH,
     ;
 
     @Override

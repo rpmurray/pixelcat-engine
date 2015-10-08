@@ -43,6 +43,7 @@ public class GameObjectsHandler {
     GameObjectsHandler(KernelState kernelState) {
         this.kernelState = kernelState;
         this.gameObjects = new HashMap<>();
+        this.gameObjectManagerHandles = new HashMap<>();
         this.gameObjectManagers = new HashMap<>();
         this.levels = new HashMap<>();
     }
@@ -248,7 +249,7 @@ public class GameObjectsHandler {
                 catResourcesLeft.get(4)
             ).add(
                 catResourcesLeft.get(5)
-            )
+            ).setCurrent(catResourcesLeft.get(0).getId())
         );
 
         // define animations
@@ -289,7 +290,7 @@ public class GameObjectsHandler {
                 catAnimationRight
             ).add(
                 catAnimationLeft
-            )
+            ).setCurrent(catAnimationLeft.getId())
         );
 
         // define cameras
@@ -302,7 +303,7 @@ public class GameObjectsHandler {
                 catCameraRight
             ).add(
                 catCameraLeft
-            )
+            ).setCurrent(catCameraLeft.getId())
         );
 
         // register physics
@@ -358,7 +359,7 @@ public class GameObjectsHandler {
                 new HIDBehaviorBinding(
                     HIDEventEnum.PRIMARY_LEFT,
                     new Behavior(
-                        BehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
+                        BehaviorEnum.CAMERA_SWITCH,
                         ImmutableSet.of(BehaviorParameterFactory.getInstance().createCameraParameter(catCameraLeft.getId()))
                     )
                 )
@@ -379,7 +380,7 @@ public class GameObjectsHandler {
                 new HIDBehaviorBinding(
                     HIDEventEnum.PRIMARY_RIGHT,
                     new Behavior(
-                        BehaviorEnum.ANIMATION_SEQUENCE_SWITCH,
+                        BehaviorEnum.CAMERA_SWITCH,
                         ImmutableSet.of(BehaviorParameterFactory.getInstance().createCameraParameter(catCameraRight.getId()))
                     )
                 )
@@ -517,7 +518,7 @@ public class GameObjectsHandler {
             bushRightResource.getId()
         ).setCurrentCel(
             currentCel
-        );
+        ).play();
 
         // register animation
         bush.registerFeature(
@@ -532,9 +533,9 @@ public class GameObjectsHandler {
         Rectangle screenBounds = ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS));
         Font instructionsFont = new Font("Courier New", Font.BOLD, 12);
         String instructions1Text = "- Or, just have fun moving the nyan cat with the arrow keys! -";
-        Point instructions1Position = new Point(-140, 50);
+        Point instructions1Position = new Point(-220, 50);
         String instructions2Text = "Press enter to continue, escape to exit...";
-        Point instructions2Position = new Point(-220, 65);
+        Point instructions2Position = new Point(-140, 65);
 
         // init game object manager
         GameObjectManager gameObjectManager = GameObjectManager.create(2);
@@ -661,7 +662,7 @@ public class GameObjectsHandler {
             resources.get(6).getId()
         ).addCel(
             resources.get(7).getId()
-        );
+        ).play();
 
         // register animation
         title.registerFeature(

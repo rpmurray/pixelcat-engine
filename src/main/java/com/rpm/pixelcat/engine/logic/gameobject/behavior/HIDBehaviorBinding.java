@@ -9,7 +9,7 @@ public class HIDBehaviorBinding extends IdGeneratorImpl implements IdGenerator {
     private Behavior behavior;
 
     public HIDBehaviorBinding(HIDEventEnum hidEventEnum, Behavior behavior) {
-        super(HIDBehaviorBinding.class.toString());
+        super(HIDBehaviorBinding.class.getSimpleName());
         this.hidEventEnum = hidEventEnum;
         this.behavior = behavior;
     }
