@@ -1,7 +1,7 @@
 package com.rpm.pixelcat.engine.kernel;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 public interface KernelInjection {
-    public void run(KernelState kernelState) throws GameException;
+    public void run(KernelState kernelState) throws TransientGameException;
 }

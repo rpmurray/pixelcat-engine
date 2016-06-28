@@ -1,7 +1,7 @@
 package com.rpm.pixelcat.engine.logic.gameobject;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 import com.rpm.pixelcat.engine.logic.gameobject.feature.Feature;
 import com.rpm.pixelcat.engine.logic.gameobject.feature.FeatureImpl;
@@ -14,7 +14,7 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
     private Map<Class<? extends Feature>, Boolean> featuresStatus;
     private GameObjectProperties properties;
 
-    GameObjectImpl(GameObjectProperties properties) throws GameException {
+    GameObjectImpl(GameObjectProperties properties) throws TransientGameException {
         // handle super
         super(GameObject.class.getSimpleName());
 
@@ -22,7 +22,7 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
         init(properties);
     }
 
-    private void init(GameObjectProperties properties) throws GameException {
+    private void init(GameObjectProperties properties) throws TransientGameException {
         // features
         this.features = new HashMap<>();
         this.featuresStatus = new HashMap<>();
@@ -31,11 +31,11 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
         this.properties = properties;
     }
 
-    public <F extends Feature> GameObject registerFeature(F feature) throws GameException {
+    public <F extends Feature> GameObject registerFeature(F feature) throws TransientGameException {
         return registerFeature(feature, true);
     }
 
-    public <F extends Feature> GameObject registerFeature(F feature, Boolean status) throws GameException {
+    public <F extends Feature> GameObject registerFeature(F feature, Boolean status) throws TransientGameException {
         // setup
         Class<? extends Feature> featureIntf = null;
 
@@ -50,7 +50,7 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
 
         // if we didn't find a matching interface, throw an error
         if (featureIntf == null) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR, "Feature interface does not exist", feature);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Feature interface does not exist", feature);
         }
 
         // register feature
@@ -66,13 +66,13 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
         return features.containsKey(featureClass);
     }
 
-    public <F extends Feature> F getFeature(Class<F> featureClass) throws GameException {
+    public <F extends Feature> F getFeature(Class<F> featureClass) throws TransientGameException {
         // validate
         if (!hasFeature(featureClass)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR, "Feature not avalable: " + featureClass.getSimpleName());
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Feature not avalable: " + featureClass.getSimpleName());
         }
         if (!isFeatureActive(featureClass)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR, "Feature not active: " + featureClass.getSimpleName());
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Feature not active: " + featureClass.getSimpleName());
         }
 
         // fetch feature
@@ -81,30 +81,30 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
         return feature;
     }
 
-    public <F extends Feature> void deactivateFeature(Class<F> featureClass) throws GameException {
+    public <F extends Feature> void deactivateFeature(Class<F> featureClass) throws TransientGameException {
         // validate
         if (!hasFeature(featureClass)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         // deactivate
         featuresStatus.put(featureClass, false);
     }
 
-    public <F extends Feature> void activateFeature(Class<F> featureClass) throws GameException {
+    public <F extends Feature> void activateFeature(Class<F> featureClass) throws TransientGameException {
         // validate
         if (!hasFeature(featureClass)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         // activate
         featuresStatus.put(featureClass, true);
     }
 
-    public <F extends Feature> Boolean isFeatureActive(Class<F> featureClass) throws GameException {
+    public <F extends Feature> Boolean isFeatureActive(Class<F> featureClass) throws TransientGameException {
         // validate
         if (!hasFeature(featureClass)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         // fetch status
@@ -120,7 +120,7 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
         try {
             // generate status
             status = hasFeature(featureClass) && isFeatureActive(featureClass);
-        } catch (GameException e) {
+        } catch (TransientGameException e) {
             return false;
         }
 

@@ -1,9 +1,9 @@
 package com.rpm.pixelcat.engine.hid;
 
-import com.rpm.pixelcat.engine.common.Printer;
-import com.rpm.pixelcat.engine.common.PrinterFactory;
+import com.rpm.pixelcat.engine.common.printer.Printer;
+import com.rpm.pixelcat.engine.common.printer.PrinterFactory;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -21,6 +21,7 @@ class HIDEventBinderImpl implements HIDEventBinder {
         bind(KeyEvent.VK_LEFT, HIDEventEnum.PRIMARY_LEFT);
         bind(KeyEvent.VK_RIGHT, HIDEventEnum.PRIMARY_RIGHT);
         bind(KeyEvent.VK_ENTER, HIDEventEnum.ENTER);
+        bind(KeyEvent.VK_SPACE, HIDEventEnum.SPACE);
         bind(KeyEvent.VK_ESCAPE, HIDEventEnum.ESC);
         bind(MouseEvent.BUTTON1, HIDEventEnum.CLICK_LEFT);
         bind(MouseEvent.BUTTON2, HIDEventEnum.CLICK_MIDDLE);
@@ -63,19 +64,19 @@ class HIDEventBinderImpl implements HIDEventBinder {
         bind(KeyEvent.VK_9, HIDEventEnum.NINE);
     }
 
-    public HIDEventEnum binding(Integer key) throws GameException {
+    public HIDEventEnum binding(Integer key) throws TransientGameException {
         // look up hid event
         HIDEventEnum hidEvent = bindings.get(key);
 
         // check result
         if (hidEvent == null) {
-            throw new GameException(GameErrorCode.HID_EVENT_UNSUPPORTED);
+            throw new TransientGameException(GameErrorCode.HID_EVENT_UNSUPPORTED);
         }
 
         return hidEvent;
     }
 
-    public Integer binding(HIDEventEnum hidEvent) throws GameException {
+    public Integer binding(HIDEventEnum hidEvent) throws TransientGameException {
         // look up hid event
         if (bindings.containsValue(hidEvent)) {
             for (Integer key : bindings.keySet()) {
@@ -86,7 +87,7 @@ class HIDEventBinderImpl implements HIDEventBinder {
         }
 
         // throw error if not found
-        throw new GameException(GameErrorCode.HID_EVENT_UNSUPPORTED);
+        throw new TransientGameException(GameErrorCode.HID_EVENT_UNSUPPORTED);
     }
 
     public void bind(Integer key, HIDEventEnum hidEvent) {

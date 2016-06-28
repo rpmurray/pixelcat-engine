@@ -1,7 +1,7 @@
 package com.rpm.pixelcat.engine.logic.gameobject.feature;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 
 import java.util.HashMap;
@@ -18,17 +18,17 @@ abstract class ContainerTemplateImpl<C extends IdGenerator> extends FeatureImpl 
         return map.containsKey(id);
     }
 
-    public C get(String id) throws GameException {
+    public C get(String id) throws TransientGameException {
         if (!map.containsKey(id)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         return map.get(id);
     }
 
-    public ContainerTemplate<C> add(C object) throws GameException {
+    public ContainerTemplate<C> add(C object) throws TransientGameException {
         if (map.containsKey(object.getId())) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         map.put(object.getId(), object);
@@ -40,9 +40,9 @@ abstract class ContainerTemplateImpl<C extends IdGenerator> extends FeatureImpl 
         map.put(object.getId(), object);
     }
 
-    public void remove(String id) throws GameException {
+    public void remove(String id) throws TransientGameException {
         if (!map.containsKey(id)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         map.remove(id);

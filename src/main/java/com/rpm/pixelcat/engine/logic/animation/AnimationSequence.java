@@ -1,6 +1,6 @@
 package com.rpm.pixelcat.engine.logic.animation;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 import com.rpm.pixelcat.engine.logic.common.RenderableContainer;
 
@@ -11,13 +11,13 @@ public interface AnimationSequence extends RenderableContainer, IdGenerator {
 
     public AnimationSequence addCels(List<String> cels);
 
-    public AnimationSequence setCurrentCel(String id) throws GameException;
+    public AnimationSequence setCurrentCel(String id) throws TransientGameException;
 
     public AnimationSequence setMillisecondsPerCel(Long millisecondsPerCel);
 
     public AnimationSequence setAnimationAcceleration(Long timeInMilliseconds);
 
-    public String getCurrentCel() throws GameException;
+    public String getCurrentCel() throws TransientGameException;
 
     public AnimationSequence play();
 
@@ -27,5 +27,5 @@ public interface AnimationSequence extends RenderableContainer, IdGenerator {
 
     public AnimationSequence advanceSequence();
 
-    public AnimationSequence advanceSequenceByTime() throws GameException;
+    public AnimationSequence advanceSequenceByTime() throws TransientGameException;
 }

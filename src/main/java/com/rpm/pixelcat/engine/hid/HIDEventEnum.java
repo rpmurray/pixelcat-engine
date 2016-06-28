@@ -1,8 +1,10 @@
 package com.rpm.pixelcat.engine.hid;
 
+import com.rpm.pixelcat.engine.common.binding.BindableEvent;
+
 import java.util.HashMap;
 
-public enum HIDEventEnum {
+public enum HIDEventEnum implements BindableEvent {
     PRIMARY_UP,
     PRIMARY_DOWN,
     PRIMARY_LEFT,
@@ -51,6 +53,7 @@ public enum HIDEventEnum {
     NINE,
     ESC,
     ENTER,
+    SPACE,
     ;
 
     HashMap<String, Object> properties;

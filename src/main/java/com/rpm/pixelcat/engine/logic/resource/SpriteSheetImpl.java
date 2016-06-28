@@ -1,6 +1,7 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.common.file.FileLoader;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -35,7 +36,7 @@ class SpriteSheetImpl implements SpriteSheet {
         return texture != null;
     }
 
-    public void load() throws GameException {
+    public void load() throws TransientGameException {
         if (texture == null) {
             texture = FileLoader.getInstance().loadImage(filename);
         }
@@ -59,7 +60,7 @@ class SpriteSheetImpl implements SpriteSheet {
     @Override
     public String toString() {
         return "SpriteSheetImpl{" +
-            "filename='" + filename + '\'' +
+            "fileName='" + filename + '\'' +
             ", celWidth=" + celWidth +
             ", celHeight=" + celHeight +
             ", topGutter=" + topGutter +

@@ -1,6 +1,7 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.common.file.FileLoader;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.*;
 
@@ -16,7 +17,7 @@ public class PackagedBasicFontResourceImpl implements BasicFontResource, Loadabl
         return font != null;
     }
 
-    public void load() throws GameException {
+    public void load() throws TransientGameException {
         if (font == null) {
             font = FileLoader.getInstance().loadFont(fileName);
         }

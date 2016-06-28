@@ -1,21 +1,25 @@
 package com.rpm.pixelcat.engine.logic;
 
 import com.google.common.collect.ImmutableMap;
-import com.rpm.pixelcat.engine.common.Printer;
+import com.rpm.pixelcat.engine.common.printer.Printer;
+import com.rpm.pixelcat.engine.exception.TerminalGameException;
 import com.rpm.pixelcat.engine.kernel.KernelActionEnum;
 import com.rpm.pixelcat.engine.logic.gameobject.GameObject;
 import com.rpm.pixelcat.engine.logic.gameobject.GameObjectManager;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.exception.ExitException;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
+import com.rpm.pixelcat.engine.logic.resource.SoundResource;
+import com.rpm.pixelcat.engine.sound.SoundEngine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class LogicHandlerImpl implements LogicHandler {
-    public List<List<GameObject>> getLayeredGameObjects(KernelState kernelState) throws GameException {
+    public List<List<GameObject>> getLayeredGameObjects(KernelState kernelState) throws TransientGameException {
         // setup
         List<List<GameObject>> consolidatedLayeredGameObjects = new ArrayList<>();
 
@@ -45,7 +49,13 @@ public class LogicHandlerImpl implements LogicHandler {
         return consolidatedLayeredGameObjects;
     }
 
-    public void process(KernelState kernelState) throws GameException {
+    public Map<SoundEngine.SoundResourceState, SoundResource> getSoundEvents() {
+        Map<SoundEngine.SoundResourceState, SoundResource> soundResourceMap = new HashMap<>();
+
+        return soundResourceMap;
+    }
+
+    public void process(KernelState kernelState) throws TransientGameException, TerminalGameException, ExitException {
         // do logic checks
         checkExit(kernelState);
 
@@ -66,7 +76,7 @@ public class LogicHandlerImpl implements LogicHandler {
         }
     }
 
-    private void updateGameState(KernelState kernelState) throws GameException {
+    private void updateGameState(KernelState kernelState) throws TransientGameException {
         // handle logging
         handleLogging(kernelState);
 
@@ -74,7 +84,7 @@ public class LogicHandlerImpl implements LogicHandler {
         handleFontDisplay(kernelState);
     }
 
-    private void handleLogging(KernelState kernelState) throws GameException {
+    private void handleLogging(KernelState kernelState) throws TransientGameException {
         // logging level
         setKernelStateProperty(
             kernelState,
@@ -95,7 +105,7 @@ public class LogicHandlerImpl implements LogicHandler {
         );
     }
 
-    private void handleFontDisplay(KernelState kernelState) throws GameException {
+    private void handleFontDisplay(KernelState kernelState) throws TransientGameException {
         // font debugger
         toggleKernelStateProperty(kernelState, KernelActionEnum.FONT_DEBUG_TOGGLE, KernelStatePropertyEnum.FONT_DISPLAY_ENABLED);
     }
@@ -103,7 +113,7 @@ public class LogicHandlerImpl implements LogicHandler {
     private void setKernelStateProperty(KernelState kernelState,
                                         KernelStatePropertyEnum kernelStateProperty,
                                         Map<KernelActionEnum, Object> kernelActionBindings)
-                 throws GameException {
+                 throws TransientGameException {
         for (KernelActionEnum kernelAction: kernelActionBindings.keySet()) {
             // setup
             Object kernelStatePropertyValue = kernelActionBindings.get(kernelAction);
@@ -122,7 +132,7 @@ public class LogicHandlerImpl implements LogicHandler {
     private void toggleKernelStateProperty(KernelState kernelState,
                                            KernelActionEnum kernelAction,
                                            KernelStatePropertyEnum kernelStateProperty)
-                 throws GameException {
+                 throws TransientGameException {
         if (kernelState.hasKernelAction(kernelAction)) {
             // remove kernel action so it isn't processed twice
             kernelState.removeKernelAction(kernelAction);

@@ -1,10 +1,10 @@
 package com.rpm.pixelcat.engine.logic.gameobject.feature;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 public interface Feature {
-    static <C extends Feature, I extends C> C create(Class<I> implClass) throws GameException{
+    static <C extends Feature, I extends C> C create(Class<I> implClass) throws TransientGameException {
         // setup
         C impl;
 
@@ -12,7 +12,7 @@ public interface Feature {
         try {
             impl = implClass.newInstance();
         } catch (InstantiationException|IllegalAccessException e) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR, e);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, e);
         }
 
         return impl;

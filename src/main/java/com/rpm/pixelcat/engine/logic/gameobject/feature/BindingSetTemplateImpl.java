@@ -1,20 +1,20 @@
 package com.rpm.pixelcat.engine.logic.gameobject.feature;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 
 import java.util.Map;
 
 abstract class BindingSetTemplateImpl<B extends IdGenerator> extends ContainerTemplateImpl<B> implements BindingSetTemplate<B> {
     @Override
-    public BindingSetTemplate<B> add(B object) throws GameException {
+    public BindingSetTemplate<B> add(B object) throws TransientGameException {
         super.add(object);
 
         return this;
     }
 
-    public <C extends B> void remove(Class<C> bindingClass) throws GameException {
+    public <C extends B> void remove(Class<C> bindingClass) throws TransientGameException {
         // find by class
         String id = find(bindingClass);
 
@@ -28,12 +28,12 @@ abstract class BindingSetTemplateImpl<B extends IdGenerator> extends ContainerTe
             find(bindingClass);
 
             return true;
-        } catch (GameException e) {
+        } catch (TransientGameException e) {
             return false;
         }
     }
 
-    public <C extends B> C get(Class<C> bindingClass) throws GameException {
+    public <C extends B> C get(Class<C> bindingClass) throws TransientGameException {
         // find by class
         String id = find(bindingClass);
 
@@ -43,7 +43,7 @@ abstract class BindingSetTemplateImpl<B extends IdGenerator> extends ContainerTe
         return value;
     }
 
-    private <C extends B> String find(Class<C> bindingClass) throws GameException {
+    private <C extends B> String find(Class<C> bindingClass) throws TransientGameException {
         // setup
         Map<String, B> bindingSet = getAll();
 
@@ -59,6 +59,6 @@ abstract class BindingSetTemplateImpl<B extends IdGenerator> extends ContainerTe
         }
 
         // throw error as we found no match
-        throw new GameException(GameErrorCode.LOGIC_ERROR);
+        throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
     }
 }

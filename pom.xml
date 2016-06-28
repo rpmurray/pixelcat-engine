@@ -14,6 +14,7 @@
             <artifactId>guava</artifactId>
             <version>14.0.1</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
@@ -24,6 +25,7 @@
             <artifactId>javax.inject</artifactId>
             <version>1</version>
         </dependency>
+        -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -33,6 +35,11 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.vbmacher</groupId>
+            <artifactId>java-cup-runtime</artifactId>
+            <version>11b</version>
         </dependency>
     </dependencies>
 

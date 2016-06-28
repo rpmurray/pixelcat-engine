@@ -1,5 +1,7 @@
 package com.rpm.pixelcat.engine.logic.gameobject.behavior;
 
+import java.util.List;
+
 public class BehaviorParameterFactory {
     private static BehaviorParameterFactory instance;
 
@@ -23,9 +25,28 @@ public class BehaviorParameterFactory {
         return parameter;
     }
 
-    public BehaviorParameterCamera createCameraParameter(String cameraId) {
-        BehaviorParameterCamera parameter = new BehaviorParameterCamera(
+    public BehaviorParameterId createIdParameter(String cameraId) {
+        BehaviorParameterId parameter = new BehaviorParameterId(
             cameraId
+        );
+
+        return parameter;
+    }
+
+    public BehaviorParameterLogicRoutine createLogicRoutineParameter(BehaviorParameterLogicRoutineDefinition logicRoutineDefinition,
+                                                                     List<Object> inputs) {
+        BehaviorParameterLogicRoutine parameter = new BehaviorParameterLogicRoutine(
+            logicRoutineDefinition,
+            inputs
+        );
+
+        return parameter;
+    }
+
+    public BehaviorParameter createBehaviorParameterGenerator(BehaviorParameterGeneratorDefinition generator, List<Object> inputs) {
+        BehaviorParameterGenerator parameter = new BehaviorParameterGenerator(
+            generator,
+            inputs
         );
 
         return parameter;

@@ -1,10 +1,8 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
-import com.rpm.pixelcat.engine.exception.GameException;
-import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 class SpriteResourceImpl extends ResourceImpl implements SpriteResource {
     SpriteSheet spriteSheet;
@@ -22,7 +20,7 @@ class SpriteResourceImpl extends ResourceImpl implements SpriteResource {
         return spriteSheet.isLoaded();
     }
 
-    public void load() throws GameException {
+    public void load() throws TransientGameException {
         spriteSheet.load();
     }
 
@@ -30,6 +28,13 @@ class SpriteResourceImpl extends ResourceImpl implements SpriteResource {
         Rectangle celBounds = spriteSheet.getSpriteCelBounds(xIndex, yIndex);
 
         return celBounds;
+    }
+
+    public Rectangle getCelSize() {
+        Rectangle celBounds = getCelBounds();
+        Rectangle celSize = new Rectangle(0, 0, celBounds.width, celBounds.height);
+
+        return celSize;
     }
 
     public SpriteSheet getSpriteSheet() {

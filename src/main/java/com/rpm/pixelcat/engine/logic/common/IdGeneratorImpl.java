@@ -1,5 +1,7 @@
 package com.rpm.pixelcat.engine.logic.common;
 
+import com.rpm.pixelcat.engine.common.logic.IdGeneratorUtil;
+
 public abstract class IdGeneratorImpl {
     private String id;
 

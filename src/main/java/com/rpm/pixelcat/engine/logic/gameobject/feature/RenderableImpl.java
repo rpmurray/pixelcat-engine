@@ -1,7 +1,7 @@
 package com.rpm.pixelcat.engine.logic.gameobject.feature;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.logic.animation.AnimationSequence;
 import com.rpm.pixelcat.engine.logic.camera.Camera;
 import com.rpm.pixelcat.engine.logic.gameobject.GameObject;
@@ -12,13 +12,19 @@ import java.awt.*;
 class RenderableImpl extends FeatureImpl implements Renderable {
     private Point position;
     private Integer layer;
+    private Double scaleFactor;
 
-    public RenderableImpl(Point position, Integer layer) {
-        this.position = position;
-        this.layer = layer;
+    RenderableImpl(Point position, Integer layer) {
+        this(position, layer, 1.0);
     }
 
-    public Resource getRenderableResource(GameObject gameObject) throws GameException {
+    RenderableImpl(Point position, Integer layer, Double scaleFactor) {
+        this.position = position;
+        this.layer = layer;
+        this.scaleFactor = scaleFactor;
+    }
+
+    public Resource getRenderableResource(GameObject gameObject) throws TransientGameException {
         // setup
         Resource resource;
 
@@ -44,7 +50,7 @@ class RenderableImpl extends FeatureImpl implements Renderable {
                 // fetch resource ID
                 resourceId = camera.getView();
             } else {
-                throw new GameException(GameErrorCode.LOGIC_ERROR);
+                throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
             }
 
             // fetch resource
@@ -68,7 +74,7 @@ class RenderableImpl extends FeatureImpl implements Renderable {
             // fetch resource
             resource = resourceLibrary.getCurrent();
         } else {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         return resource;
@@ -88,5 +94,22 @@ class RenderableImpl extends FeatureImpl implements Renderable {
 
     public Integer getLayer() {
         return layer;
+    }
+
+    public Double getScaleFactor() {
+        return scaleFactor;
+    }
+
+    public void setScaleFactor(Double scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
+
+    @Override
+    public String toString() {
+        return "RenderableImpl{" +
+            "position=" + position +
+            ", layer=" + layer +
+            ", scaleFactor=" + scaleFactor +
+            '}';
     }
 }

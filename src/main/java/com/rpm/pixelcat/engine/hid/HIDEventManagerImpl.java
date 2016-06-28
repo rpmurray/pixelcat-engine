@@ -1,8 +1,8 @@
 package com.rpm.pixelcat.engine.hid;
 
-import com.rpm.pixelcat.engine.common.Printer;
-import com.rpm.pixelcat.engine.common.PrinterFactory;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.common.printer.Printer;
+import com.rpm.pixelcat.engine.common.printer.PrinterFactory;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
 import com.rpm.pixelcat.engine.exception.InternalUnexpectedLogicException;
 import com.rpm.pixelcat.engine.kernel.KernelState;
@@ -20,7 +20,7 @@ class HIDEventManagerImpl implements HIDEventManager {
         this.kernelState = kernelState;
     }
 
-    public void handleKeyboardEvent(HIDEventTypeEnum hidEventType, KeyEvent keyEvent) throws GameException {
+    public void handleKeyboardEvent(HIDEventTypeEnum hidEventType, KeyEvent keyEvent) throws TransientGameException {
         // map HID event
         try {
             HIDEventEnum hidEvent = mapKeyboardEvent(keyEvent);
@@ -36,12 +36,12 @@ class HIDEventManagerImpl implements HIDEventManager {
                 default:
                     throw new InternalUnexpectedLogicException(GameErrorCode.HID_EVENT_TYPE_UNSUPPORTED);
             }
-        } catch (GameException e) {
+        } catch (TransientGameException e) {
             PRINTER.printInfo(e.toString() + " [" + keyEvent + "," + hidEventType + "]");
         }
     }
 
-    public void handleMouseEvent(HIDEventTypeEnum hidEventType, MouseEvent mouseEvent) throws GameException {
+    public void handleMouseEvent(HIDEventTypeEnum hidEventType, MouseEvent mouseEvent) throws TransientGameException {
         // map HID event
         try {
             HIDEventEnum hidEvent = mapMouseEvent(mouseEvent);
@@ -61,12 +61,12 @@ class HIDEventManagerImpl implements HIDEventManager {
                 default:
                     throw new InternalUnexpectedLogicException(GameErrorCode.HID_EVENT_TYPE_UNSUPPORTED);
             }
-        } catch (GameException e) {
+        } catch (TransientGameException e) {
             PRINTER.printInfo(e.toString() + " [" + mouseEvent + "," + hidEventType + "]");
         }
     }
 
-    private HIDEventEnum mapKeyboardEvent(KeyEvent keyEvent) throws GameException {
+    private HIDEventEnum mapKeyboardEvent(KeyEvent keyEvent) throws TransientGameException {
         // setup
         HIDEventEnum hidEvent;
 
@@ -82,7 +82,7 @@ class HIDEventManagerImpl implements HIDEventManager {
         return hidEvent;
     }
 
-    private HIDEventEnum mapMouseEvent(MouseEvent mouseEvent) throws GameException {
+    private HIDEventEnum mapMouseEvent(MouseEvent mouseEvent) throws TransientGameException {
         // setup
         HIDEventEnum hidEvent;
 

@@ -1,19 +1,13 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.*;
 
 public interface ImageResource extends MeasurableResource, CollidableResource {
-    public Boolean isLoaded();
+    Boolean isLoaded();
 
-    public void load() throws GameException;
+    void load() throws TransientGameException;
 
-    public Rectangle getCelBounds();
-
-    public SpriteResource getMainResource();
-
-    public Boolean hasCollisionMaskResource();
-
-    public SpriteResource getCollisionMaskResource();
+    SpriteResource getMainResource();
 }

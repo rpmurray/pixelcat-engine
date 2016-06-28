@@ -1,38 +1,38 @@
 package com.rpm.pixelcat.engine.logic.animation;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.logic.clock.GameClock;
 import com.rpm.pixelcat.engine.logic.clock.GameClockFactory;
+import com.rpm.pixelcat.engine.logic.clock.SimpleGameClock;
 import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
-import com.rpm.pixelcat.engine.logic.resource.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationSequence {
-    List<String> cels;
-    Integer currentIndex;
-    GameClock animationClock;
-    Long millisecondsPerCel;
-    Boolean isPaused;
-    Boolean isAnimationAccelerationEnabled;
-    Long millisecondsForAnimationAcceleration;
-    Double animationVelocity;
-    Double animationAcceleration;
+class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationSequence {
+    private List<String> cels;
+    private Integer currentIndex;
+    private SimpleGameClock animationClock;
+    private Long millisecondsPerCel;
+    private Boolean isPaused;
+    private Boolean isAnimationAccelerationEnabled;
+    private Long millisecondsForAnimationAcceleration;
+    private Double animationVelocity;
+    private Double animationAcceleration;
 
-    public AnimationSequenceImpl(List<String> cels, Long millisecondsPerCel) {
+    AnimationSequenceImpl(List<String> cels, Long millisecondsPerCel) {
         this();
         addCels(cels);
         setMillisecondsPerCel(millisecondsPerCel);
     }
 
-    public AnimationSequenceImpl(Long millisecondsPerCel) {
+    AnimationSequenceImpl(Long millisecondsPerCel) {
         this();
         setMillisecondsPerCel(millisecondsPerCel);
     }
 
-    public AnimationSequenceImpl() {
+    AnimationSequenceImpl() {
         super(AnimationSequence.class.getSimpleName());
         cels = new ArrayList<>();
         currentIndex = null;
@@ -42,8 +42,7 @@ public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationS
         millisecondsForAnimationAcceleration = 0L;
         animationVelocity = 1.0;
         animationAcceleration = 0.0;
-        animationClock = GameClockFactory.getInstance().createGameClock();
-        animationClock.addEvent("animation cycle start");
+        animationClock = GameClockFactory.getInstance().createSimpleGameClock();
     }
 
     public AnimationSequence addCel(String cel) {
@@ -70,10 +69,10 @@ public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationS
         return this;
     }
 
-    public AnimationSequence setCurrentCel(String id) throws GameException {
+    public AnimationSequence setCurrentCel(String id) throws TransientGameException {
         // validate
         if (!cels.contains(id)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         // update current index
@@ -97,9 +96,9 @@ public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationS
         return this;
     }
 
-    public String getCurrentCel() throws GameException {
+    public String getCurrentCel() throws TransientGameException {
         if (currentIndex == null) {
-            throw new GameException(GameErrorCode.INTERNAL_ERROR);
+            throw new TransientGameException(GameErrorCode.INTERNAL_ERROR);
         }
 
         return cels.get(currentIndex);
@@ -133,13 +132,13 @@ public class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationS
         return this;
     }
 
-    public AnimationSequence advanceSequenceByTime() throws GameException {
+    public AnimationSequence advanceSequenceByTime() throws TransientGameException {
         if (isPaused) {
             return this;
         }
 
-        if (GameClock.toMS(animationClock.getElapsed("animation cycle start")) * animationVelocity > millisecondsPerCel) {
-            animationClock.addEvent("animation cycle start");
+        if (GameClock.toMS(animationClock.getElapsed()) * animationVelocity > millisecondsPerCel) {
+            animationClock.reset();
             if (isAnimationAccelerationEnabled && animationVelocity < 1.0) {
                 animationVelocity += animationAcceleration;
             }

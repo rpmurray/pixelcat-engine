@@ -1,7 +1,7 @@
 package com.rpm.pixelcat.engine.logic.gameobject;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.kernel.KernelState;
 import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 import com.rpm.pixelcat.engine.logic.gameobject.dao.HashMapPropertiesDB;
@@ -16,7 +16,7 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
     private Map<String, GameObject> gameObjects;
     private LayerManager layerManager;
 
-    public GameObjectManagerImpl(Integer layers, PropertiesStorageEnum propertiesStorageEnum) throws GameException {
+    public GameObjectManagerImpl(Integer layers, PropertiesStorageEnum propertiesStorageEnum) throws TransientGameException {
         // init game objects
         gameObjects = new HashMap<>();
 
@@ -26,7 +26,7 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
         // game object factory setup
         switch (propertiesStorageEnum) {
             case XML:
-                throw new GameException(GameErrorCode.INTERNAL_ERROR, "Unsupported game object properties DB");
+                throw new TransientGameException(GameErrorCode.INTERNAL_ERROR, "Unsupported game object properties DB");
             case HASH_MAP:
             default:
                 propertiesDB = new HashMapPropertiesDB();
@@ -34,16 +34,16 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
         }
     }
 
-    public GameObject createGameObject() throws GameException {
+    public GameObject createGameObject() throws TransientGameException {
         GameObject gameObject = GameObject.create(GameObjectProperties.create(propertiesDB));
 
         return gameObject;
     }
 
-    public GameObjectManager add(GameObject gameObject) throws GameException {
+    public GameObjectManager add(GameObject gameObject) throws TransientGameException {
         if (gameObject.hasFeature(Renderable.class)) {
             if (!layerManager.isValidLayer(gameObject.getFeature(Renderable.class).getLayer())) {
-                throw new GameException(GameErrorCode.LOGIC_ERROR, gameObject);
+                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, gameObject);
             }
         }
 
@@ -52,7 +52,7 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
         return this;
     }
 
-    public GameObjectManager add(Set<GameObject> gameObjects) throws GameException {
+    public GameObjectManager add(Set<GameObject> gameObjects) throws TransientGameException {
         // add one at a time
         for (GameObject gameObject : gameObjects) {
             add(gameObject);
@@ -65,9 +65,9 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
         return gameObjects.containsKey(id);
     }
 
-    public GameObject get(String id) throws GameException {
+    public GameObject get(String id) throws TransientGameException {
         if (!has(id)) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         return gameObjects.get(id);
@@ -77,7 +77,7 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
         return gameObjects.size();
     }
 
-    public List<List<GameObject>> getLayeredGameObjects() throws GameException {
+    public List<List<GameObject>> getLayeredGameObjects() throws TransientGameException {
         // setup
         List<List<GameObject>> layeredGameObjects = new ArrayList<>();
         for (Integer i = 0; i < layerManager.getLayerCount(); i++) {
@@ -106,13 +106,13 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
         return layerManager;
     }
 
-    public void process(KernelState kernelState) throws GameException {
+    public void process(KernelState kernelState) throws TransientGameException {
         for (String id : gameObjects.keySet()) {
             // setup
             GameObject gameObject = gameObjects.get(id);
 
             // update
-            GameObjectUpdater.getInstace().update(gameObject, kernelState);
+            GameObjectUpdater.getInstance().update(gameObject, kernelState);
         }
     }
 }

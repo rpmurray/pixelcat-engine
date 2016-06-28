@@ -2,7 +2,7 @@ package com.rpm.pixelcat.engine.logic.gameobject.behavior;
 
 import com.google.common.collect.ImmutableSet;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 import java.util.Set;
 
@@ -28,15 +28,25 @@ public class Behavior {
         return behaviorParameters;
     }
 
-    public BehaviorParameter getBehaviorParameter(Class behaviorParameterClass)
-           throws GameException {
+    public Boolean hasBehaviorParameter(Class behaviorParameterClass) {
+        for (BehaviorParameter behaviorParameter : behaviorParameters) {
+            if (behaviorParameter.getClass().equals(behaviorParameterClass)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public BehaviorParameter getBehaviorParameter(Class<? extends BehaviorParameter> behaviorParameterClass)
+           throws TransientGameException {
         for (BehaviorParameter behaviorParameter : behaviorParameters) {
             if (behaviorParameter.getClass().equals(behaviorParameterClass)) {
                 return behaviorParameter;
             }
         }
 
-        throw new GameException(GameErrorCode.LOGIC_ERROR);
+        throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
     }
 
     @Override

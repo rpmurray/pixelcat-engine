@@ -8,6 +8,10 @@ public enum BehaviorEnum {
     ANIMATION_PLAY,
     ANIMATION_STOP,
     CAMERA_SWITCH,
+    LOGIC_ROUTINE,
+    SOUND_PLAY,
+    SOUND_PAUSE,
+    SOUND_STOP,
     ;
 
     @Override

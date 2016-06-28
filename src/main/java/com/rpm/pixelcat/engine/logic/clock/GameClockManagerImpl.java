@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class GameClockManagerImpl implements GameClockManager {
+class GameClockManagerImpl implements GameClockManager {
     private Map<String, GameClock> gameClocks;
 
     GameClockManagerImpl() {
@@ -21,8 +21,12 @@ public class GameClockManagerImpl implements GameClockManager {
         this.gameClocks = gameClocks;
     }
 
-    public void addGameClock(String name) {
-        gameClocks.put(name, new GameClockImpl());
+    public void addSimpleGameClock(String name) {
+        gameClocks.put(name, GameClockFactory.getInstance().createSimpleGameClock());
+    }
+
+    public void addAdvancedGameClock(String name) {
+        gameClocks.put(name, GameClockFactory.getInstance().createAdvancedGameClock());
     }
 
     public void addGameClock(String name, GameClock gameClock) {

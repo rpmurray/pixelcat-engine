@@ -1,6 +1,6 @@
 package com.rpm.pixelcat.engine.logic.physics.screen;
 
-import com.rpm.pixelcat.engine.logic.common.IdGeneratorUtil;
+import com.rpm.pixelcat.engine.common.logic.IdGeneratorUtil;
 import com.rpm.pixelcat.engine.logic.physics.PhysicsBinding;
 
 public enum ScreenBoundsHandlingTypeEnum implements PhysicsBinding {

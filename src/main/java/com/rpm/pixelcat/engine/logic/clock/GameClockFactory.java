@@ -17,9 +17,15 @@ public class GameClockFactory {
         return gameClockManager;
     }
 
-    public GameClock createGameClock() {
-        GameClock gameClock = new GameClockImpl();
+    public SimpleGameClock createSimpleGameClock() {
+        SimpleGameClock simpleGameClock = new SimpleGameClockImpl();
 
-        return gameClock;
+        return simpleGameClock;
+    }
+
+    public AdvancedGameClock createAdvancedGameClock() {
+        AdvancedGameClock advancedGameClock = new AdvancedGameClockImpl();
+
+        return advancedGameClock;
     }
 }

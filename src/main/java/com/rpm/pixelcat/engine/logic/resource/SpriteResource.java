@@ -1,11 +1,15 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
+
+import java.awt.*;
 
 public interface SpriteResource extends MeasurableResource {
-    public Boolean isLoaded();
+    Boolean isLoaded();
 
-    public void load() throws GameException;
+    void load() throws TransientGameException;
 
-    public SpriteSheet getSpriteSheet();
+    Rectangle getCelBounds();
+
+    SpriteSheet getSpriteSheet();
 }

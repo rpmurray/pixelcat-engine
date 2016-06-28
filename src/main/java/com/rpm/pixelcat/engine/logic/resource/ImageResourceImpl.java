@@ -1,51 +1,69 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 class ImageResourceImpl extends ResourceImpl implements ImageResource {
     private SpriteResource mainResource;
-    private SpriteResource collisionMaskResource;
+    private Map<String, CollisionMaskResource> collisionMasks;
 
-    ImageResourceImpl(SpriteResource mainResource, SpriteResource collisionMaskResource) {
+    ImageResourceImpl(SpriteResource mainResource, Set<CollisionMaskResource> collisionMasks) {
         super(ImageResource.class.getSimpleName());
         this.mainResource = mainResource;
-        this.collisionMaskResource = collisionMaskResource;
-    }
-
-    public Boolean isLoaded() {
-        return mainResource.isLoaded() && (!hasCollisionMaskResource() || collisionMaskResource.isLoaded());
-    }
-
-    public void load() throws GameException {
-        mainResource.load();
-        if (collisionMaskResource != null) {
-            collisionMaskResource.load();
+        this.collisionMasks = new HashMap<>();
+        for (CollisionMaskResource collisionMask : collisionMasks) {
+            String collisionMaskId = collisionMask.getId();
+            this.collisionMasks.put(collisionMaskId, collisionMask);
         }
     }
 
-    public Rectangle getCelBounds() {
-        return mainResource.getCelBounds();
+    public Boolean isLoaded() {
+        Boolean isLoaded = mainResource.isLoaded();
+        for (SpriteResource collisionMask : collisionMasks.values()) {
+            isLoaded &= collisionMask.isLoaded();
+        }
+
+        return isLoaded;
+    }
+
+    public void load() throws TransientGameException {
+        mainResource.load();
+        for (SpriteResource collisionMask : collisionMasks.values()) {
+            if (collisionMask != null) {
+                collisionMask.load();
+            }
+        }
+    }
+
+    public Rectangle getCelSize() {
+        return mainResource.getCelSize();
     }
 
     public SpriteResource getMainResource() {
         return mainResource;
     }
 
-    public Boolean hasCollisionMaskResource() {
-        return collisionMaskResource != null;
+    public Boolean hasCollisionMasks() {
+        return !collisionMasks.isEmpty();
     }
 
-    public SpriteResource getCollisionMaskResource() {
-        return collisionMaskResource;
+    public Boolean hasCollisionMask(String id) {
+        return collisionMasks.containsKey(id);
+    }
+
+    public CollisionMaskResource getCollisionMask(String id) {
+        return collisionMasks.get(id);
     }
 
     @Override
     public String toString() {
         return "ImageResourceImpl{" +
             "mainResource=" + mainResource +
-            ", collisionMaskResource=" + collisionMaskResource +
+            ", collisionMasks=" + collisionMasks +
             '}';
     }
 }
