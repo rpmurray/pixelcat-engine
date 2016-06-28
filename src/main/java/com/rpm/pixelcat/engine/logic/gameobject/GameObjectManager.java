@@ -1,34 +1,39 @@
 package com.rpm.pixelcat.engine.logic.gameobject;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.kernel.KernelState;
+import com.rpm.pixelcat.engine.logic.common.IdGenerator;
 import com.rpm.pixelcat.engine.logic.gameobject.dao.PropertiesStorageEnum;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-public interface GameObjectManager {
-    public GameObjectFactory getGameObjectFactory();
+public interface GameObjectManager extends IdGenerator {
+    GameObject createGameObject() throws TransientGameException;
 
-    public void addGameObject(GameObject gameObject) throws GameException;
+    GameObjectManager add(GameObject gameObject) throws TransientGameException;
 
-    public void addGameObjects(List<GameObject> gameObjects) throws GameException;
+    GameObjectManager add(Set<GameObject> gameObjects) throws TransientGameException;
 
-    public int getGameObjectsCount();
+    Boolean has(String id);
 
-    public ArrayList<ArrayList<GameObject>> getLayeredGameObjects();
+    GameObject get(String id) throws TransientGameException;
 
-    public LayerManager getLayerManager();
+    Integer count();
 
-    public void process(KernelState kernelState) throws GameException;
+    List<List<GameObject>> getLayeredGameObjects() throws TransientGameException;
 
-    public static GameObjectManager create(Integer layers) throws GameException {
+    LayerManager getLayerManager();
+
+    void process(KernelState kernelState) throws TransientGameException;
+
+    static GameObjectManager create(Integer layers) throws TransientGameException {
         GameObjectManagerImpl gameObjectManager = new GameObjectManagerImpl(layers, PropertiesStorageEnum.HASH_MAP);
 
         return gameObjectManager;
     }
 
-    public static GameObjectManager create(Integer layers, PropertiesStorageEnum propertiesStorageEnum) throws GameException {
+    static GameObjectManager create(Integer layers, PropertiesStorageEnum propertiesStorageEnum) throws TransientGameException {
         GameObjectManagerImpl gameObjectManager = new GameObjectManagerImpl(layers, propertiesStorageEnum);
 
         return gameObjectManager;

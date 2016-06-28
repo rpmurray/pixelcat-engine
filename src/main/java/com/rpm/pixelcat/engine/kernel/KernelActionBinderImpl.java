@@ -1,9 +1,9 @@
 package com.rpm.pixelcat.engine.kernel;
 
-import com.rpm.pixelcat.engine.common.Printer;
-import com.rpm.pixelcat.engine.common.PrinterFactory;
+import com.rpm.pixelcat.engine.common.printer.Printer;
+import com.rpm.pixelcat.engine.common.printer.PrinterFactory;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 
 import java.util.HashMap;
@@ -28,19 +28,19 @@ class KernelActionBinderImpl implements KernelActionBinder {
         bind(HIDEventEnum.ONE, KernelActionEnum.SET_LOG_LVL_FATAL);
     }
 
-    public KernelActionEnum binding(HIDEventEnum key) throws GameException {
+    public KernelActionEnum binding(HIDEventEnum key) throws TransientGameException {
         // look up kernel action
         KernelActionEnum kernelAction = bindings.get(key);
 
         // check result
         if (kernelAction == null) {
-            throw new GameException(GameErrorCode.KERNEL_ACTION_UNSUPPORTED);
+            throw new TransientGameException(GameErrorCode.KERNEL_ACTION_UNSUPPORTED);
         }
 
         return kernelAction;
     }
 
-    public HIDEventEnum binding(KernelActionEnum kernelAction) throws GameException {
+    public HIDEventEnum binding(KernelActionEnum kernelAction) throws TransientGameException {
         // look up hid event
         if (bindings.containsValue(kernelAction)) {
             for (HIDEventEnum key : bindings.keySet()) {
@@ -51,7 +51,7 @@ class KernelActionBinderImpl implements KernelActionBinder {
         }
 
         // throw error if not found
-        throw new GameException(GameErrorCode.KERNEL_ACTION_UNSUPPORTED);
+        throw new TransientGameException(GameErrorCode.KERNEL_ACTION_UNSUPPORTED);
     }
 
     public void bind(HIDEventEnum key, KernelActionEnum kernelAction) {

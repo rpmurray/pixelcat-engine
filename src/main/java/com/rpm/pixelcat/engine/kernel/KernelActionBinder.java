@@ -1,12 +1,12 @@
 package com.rpm.pixelcat.engine.kernel;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 
 public interface KernelActionBinder {
-    public KernelActionEnum binding(HIDEventEnum key) throws GameException;
+    public KernelActionEnum binding(HIDEventEnum key) throws TransientGameException;
 
-    public HIDEventEnum binding(KernelActionEnum kernelAction) throws GameException;
+    public HIDEventEnum binding(KernelActionEnum kernelAction) throws TransientGameException;
 
     public void bind(HIDEventEnum key, KernelActionEnum kernelAction);
 

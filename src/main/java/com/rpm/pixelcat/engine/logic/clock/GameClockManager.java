@@ -4,7 +4,9 @@ import java.util.Map;
 import java.util.Set;
 
 public interface GameClockManager {
-    public void addGameClock(String name);
+    public void addSimpleGameClock(String name);
+
+    public void addAdvancedGameClock(String name);
 
     public void addGameClock(String name, GameClock gameClock);
 

@@ -1,18 +1,23 @@
 package com.rpm.pixelcat.engine.logic.gameobject;
 
-import com.rpm.pixelcat.engine.common.Printer;
-import com.rpm.pixelcat.engine.common.PrinterFactory;
+import com.rpm.pixelcat.engine.common.printer.Printer;
+import com.rpm.pixelcat.engine.common.printer.PrinterFactory;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.kernel.KernelState;
+import com.rpm.pixelcat.engine.kernel.KernelStatePropertyEnum;
 import com.rpm.pixelcat.engine.logic.animation.AnimationSequence;
+import com.rpm.pixelcat.engine.logic.camera.Camera;
+import com.rpm.pixelcat.engine.logic.gameobject.behavior.*;
+import com.rpm.pixelcat.engine.logic.gameobject.feature.*;
+import com.rpm.pixelcat.engine.logic.physics.screen.ScreenBoundsHandlingTypeEnum;
 import com.rpm.pixelcat.engine.logic.resource.MeasurableResource;
 import com.rpm.pixelcat.engine.logic.resource.Resource;
 
 import java.awt.*;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 class GameObjectUpdater {
     private static GameObjectUpdater instance;
@@ -21,7 +26,7 @@ class GameObjectUpdater {
     private GameObjectUpdater() {
     }
 
-    static GameObjectUpdater getInstace() {
+    static GameObjectUpdater getInstance() {
         if (instance == null) {
             instance = new GameObjectUpdater();
         }
@@ -29,92 +34,183 @@ class GameObjectUpdater {
         return instance;
     }
 
-    void update(GameObject gameObject, KernelState kernelState) throws GameException {
+    void update(GameObject gameObject, KernelState kernelState) throws TransientGameException {
         updateForHIDEventGameLogicBindings(gameObject, kernelState);
         updateAnimation(gameObject, kernelState);
     }
 
-    private void updateForHIDEventGameLogicBindings(GameObject gameObject, KernelState kernelState) throws GameException {
+    private void updateForHIDEventGameLogicBindings(GameObject gameObject, KernelState kernelState) throws TransientGameException {
+        // validate
+        if (!gameObject.isFeatureAvailable(BehaviorBindingLibrary.class)) {
+            return;
+        }
+
         // setup
-        Set<GameObjectHIDEventLogicBehaviorBinding> gameObjectHIDEventLogicBehaviorBindings = gameObject.getGameObjectHIDEventLogicBehaviorBindings();
+        Map<String, BehaviorBindingImpl<HIDEventEnum>> hidBehaviorBindings = gameObject.getFeature(BehaviorBindingLibrary.class).getAll();
         HashSet<HIDEventEnum> triggeredHIDEvents = kernelState.getHIDEvents();
 
         // update object based on HID events
-        for (GameObjectHIDEventLogicBehaviorBinding gameObjectHIDEventLogicBehaviorBinding : gameObjectHIDEventLogicBehaviorBindings) {
+        for (BehaviorBindingImpl<HIDEventEnum> hidBehaviorBinding : hidBehaviorBindings.values()) {
             // setup
-            HIDEventEnum boundHIDEvent = gameObjectHIDEventLogicBehaviorBinding.getHidEventEnum();
-            GameObjectLogicBehavior gameObjectLogicBehavior = gameObjectHIDEventLogicBehaviorBinding.getGameObjectLogicBehavior();
+            HIDEventEnum boundHIDEvent = hidBehaviorBinding.getBoundEvent();
+            Behavior behavior = hidBehaviorBinding.getBehavior();
 
             // check that bound event was triggered
             if (!triggeredHIDEvents.contains(boundHIDEvent)) {
                 continue;
             }
 
+            // check that behavior can be triggered (i.e. not in a cool down period, etc.)
+            if (!hidBehaviorBinding.canBehaviorBeTriggered()) {
+                continue;
+            }
+
             // if so, handle its update action
-            switch (gameObjectLogicBehavior.getBehaviorType()) {
+            switch (behavior.getBehaviorType()) {
                 case MOVE_UP:
                 case MOVE_DOWN:
                 case MOVE_LEFT:
                 case MOVE_RIGHT:
-                    move(gameObject, kernelState, gameObjectLogicBehavior);
+                    move(gameObject, kernelState, behavior);
                     break;
                 case ANIMATION_PLAY:
-                    if (!gameObject.hasAnimation()) {
-                        throw new GameException(GameErrorCode.LOGIC_ERROR);
+                    if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
+                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
                     }
-                    gameObject.getCurrentAnimationSequence().play();
+                    gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().play();
                     break;
                 case ANIMATION_STOP:
-                    if (!gameObject.hasAnimation()) {
-                        throw new GameException(GameErrorCode.LOGIC_ERROR);
+                    if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
+                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
                     }
-                    gameObject.getCurrentAnimationSequence().pause();
+                    gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().pause();
                     break;
-                case ANIMATION_SEQUENCE_SWITCH:
-                    gameObject.setCurrentOrientation(
-                        ((GameObjectLogicBehaviorParameterOrientation) gameObjectLogicBehavior.getGameObjectLogicParameterByClass(GameObjectLogicBehaviorParameterOrientation.class)).getOrientation()
+                case SOUND_PLAY:
+                    break;
+                case SOUND_PAUSE:
+                    break;
+                case SOUND_STOP:
+                    break;
+                case CAMERA_SWITCH:
+                    // validate
+                    if (!gameObject.isFeatureAvailable(CameraLibrary.class)) {
+                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "CameraLibrary feature not supported when expected", gameObject);
+                    }
+
+                    // generate dynamic behavior parameter if appropriate
+                    BehaviorParameter dynamicBehaviorParameter = null;
+                    if (behavior.hasBehaviorParameter(BehaviorParameterGenerator.class)) {
+                        BehaviorParameterGenerator generator = (BehaviorParameterGenerator) behavior.getBehaviorParameter(BehaviorParameterGenerator.class);
+                        dynamicBehaviorParameter = generator.getGeneratorDefinition().generateBehaviorParameter(generator.getInputs());
+                    }
+
+                    // derive behavior parameter for camera
+                    BehaviorParameterId cameraParameter;
+                    if (dynamicBehaviorParameter != null && dynamicBehaviorParameter instanceof BehaviorParameterId) {
+                        cameraParameter = (BehaviorParameterId) dynamicBehaviorParameter;
+                    } else if (behavior.hasBehaviorParameter(BehaviorParameterId.class)) {
+                        cameraParameter = (BehaviorParameterId) behavior.getBehaviorParameter(BehaviorParameterId.class);
+                    } else {
+                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Camera parameter not found for camera switch behavior binding", gameObject);
+                    }
+
+                    // assign new camera
+                    gameObject.getFeature(CameraLibrary.class).setCurrent(
+                        cameraParameter.getId()
                     );
+
+                    // fetch new camera
+                    Camera camera = gameObject.getFeature(CameraLibrary.class).getCurrent();
+
+                    // assign new animation sequence, if applicable, and get new resource ID
+                    String resourceId;
+                    if (camera.getType().equals(AnimationSequence.class)) {
+                        // validate
+                        if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
+                            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "AnimationSequenceLibrary feature not supported when expected", gameObject);
+                        }
+
+                        // stop old animation
+                        gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().pause();
+
+                        // assign new animation sequence
+                        gameObject.getFeature(AnimationSequenceLibrary.class).setCurrent(camera.getView());
+
+                        // fetch new resource ID
+                        resourceId = gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().getCurrentCel();
+
+                        // play new animation
+                        gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().play();
+                    } else if (camera.getType().equals(Resource.class)){
+                        // fetch new resource ID
+                        resourceId = camera.getView();
+                    } else {
+                        // unsupported case
+                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Unsupported camera type", gameObject);
+                    }
+
+                    // validate
+                    if (!gameObject.isFeatureAvailable(ResourceLibrary.class)) {
+                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "ResourceLibrary feature not supported when expected", gameObject);
+                    }
+
+                    // assign new resource
+                    gameObject.getFeature(ResourceLibrary.class).setCurrent(resourceId);
+                    break;
+                case LOGIC_ROUTINE:
+                    // validate
+                    if (!behavior.hasBehaviorParameter(BehaviorParameterLogicRoutine.class)) {
+                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Logic routine not found for behavior binding", gameObject);
+                    }
+
+                    // fetch logic routine
+                    BehaviorParameterLogicRoutine logicRoutine = (BehaviorParameterLogicRoutine) behavior.getBehaviorParameter(
+                        BehaviorParameterLogicRoutine.class
+                    );
+
+                    // execute logic routine
+                    logicRoutine.getLogicRoutineDefinition().execute(logicRoutine.getInputs());
                     break;
             }
+
+            // record trigger event for hid behavior binding
+            hidBehaviorBinding.recordTriggerEvent();
         }
     }
 
-    private void updateAnimation(GameObject gameObject, KernelState kernelState) throws GameException {
+    private void updateAnimation(GameObject gameObject, KernelState kernelState) throws TransientGameException {
         // precondition check
-        if (!gameObject.hasAnimation()) {
+        if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
             return;
         }
 
         // setup
-        AnimationSequence animationSequence = gameObject.getCurrentAnimationSequence();
+        AnimationSequence animationSequence = gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent();
 
         // step the animation forward as needed
         animationSequence.advanceSequenceByTime();
-
-        // record new current resource
-        gameObject.setCurrentResource(animationSequence.getCurrentCel());
     }
 
-    private void move(GameObject gameObject, KernelState kernelState, GameObjectLogicBehavior gameObjectLogicBehavior)
-            throws GameException {
+    private void move(GameObject gameObject, KernelState kernelState, Behavior behavior)
+            throws TransientGameException {
         // setup
-        GameObjectLogicBehaviorParameterMagnitude magnitudeParameter;
+        BehaviorParameterMagnitude magnitudeParameter;
         Double xVel = 0.0, yVel = 0.0;
 
         // derive move magnitude
         Double magnitude;
         try {
-            magnitudeParameter = (GameObjectLogicBehaviorParameterMagnitude) gameObjectLogicBehavior.getGameObjectLogicParameterByClass(
-                GameObjectLogicBehaviorParameterMagnitude.class
+            magnitudeParameter = (BehaviorParameterMagnitude) behavior.getBehaviorParameter(
+                BehaviorParameterMagnitude.class
             );
             magnitude = magnitudeParameter.getMagnitude();
-        } catch (GameException e) {
+        } catch (TransientGameException e) {
             PRINTER.printWarning("Logic behavior parameter lookup failed during game object movement for {GameObjectLogicBehaviorParameterMagnitude}");
             magnitude = 1.0;
         }
 
         // map event to velocity changes
-        switch (gameObjectLogicBehavior.getBehaviorType()) {
+        switch (behavior.getBehaviorType()) {
             case MOVE_UP:
                 yVel = -magnitude;
                 break;
@@ -133,10 +229,10 @@ class GameObjectUpdater {
         }
 
         // debug
-        PRINTER.printTrace("B:" + gameObjectLogicBehavior);
+        PRINTER.printTrace("B:" + behavior);
 
         // initialize moved position
-        Point initialPosition = gameObject.getPosition();
+        Point initialPosition = gameObject.getFeature(Renderable.class).getPosition();
         Point finalPosition = new Point(
             (int) (initialPosition.getX() + xVel),
             (int) (initialPosition.getY() + yVel)
@@ -147,37 +243,41 @@ class GameObjectUpdater {
 
         // debug
         PRINTER.printTrace(
-            " SB: " + kernelState.getBounds() +
+            " SB: " + kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS) +
                 " GO_IP: " + initialPosition +
                 " GO_FP: " + finalPosition +
-                " SBH:" + gameObject.getScreenBoundsHandlingTypeEnum()
+                " SBH:" + gameObject.getFeature(PhysicsBindingSet.class).get(ScreenBoundsHandlingTypeEnum.class)
         );
 
         // set position
-        gameObject.setPosition(finalPosition);
+        gameObject.getFeature(Renderable.class).setPosition(finalPosition);
     }
 
     private void handleScreenBounds(GameObject gameObject, KernelState kernelState, Point finalPosition)
-            throws GameException {
+            throws TransientGameException {
         // setup
-        Resource resource = gameObject.getCurrentResource();
+        Resource resource = gameObject.getFeature(Renderable.class).getRenderableResource(gameObject);
         Rectangle resourceBounds;
-        Rectangle screenBounds = kernelState.getBounds();
+        Rectangle screenBounds = ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS));
         Rectangle collisionSpace;
         Point collisionOffset;
         Point positionOffset;
 
         // check that resource is measurable
         if (resource instanceof MeasurableResource) {
-            resourceBounds = ((MeasurableResource) resource).getCelBounds();
+            resourceBounds = ((MeasurableResource) resource).getCelSize();
         } else {
             return;
         }
 
+        // check if screen bounds handling is not defined
+        if (!gameObject.isFeatureAvailable(PhysicsBindingSet.class) ||
+            !gameObject.getFeature(PhysicsBindingSet.class).has(ScreenBoundsHandlingTypeEnum.class)) {
+            return;
+        }
+
         // determine checkable position of resource
-        switch (gameObject.getScreenBoundsHandlingTypeEnum()) {
-            case NONE:
-                return;
+        switch (gameObject.getFeature(PhysicsBindingSet.class).get(ScreenBoundsHandlingTypeEnum.class)) {
             case OUTER_RESOURCE_EDGE:
                 collisionSpace = new Rectangle(
                     finalPosition.x,
@@ -227,7 +327,7 @@ class GameObjectUpdater {
                 );
                 break;
             default:
-                throw new GameException(GameErrorCode.LOGIC_ERROR);
+                throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         // check bounds

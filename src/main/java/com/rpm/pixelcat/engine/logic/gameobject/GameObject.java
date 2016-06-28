@@ -1,40 +1,31 @@
 package com.rpm.pixelcat.engine.logic.gameobject;
 
-import com.rpm.pixelcat.engine.exception.GameException;
-import com.rpm.pixelcat.engine.logic.animation.AnimationSequence;
-import com.rpm.pixelcat.engine.logic.resource.Resource;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
+import com.rpm.pixelcat.engine.logic.common.IdGenerator;
+import com.rpm.pixelcat.engine.logic.gameobject.feature.Feature;
 
-import java.awt.*;
-import java.util.Set;
+public interface GameObject extends IdGenerator {
+    <F extends Feature> GameObject registerFeature(F feature) throws TransientGameException;
 
-public interface GameObject {
-    public void setCurrentResource(Resource resource);
+    <F extends Feature> GameObject registerFeature(F feature, Boolean status) throws TransientGameException;
 
-    public Resource getCurrentResource();
+    <F extends Feature> Boolean hasFeature(Class<F> featureClass);
 
-    public void setPosition(Integer x, Integer y);
+    <F extends Feature> F getFeature(Class<F> featureClass) throws TransientGameException;
 
-    public void setPosition(Point position);
+    <F extends Feature> void deactivateFeature(Class<F> featureClass) throws TransientGameException;
 
-    public Point getPosition();
+    <F extends Feature> void activateFeature(Class<F> featureClass) throws TransientGameException;
 
-    public void setLayer(Integer layer);
+    <F extends Feature> Boolean isFeatureActive(Class<F> featureClass) throws TransientGameException;
 
-    public Integer getLayer();
+    <F extends Feature> Boolean isFeatureAvailable(Class<F> featureClass);
 
-    public GameObjectProperties getProperties();
+    GameObjectProperties getProperties();
 
-    public Set<GameObjectHIDEventLogicBehaviorBinding> getGameObjectHIDEventLogicBehaviorBindings();
+    static GameObject create(GameObjectProperties properties) throws TransientGameException {
+        GameObject gameObject = new GameObjectImpl(properties);
 
-    public Boolean hasAnimation();
-
-    public OrientationEnum getCurrentOrientation() throws GameException;
-
-    public void setCurrentOrientation(OrientationEnum currentOrientation);
-
-    public AnimationSequence getCurrentAnimationSequence() throws GameException;
-
-    public CollisionHandlingTypeEnum getCollisionHandlingTypeEnum();
-
-    public ScreenBoundsHandlingTypeEnum getScreenBoundsHandlingTypeEnum();
+        return gameObject;
+    }
 }

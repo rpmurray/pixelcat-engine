@@ -1,11 +1,11 @@
 package com.rpm.pixelcat.engine.hid;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 public interface HIDEventBinder {
-    public HIDEventEnum binding(Integer key) throws GameException;
+    public HIDEventEnum binding(Integer key) throws TransientGameException;
 
-    public Integer binding(HIDEventEnum value) throws GameException;
+    public Integer binding(HIDEventEnum value) throws TransientGameException;
 
     public void bind(Integer key, HIDEventEnum hidEvent);
 

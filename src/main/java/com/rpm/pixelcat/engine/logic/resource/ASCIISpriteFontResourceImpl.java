@@ -1,7 +1,7 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.*;
 
@@ -40,11 +40,11 @@ class ASCIISpriteFontResourceImpl implements ASCIISpriteFontResource {
         return spriteSheet.isLoaded();
     }
 
-    public void load() throws GameException {
+    public void load() throws TransientGameException {
         spriteSheet.load();
     }
 
-    public Rectangle getCelBounds(Character c) throws GameException {
+    public Rectangle getCelBounds(Character c) throws TransientGameException {
         // lookup character coordinates
         Point coordinates = getCharacterCoordinates(c);
 
@@ -69,10 +69,10 @@ class ASCIISpriteFontResourceImpl implements ASCIISpriteFontResource {
         return characterSpacing;
     }
 
-    private Point getCharacterCoordinates(Character c) throws GameException {
+    private Point getCharacterCoordinates(Character c) throws TransientGameException {
         // validate lookup
         if (index(c) >= characterCoordinatesDefinition.length) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         // look up coordinates
@@ -80,7 +80,7 @@ class ASCIISpriteFontResourceImpl implements ASCIISpriteFontResource {
 
         // validate coordinates
         if (coordinates == null) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
         }
 
         return coordinates;

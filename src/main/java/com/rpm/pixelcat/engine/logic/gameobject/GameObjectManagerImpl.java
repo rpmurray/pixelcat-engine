@@ -1,102 +1,102 @@
 package com.rpm.pixelcat.engine.logic.gameobject;
 
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.kernel.KernelState;
+import com.rpm.pixelcat.engine.logic.common.IdGeneratorImpl;
 import com.rpm.pixelcat.engine.logic.gameobject.dao.HashMapPropertiesDB;
 import com.rpm.pixelcat.engine.logic.gameobject.dao.PropertiesDB;
 import com.rpm.pixelcat.engine.logic.gameobject.dao.PropertiesStorageEnum;
+import com.rpm.pixelcat.engine.logic.gameobject.feature.Renderable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class GameObjectManagerImpl implements GameObjectManager {
-    private GameObjectFactoryImpl gameObjectFactory;
-    private List<GameObject> gameObjects;
+public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObjectManager {
+    private PropertiesDB propertiesDB;
+    private Map<String, GameObject> gameObjects;
     private LayerManager layerManager;
 
-    public GameObjectManagerImpl(Integer layers, PropertiesStorageEnum propertiesStorageEnum) throws GameException {
+    public GameObjectManagerImpl(Integer layers, PropertiesStorageEnum propertiesStorageEnum) throws TransientGameException {
         // init game objects
-        gameObjects = new ArrayList<>();
+        gameObjects = new HashMap<>();
 
         // layer setup
         layerManager = new LayerManagerImpl(layers);
 
         // game object factory setup
-        PropertiesDB propertiesDB;
         switch (propertiesStorageEnum) {
             case XML:
-                throw new GameException(GameErrorCode.INTERNAL_ERROR, "Unsupported game object properties DB");
+                throw new TransientGameException(GameErrorCode.INTERNAL_ERROR, "Unsupported game object properties DB");
             case HASH_MAP:
             default:
                 propertiesDB = new HashMapPropertiesDB();
                 break;
         }
-        gameObjectFactory = new GameObjectFactoryImpl(propertiesDB);
     }
 
-    public GameObjectFactoryImpl getGameObjectFactory() {
-        return gameObjectFactory;
+    public GameObject createGameObject() throws TransientGameException {
+        GameObject gameObject = GameObject.create(GameObjectProperties.create(propertiesDB));
+
+        return gameObject;
     }
 
-    public void addGameObject(GameObject gameObject) throws GameException {
-        if (!layerManager.isValidLayer(gameObject.getLayer())) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR, gameObject);
-        }
-
-        gameObjects.add(gameObject);
-    }
-
-    public void addGameObject(Integer index, GameObject gameObject) throws GameException {
-        if (!layerManager.isValidLayer(gameObject.getLayer())) {
-            throw new GameException(GameErrorCode.LOGIC_ERROR);
-        }
-
-        gameObjects.add(index, gameObject);
-    }
-
-    public void addGameObjects(List<GameObject> gameObjects) throws GameException {
-        for (GameObject gameObject: gameObjects) {
-            // validate
-            if (!layerManager.isValidLayer(gameObject.getLayer())) {
-                throw new GameException(GameErrorCode.LOGIC_ERROR);
+    public GameObjectManager add(GameObject gameObject) throws TransientGameException {
+        if (gameObject.hasFeature(Renderable.class)) {
+            if (!layerManager.isValidLayer(gameObject.getFeature(Renderable.class).getLayer())) {
+                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, gameObject);
             }
-
-            // add
-            this.gameObjects.add(gameObject);
         }
+
+        gameObjects.put(gameObject.getId(), gameObject);
+
+        return this;
     }
 
-    public void addGameObjects(Map<Integer, GameObject> gameObjects) throws GameException {
-        for (Integer index: gameObjects.keySet()) {
-            // setup
-            GameObject gameObject = gameObjects.get(index);
-
-            // validate
-            if (!layerManager.isValidLayer(gameObject.getLayer())) {
-                throw new GameException(GameErrorCode.LOGIC_ERROR);
-            }
-
-            // add
-            this.gameObjects.add(index, gameObject);
+    public GameObjectManager add(Set<GameObject> gameObjects) throws TransientGameException {
+        // add one at a time
+        for (GameObject gameObject : gameObjects) {
+            add(gameObject);
         }
+
+        return this;
     }
 
-    public int getGameObjectsCount() {
+    public Boolean has(String id) {
+        return gameObjects.containsKey(id);
+    }
+
+    public GameObject get(String id) throws TransientGameException {
+        if (!has(id)) {
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+        }
+
+        return gameObjects.get(id);
+    }
+
+    public Integer count() {
         return gameObjects.size();
     }
 
-    public ArrayList<ArrayList<GameObject>> getLayeredGameObjects() {
+    public List<List<GameObject>> getLayeredGameObjects() throws TransientGameException {
         // setup
-        ArrayList<ArrayList<GameObject>> layeredGameObjects = new ArrayList<>();
+        List<List<GameObject>> layeredGameObjects = new ArrayList<>();
         for (Integer i = 0; i < layerManager.getLayerCount(); i++) {
             layeredGameObjects.add(i, new ArrayList<>());
         }
 
         // build layered game objects
-        for (GameObject gameObject: gameObjects) {
-            layeredGameObjects.get(gameObject.getLayer()).add(gameObject);
+        for (String id : gameObjects.keySet()) {
+            // setup
+            Integer layerIndex = 0;
+            GameObject gameObject = gameObjects.get(id);
+
+            // set layer index if applicable
+            if (gameObject.hasFeature(Renderable.class)) {
+                layerIndex = gameObject.getFeature(Renderable.class).getLayer();
+            }
+
+            // add game object to layered set of game objects
+            layeredGameObjects.get(layerIndex).add(gameObject);
         }
 
         return layeredGameObjects;
@@ -106,9 +106,13 @@ public class GameObjectManagerImpl implements GameObjectManager {
         return layerManager;
     }
 
-    public void process(KernelState kernelState) throws GameException {
-        for (GameObject gameObject : gameObjects) {
-            GameObjectUpdater.getInstace().update(gameObject, kernelState);
+    public void process(KernelState kernelState) throws TransientGameException {
+        for (String id : gameObjects.keySet()) {
+            // setup
+            GameObject gameObject = gameObjects.get(id);
+
+            // update
+            GameObjectUpdater.getInstance().update(gameObject, kernelState);
         }
     }
 }

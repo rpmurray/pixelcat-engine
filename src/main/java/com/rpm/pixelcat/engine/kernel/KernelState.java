@@ -1,6 +1,6 @@
 package com.rpm.pixelcat.engine.kernel;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.hid.HIDEventEnum;
 import com.rpm.pixelcat.engine.logic.clock.GameClockManager;
 
@@ -34,13 +34,21 @@ public interface KernelState {
 
     public HashSet<KernelActionEnum> getKernelActions();
 
-    public void addError(Exception exception);
+    public void addTerminalError(Exception exception);
 
-    public void clearErrors();
+    public Boolean hasTerminalErrors();
 
-    public HashSet<Exception> getErrors();
+    public HashSet<Exception> getTerminalErrors();
 
-    public void setProperty(KernelStatePropertyEnum name, Object value) throws GameException;
+    public void addTransientError(Exception exception);
+
+    public void clearTransientErrors();
+
+    public Boolean hasTransientErrors();
+
+    public HashSet<Exception> getTransientErrors();
+
+    public void setProperty(KernelStatePropertyEnum name, Object value) throws TransientGameException;
 
     public Object getProperty(KernelStatePropertyEnum name);
 

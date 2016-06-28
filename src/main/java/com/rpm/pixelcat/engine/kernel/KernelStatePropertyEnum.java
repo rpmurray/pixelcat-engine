@@ -5,6 +5,8 @@ public enum KernelStatePropertyEnum {
     // READ/WRITE PROPERTIES //
     ////                   ////
 
+    // screen bounds
+    SCREEN_BOUNDS,
     // preferred maximum frame rate
     FRAME_RATE,
     // registered active collection of game object managers

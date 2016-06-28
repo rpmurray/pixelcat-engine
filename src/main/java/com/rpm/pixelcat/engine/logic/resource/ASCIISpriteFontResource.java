@@ -1,6 +1,6 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
-import com.rpm.pixelcat.engine.exception.GameException;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.*;
 
@@ -11,11 +11,11 @@ public interface ASCIISpriteFontResource extends FontResource, LoadableResource 
 
     public Boolean isLoaded();
 
-    public void load() throws GameException;
+    public void load() throws TransientGameException;
 
     public SpriteSheet getSpriteSheet();
 
-    public Rectangle getCelBounds(Character c) throws GameException;
+    public Rectangle getCelBounds(Character c) throws TransientGameException;
 
     public Integer getCharacterWidth(Character c);
 

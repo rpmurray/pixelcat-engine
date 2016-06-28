@@ -1,28 +1,31 @@
 package com.rpm.pixelcat.engine.logic.animation;
 
-import com.rpm.pixelcat.engine.exception.GameException;
-import com.rpm.pixelcat.engine.logic.resource.Resource;
+import com.rpm.pixelcat.engine.exception.TransientGameException;
+import com.rpm.pixelcat.engine.logic.common.IdGenerator;
+import com.rpm.pixelcat.engine.logic.common.RenderableContainer;
 
 import java.util.List;
 
-public interface AnimationSequence {
-    public void addCel(Resource cel);
+public interface AnimationSequence extends RenderableContainer, IdGenerator {
+    public AnimationSequence addCel(String cel);
 
-    public void addCels(List<Resource> cels);
+    public AnimationSequence addCels(List<String> cels);
 
-    public void setMillisecondsPerCel(Long millisecondsPerCel);
+    public AnimationSequence setCurrentCel(String id) throws TransientGameException;
 
-    public void setAnimationAcceleration(Long timeInMilliseconds);
+    public AnimationSequence setMillisecondsPerCel(Long millisecondsPerCel);
 
-    public Resource getCurrentCel() throws GameException;
+    public AnimationSequence setAnimationAcceleration(Long timeInMilliseconds);
 
-    public void play();
+    public String getCurrentCel() throws TransientGameException;
 
-    public void pause();
+    public AnimationSequence play();
 
-    public void resetSequence();
+    public AnimationSequence pause();
 
-    public void advanceSequence();
+    public AnimationSequence resetSequence();
 
-    public void advanceSequenceByTime() throws GameException;
+    public AnimationSequence advanceSequence();
+
+    public AnimationSequence advanceSequenceByTime() throws TransientGameException;
 }

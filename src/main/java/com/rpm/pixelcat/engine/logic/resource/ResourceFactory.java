@@ -1,6 +1,7 @@
 package com.rpm.pixelcat.engine.logic.resource;
 
 import java.awt.*;
+import java.util.Set;
 
 public class ResourceFactory {
     private static ResourceFactory instance;
@@ -23,8 +24,20 @@ public class ResourceFactory {
         return resource;
     }
 
-    public ImageResource createImageResource(SpriteResource mainResource, SpriteResource collisionMapResource) {
-        ImageResource resource = new ImageResourceImpl(mainResource, collisionMapResource);
+    public ImageResource createImageResource(SpriteResource mainResource) {
+        ImageResource resource = new ImageResourceImpl(mainResource, null);
+
+        return resource;
+    }
+
+    public ImageResource createImageResource(SpriteResource mainResource, Set<CollisionMaskResource> collisionMasks) {
+        ImageResource resource = new ImageResourceImpl(mainResource, collisionMasks);
+
+        return resource;
+    }
+
+    public SoundResource createSoundResource(String fileName) {
+        SoundResource resource = new SoundResourceImpl(fileName);
 
         return resource;
     }
