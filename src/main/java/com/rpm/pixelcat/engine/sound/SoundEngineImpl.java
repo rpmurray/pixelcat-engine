@@ -3,7 +3,6 @@ package com.rpm.pixelcat.engine.sound;
 import com.rpm.pixelcat.engine.common.printer.Printer;
 import com.rpm.pixelcat.engine.common.printer.PrinterFactory;
 import com.rpm.pixelcat.engine.exception.GameErrorCode;
-import com.rpm.pixelcat.engine.exception.TerminalErrorException;
 import com.rpm.pixelcat.engine.exception.TerminalGameException;
 import com.rpm.pixelcat.engine.exception.TransientGameException;
 import com.rpm.pixelcat.engine.logic.resource.SoundResource;
@@ -12,7 +11,7 @@ import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemException;
 import paulscode.sound.codecs.CodecJOgg;
 import paulscode.sound.codecs.CodecWav;
-import paulscode.sound.libraries.LibraryJavaSound;
+import paulscode.sound.libraries.LibraryLWJGLOpenAL;
 
 import java.util.Map;
 
@@ -38,8 +37,8 @@ class SoundEngineImpl implements SoundEngine {
     public SoundEngineImpl init() throws TerminalGameException {
         // Instantiate the SoundSystem:
         try {
-            soundSystem = new SoundSystem(LibraryJavaSound.class);
-//            soundSystem = new SoundSystem(LibraryLWJGLOpenAL.class);
+//            soundSystem = new SoundSystem(LibraryJavaSound.class);
+            soundSystem = new SoundSystem(LibraryLWJGLOpenAL.class);
             SoundSystemConfig.setCodec( "wav", CodecWav.class );
             SoundSystemConfig.setCodec( "ogg", CodecJOgg.class );
         } catch( SoundSystemException e ) {

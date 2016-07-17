@@ -16,8 +16,6 @@ import com.rpm.pixelcat.engine.logic.gameobject.GameObjectManager;
 import com.rpm.pixelcat.engine.renderer.RenderEngine;
 import com.rpm.pixelcat.engine.sound.SoundEngine;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -41,6 +41,26 @@
             <artifactId>java-cup-runtime</artifactId>
             <version>11b</version>
         </dependency>
+        <dependency>
+            <groupId>paulscode.sound</groupId>
+            <artifactId>SoundSystem</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>paulscode.sound.codecs</groupId>
+            <artifactId>CodecJOgg</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>paulscode.sound.codecs</groupId>
+            <artifactId>CodecWav</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>paulscode.sound.libraries</groupId>
+            <artifactId>LibraryLWJGLOpenAL</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -86,4 +106,45 @@
             </plugin>
         </plugins>
     </build>
+
+<!--    <profiles>
+        <profile>-->
+            <repositories>
+                <repository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>central</id>
+                    <name>repo</name>
+                    <url>http://mvn.rx14.co.uk/repo</url>
+                </repository>
+                <repository>
+                    <snapshots/>
+                    <id>snapshots</id>
+                    <name>repo</name>
+                    <url>http://mvn.rx14.co.uk/repo</url>
+                </repository>
+            </repositories>
+<!--            <pluginRepositories>
+                <pluginRepository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>central</id>
+                    <name>repo</name>
+                    <url>http://mvn.rx14.co.uk/repo</url>
+                </pluginRepository>
+                <pluginRepository>
+                    <snapshots/>
+                    <id>snapshots</id>
+                    <name>repo</name>
+                    <url>http://mvn.rx14.co.uk/repo</url>
+                </pluginRepository>
+            </pluginRepositories>
+            <id>artifactory</id>-->
+<!--        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>artifactory</activeProfile>
+    </activeProfiles>-->
 </project>
