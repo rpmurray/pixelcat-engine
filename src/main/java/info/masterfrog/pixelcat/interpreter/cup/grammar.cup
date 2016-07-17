@@ -1,0 +1,41 @@
+package info.masterfrog.pixelcat.interpreter;
+
+import java_cup.runtime.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Parser generates a parser grammar for for the {@link Scanner} scanner.
+ */
+
+/* Terminals (tokens returned by the scanner). */
+terminal                    PLUS, MINUS, MUL, DIV, LPAREN, RPAREN;
+terminal String             INT;                                    // our scanner provides numbers in a Number class
+terminal String             FLOAT;                                  // our scanner provides numbers in a Number class
+
+/* Non terminals */
+non terminal List<Expression>   expr_list;
+non terminal Expression         expr;                               // used to store sub expressions
+non terminal Operation          op;                                 // used to store an operation
+
+/* Precedences */
+precedence left PLUS, MINUS;
+precedence left MUL;
+precedence left DIV;
+
+/* The grammar rules */
+expr_list ::= expr_list:l expr:e    {: l.add(e); RESULT = l; ParserUtil.getPrinter().printDebug(l); :}
+            | expr:e                {: RESULT = new ArrayList(Collections.singletonList(e)); ParserUtil.getPrinter().printDebug(e); :}
+;
+expr      ::= op:o                  {: RESULT = o; ParserUtil.getPrinter().printDebug(o); :}
+            | FLOAT:n               {: RESULT = new Numeric(Double.parseDouble(n)); ParserUtil.getPrinter().printDebug(n); :}
+            | INT:n                 {: RESULT = new Numeric(Double.parseDouble(n)); ParserUtil.getPrinter().printDebug(n); :}
+            | LPAREN expr:e RPAREN	{: RESULT = e; ParserUtil.getPrinter().printDebug(e); :}
+;
+op        ::= expr:e1 PLUS  expr:e2 {: RESULT = new Operation(Tokens.PLUS, e1, e2); ParserUtil.getPrinter().printDebug(e1 + " | " + e2); :}
+            | expr:e1 MINUS expr:e2 {: RESULT = new Operation(Tokens.MINUS, e1, e2); ParserUtil.getPrinter().printDebug(e1 + " | " + e2); :}
+            | expr:e1 MUL expr:e2   {: RESULT = new Operation(Tokens.MUL, e1, e2); ParserUtil.getPrinter().printDebug(e1 + " | " + e2); :}
+            | expr:e1 DIV expr:e2   {: RESULT = new Operation(Tokens.DIV, e1, e2); ParserUtil.getPrinter().printDebug(e1 + " | " + e2); :}
+;
