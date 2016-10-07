@@ -10,15 +10,28 @@ import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.exception.ExitException;
 import info.masterfrog.pixelcat.engine.kernel.KernelState;
 import info.masterfrog.pixelcat.engine.kernel.KernelStatePropertyEnum;
+import info.masterfrog.pixelcat.engine.logic.gameobject.feature.SoundLibrary;
 import info.masterfrog.pixelcat.engine.logic.resource.SoundResource;
 import info.masterfrog.pixelcat.engine.sound.SoundEngine;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LogicHandlerImpl implements LogicHandler {
+    public List<GameObject> getGameObjects(KernelState kernelState) throws TransientGameException {
+        // setup
+        List<GameObject> consolidatedGameObjects = new ArrayList<>();
+
+        // retrieve game object managers
+        List<GameObjectManager> gameObjectManagers = (List) kernelState.getProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS);
+
+        // loop through each and consolidate
+        for (GameObjectManager gameObjectManager: gameObjectManagers) {
+            consolidatedGameObjects.addAll(gameObjectManager.getGameObjects().values());
+        }
+
+        return consolidatedGameObjects;
+    }
+
     public List<List<GameObject>> getLayeredGameObjects(KernelState kernelState) throws TransientGameException {
         // setup
         List<List<GameObject>> consolidatedLayeredGameObjects = new ArrayList<>();
@@ -49,10 +62,31 @@ public class LogicHandlerImpl implements LogicHandler {
         return consolidatedLayeredGameObjects;
     }
 
-    public Map<SoundEngine.SoundResourceState, SoundResource> getSoundEvents() {
-        Map<SoundEngine.SoundResourceState, SoundResource> soundResourceMap = new HashMap<>();
+    public Set<SoundEngine.SoundEventActor> getSoundEvents(KernelState kernelState) throws TransientGameException {
+        Set<SoundEngine.SoundEventActor> soundEvents = new HashSet<>();
 
-        return soundResourceMap;
+        // get all game objects
+        List<GameObject> gameObjects = getGameObjects(kernelState);
+
+        // iterate through and find sound event capable objects
+        for (GameObject gameObject : gameObjects) {
+            if (gameObject.hasFeature(SoundLibrary.class)) {
+                // get sound library
+                SoundLibrary soundLibrary = gameObject.getFeature(SoundLibrary.class);
+
+                // iterate through all sound library elements
+                for (String soundResourceId : soundLibrary.getAll().keySet()) {
+                    // check each sound event actor for existence of actionable sound event states
+                    // and add such sound event actors to our set of sound events
+                    SoundEngine.SoundEventActor soundEventActor = soundLibrary.get(soundResourceId);
+                    if (soundEventActor.containsSoundEventStates()) {
+                        soundEvents.add(soundEventActor);
+                    }
+                }
+            }
+        }
+
+        return soundEvents;
     }
 
     public void process(KernelState kernelState) throws TransientGameException, TerminalGameException, ExitException {

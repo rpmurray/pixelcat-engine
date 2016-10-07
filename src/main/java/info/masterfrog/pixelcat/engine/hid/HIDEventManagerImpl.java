@@ -28,7 +28,7 @@ class HIDEventManagerImpl implements HIDEventManager {
             // determine kernelState impact
             switch (hidEventType) {
                 case PRESS:
-                    kernelState.addHIDEvent(hidEvent);
+                    kernelState.addHIDTriggeredEvent(hidEvent);
                     break;
                 case RELEASE:
                     kernelState.removeHIDEvent(hidEvent);
@@ -49,13 +49,13 @@ class HIDEventManagerImpl implements HIDEventManager {
             // determine kernelState impact
             switch (hidEventType) {
                 case PRESS:
-                    kernelState.addHIDEvent(hidEvent);
+                    kernelState.addHIDTriggeredEvent(hidEvent);
                     break;
                 case RELEASE:
                     kernelState.removeHIDEvent(hidEvent);
                     break;
                 case SCROLL:
-                    kernelState.addHIDEvent(hidEvent);
+                    kernelState.addHIDTriggeredEvent(hidEvent);
                     break;
                 case DRAG:
                 default:
@@ -112,13 +112,13 @@ class HIDEventManagerImpl implements HIDEventManager {
 
     public void generateSynthesizedEvents() {
         // no directional keyboard events
-        if (!kernelState.hasHIDEvent(HIDEventEnum.PRIMARY_UP) &&
-            !kernelState.hasHIDEvent(HIDEventEnum.PRIMARY_DOWN) &&
-            !kernelState.hasHIDEvent(HIDEventEnum.PRIMARY_LEFT) &&
-            !kernelState.hasHIDEvent(HIDEventEnum.PRIMARY_RIGHT)) {
-            kernelState.addHIDEvent(HIDEventEnum.PRIMARY_NO_DIRECTION);
+        if (!kernelState.hasHIDTriggeredEvent(HIDEventEnum.PRIMARY_UP) &&
+            !kernelState.hasHIDTriggeredEvent(HIDEventEnum.PRIMARY_DOWN) &&
+            !kernelState.hasHIDTriggeredEvent(HIDEventEnum.PRIMARY_LEFT) &&
+            !kernelState.hasHIDTriggeredEvent(HIDEventEnum.PRIMARY_RIGHT)) {
+            kernelState.addHIDTriggeredEvent(HIDEventEnum.PRIMARY_NO_DIRECTION);
         } else {
-            kernelState.removeHIDEvent(HIDEventEnum.PRIMARY_NO_DIRECTION);
+            kernelState.removeHIDSustainedEvent(HIDEventEnum.PRIMARY_NO_DIRECTION);
         }
     }
 }

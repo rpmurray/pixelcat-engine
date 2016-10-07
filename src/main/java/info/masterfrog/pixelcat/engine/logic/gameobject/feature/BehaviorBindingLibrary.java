@@ -6,6 +6,6 @@ import info.masterfrog.pixelcat.engine.logic.gameobject.behavior.BehaviorBinding
 
 public interface BehaviorBindingLibrary<E extends BindableEvent> extends BindingSetTemplate<BehaviorBindingImpl<E>> {
     static BehaviorBindingLibrary create() throws TransientGameException {
-        return create(BehaviorBindingLibraryImpl.class);
+        return Feature.create(BehaviorBindingLibraryImpl.class);
     }
 }

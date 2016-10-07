@@ -41,6 +41,13 @@
             <artifactId>java-cup-runtime</artifactId>
             <version>11b</version>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        -->
         <dependency>
             <groupId>paulscode.sound</groupId>
             <artifactId>SoundSystem</artifactId>
@@ -115,12 +122,6 @@
                         <enabled>false</enabled>
                     </snapshots>
                     <id>central</id>
-                    <name>repo</name>
-                    <url>http://mvn.rx14.co.uk/repo</url>
-                </repository>
-                <repository>
-                    <snapshots/>
-                    <id>snapshots</id>
                     <name>repo</name>
                     <url>http://mvn.rx14.co.uk/repo</url>
                 </repository>

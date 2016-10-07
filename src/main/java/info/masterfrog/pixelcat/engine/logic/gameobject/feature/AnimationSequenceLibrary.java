@@ -5,6 +5,6 @@ import info.masterfrog.pixelcat.engine.logic.animation.AnimationSequence;
 
 public interface AnimationSequenceLibrary extends LibraryTemplate<AnimationSequence> {
     static AnimationSequenceLibrary create() throws TransientGameException {
-        return create(AnimationSequenceLibraryImpl.class);
+        return Feature.create(AnimationSequenceLibraryImpl.class);
     }
 }

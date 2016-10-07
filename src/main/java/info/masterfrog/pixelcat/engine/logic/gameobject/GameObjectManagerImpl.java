@@ -77,6 +77,10 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
         return gameObjects.size();
     }
 
+    public Map<String, GameObject> getGameObjects() {
+        return gameObjects;
+    }
+
     public List<List<GameObject>> getLayeredGameObjects() throws TransientGameException {
         // setup
         List<List<GameObject>> layeredGameObjects = new ArrayList<>();

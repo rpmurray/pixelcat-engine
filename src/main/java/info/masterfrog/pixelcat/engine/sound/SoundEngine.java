@@ -1,13 +1,23 @@
 package info.masterfrog.pixelcat.engine.sound;
 
+import com.google.common.collect.ImmutableSet;
 import info.masterfrog.pixelcat.engine.exception.TerminalGameException;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
-import info.masterfrog.pixelcat.engine.logic.resource.SoundResource;
 
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public interface SoundEngine {
-    public enum SoundResourceState {
+    interface SoundEventActor {
+        Set<SoundEventState> getSoundEventStates();
+
+        Boolean containsSoundEventStates();
+
+        void resetSoundEventStates();
+    }
+
+    enum SoundEventState {
+        SET_VOLUME,
         PLAY,
         PAUSE,
         STOP,
@@ -23,5 +33,5 @@ public interface SoundEngine {
 
     void loadStreamingSource(String id, String fileName);
 
-    void process(Map<SoundResourceState, SoundResource> soundResourceStateMap) throws TransientGameException;
+    void process(Set<SoundEventActor> soundEventActors) throws TransientGameException;
 }

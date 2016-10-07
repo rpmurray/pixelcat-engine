@@ -17,7 +17,7 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
     private LogicHandler logicHandler;
     private HIDEventManager hidEventManager;
 
-    public GraphicsPanel(KernelState kernelState, RenderEngine renderEngine, LogicHandler logicHandler, HIDEventManager hidEventManager) {
+    GraphicsPanel(KernelState kernelState, RenderEngine renderEngine, LogicHandler logicHandler, HIDEventManager hidEventManager) {
         // handle parent
         super();
 

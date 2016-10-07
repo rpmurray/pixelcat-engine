@@ -15,7 +15,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 class KernelStateImpl implements KernelState {
-    private HashSet<HIDEventEnum> hidEvents;
+    private HashSet<HIDEventEnum> hidTriggeredEvents;
+    private HashSet<HIDEventEnum> hidSustainedEvents;
     private HashSet<KernelActionEnum> kernelActions;
     private HashSet<Exception> terminalErrors;
     private HashSet<Exception> transientErrors;
@@ -24,7 +25,8 @@ class KernelStateImpl implements KernelState {
     private GameClockManager masterGameClockManager;
 
     KernelStateImpl() {
-        this.hidEvents = new HashSet<>();
+        this.hidTriggeredEvents = new HashSet<>();
+        this.hidSustainedEvents = new HashSet<>();
         this.kernelActions = new HashSet<>();
         this.terminalErrors = new HashSet<>();
         this.transientErrors = new HashSet<>();
@@ -88,30 +90,52 @@ class KernelStateImpl implements KernelState {
         return screenBounds;
     }
 
-    public void addHIDEvent(HIDEventEnum hidEvent) {
-        hidEvents.add(hidEvent);
+    public void addHIDTriggeredEvent(HIDEventEnum hidEvent) {
+        hidTriggeredEvents.add(hidEvent);
     }
 
     public void removeHIDEvent(HIDEventEnum hidEvent) {
-        hidEvents.remove(hidEvent);
+        if (hasHIDTriggeredEvent(hidEvent)) {
+            removeHIDTriggeredEvent(hidEvent);
+        }
+        if (hasHIDSustainedEvent(hidEvent)) {
+            removeHIDSustainedEvent(hidEvent);
+        }
     }
 
-    public void clearHIDEvents() {
-        hidEvents.clear();
+    public void removeHIDTriggeredEvent(HIDEventEnum hidEvent) {
+        hidTriggeredEvents.remove(hidEvent);
+    }
+
+    public void removeHIDSustainedEvent(HIDEventEnum hidEvent) {
+        hidSustainedEvents.remove(hidEvent);
+    }
+
+    void sustainHIDEvents() {
+        hidSustainedEvents.addAll(hidTriggeredEvents);
+        hidTriggeredEvents.clear();
     }
 
     void resetTransientHIDEvents() {
         // wipe out scroll up and scroll down which don't have a "reset" listener event
-        hidEvents.remove(HIDEventEnum.SCROLL_UP);
-        hidEvents.remove(HIDEventEnum.SCROLL_DOWN);
+        removeHIDEvent(HIDEventEnum.SCROLL_UP);
+        removeHIDEvent(HIDEventEnum.SCROLL_DOWN);
     }
 
-    public Boolean hasHIDEvent(HIDEventEnum hidEvent) {
-        return hidEvents.contains(hidEvent);
+    public Boolean hasHIDTriggeredEvent(HIDEventEnum hidEvent) {
+        return hidTriggeredEvents.contains(hidEvent);
     }
 
-    public HashSet<HIDEventEnum> getHIDEvents() {
-        return hidEvents;
+    public Boolean hasHIDSustainedEvent(HIDEventEnum hidEvent) {
+        return hidSustainedEvents.contains(hidEvent);
+    }
+
+    public HashSet<HIDEventEnum> getHIDTriggeredEvents() {
+        return hidTriggeredEvents;
+    }
+
+    public HashSet<HIDEventEnum> getHIDSustainedEvents() {
+        return hidSustainedEvents;
     }
 
     public void addKernelAction(KernelActionEnum kernelAction) {

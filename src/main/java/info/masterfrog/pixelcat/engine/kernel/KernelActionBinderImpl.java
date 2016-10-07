@@ -28,7 +28,7 @@ class KernelActionBinderImpl implements KernelActionBinder {
         bind(HIDEventEnum.ONE, KernelActionEnum.SET_LOG_LVL_FATAL);
     }
 
-    public KernelActionEnum binding(HIDEventEnum key) throws TransientGameException {
+    public KernelActionEnum resolveBinding(HIDEventEnum key) throws TransientGameException {
         // look up kernel action
         KernelActionEnum kernelAction = bindings.get(key);
 
@@ -40,7 +40,7 @@ class KernelActionBinderImpl implements KernelActionBinder {
         return kernelAction;
     }
 
-    public HIDEventEnum binding(KernelActionEnum kernelAction) throws TransientGameException {
+    public HIDEventEnum resolveBinding(KernelActionEnum kernelAction) throws TransientGameException {
         // look up hid event
         if (bindings.containsValue(kernelAction)) {
             for (HIDEventEnum key : bindings.keySet()) {

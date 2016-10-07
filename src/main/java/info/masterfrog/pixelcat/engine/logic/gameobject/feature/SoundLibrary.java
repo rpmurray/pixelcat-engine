@@ -5,6 +5,6 @@ import info.masterfrog.pixelcat.engine.logic.resource.SoundResource;
 
 public interface SoundLibrary extends LibraryTemplate<SoundResource> {
     static SoundLibrary create() throws TransientGameException {
-        return create(SoundLibraryImpl.class);
+        return Feature.create(SoundLibraryImpl.class);
     }
 }

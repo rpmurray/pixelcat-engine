@@ -15,6 +15,7 @@ public enum GameErrorCode {
     KERNEL_INITIALIZATION_FAILED(50001L,"Kernel initialization failed."),
     KERNEL_ACTION_UNSUPPORTED(50002L,"Supplied kernel action not supported."),
     KERNEL_LOOP_SLEEP_FAILED(50003L,"Kernel loop sleep failed."),
+    KERNEL_INJECTION_ERROR(50011L, "Kernel injection processing encountered an error."),
 
     GRAPHICS_ENGINE_ERROR(71001L,"Unspecified graphics engine error."),
 

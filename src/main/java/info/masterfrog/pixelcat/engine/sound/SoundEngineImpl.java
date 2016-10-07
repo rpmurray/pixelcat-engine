@@ -13,7 +13,7 @@ import paulscode.sound.codecs.CodecJOgg;
 import paulscode.sound.codecs.CodecWav;
 import paulscode.sound.libraries.LibraryLWJGLOpenAL;
 
-import java.util.Map;
+import java.util.Set;
 
 class SoundEngineImpl implements SoundEngine {
     private SoundSystem soundSystem;
@@ -66,6 +66,22 @@ class SoundEngineImpl implements SoundEngine {
         );
     }
 
+    private void setMasterVolume(float volume) throws TransientGameException {
+        try {
+            soundSystem.setMasterVolume(volume);
+        } catch (Exception e) {
+            throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
+        }
+    }
+
+    private void setVolume(String id, float volume) throws TransientGameException {
+        try {
+            soundSystem.setVolume(id, volume);
+        } catch (Exception e) {
+            throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
+        }
+    }
+
     private void playSound(String id) throws TransientGameException {
         try {
             soundSystem.play(id);
@@ -90,32 +106,52 @@ class SoundEngineImpl implements SoundEngine {
         }
     }
 
-    public void process(Map<SoundResourceState, SoundResource> soundResourceStateMap) throws TransientGameException {
-        for (SoundResourceState soundResourceState : soundResourceStateMap.keySet()) {
-            SoundResource soundResource = soundResourceStateMap.get(soundResourceState);
-            if (!soundResource.isLoaded()) {
-                soundResource.load();
+    public void process(Set<SoundEventActor> soundEventActors) throws TransientGameException {
+        for (SoundEventActor soundEventActor : soundEventActors) {
+
+            if (soundEventActor instanceof MasterVolume) {
+                // setup
+                MasterVolume masterVolume = (MasterVolume) soundEventActor;
+
+                // set master volume
+                setMasterVolume(masterVolume.getValue());
+            } else {
+                // setup
+                SoundResource soundResource = (SoundResource) soundEventActor;
+
+                // check loaded
+                if (!soundResource.isLoaded()) {
+                    soundResource.load();
+                }
+
+                // check if state has changed
+                if (!soundResource.containsSoundEventStates()) {
+                    continue;
+                }
+
+                // handle change
+                Set<SoundEventState> soundSoundEventStates = soundResource.getSoundEventStates();
+                for (SoundEventState soundSoundEventState : soundSoundEventStates) {
+                    switch (soundSoundEventState) {
+                        case SET_VOLUME:
+                            setVolume(soundResource.getId(), soundResource.getVolume());
+                            break;
+                        case PLAY:
+                            playSound(soundResource.getId());
+                            break;
+                        case PAUSE:
+                            pauseSound(soundResource.getId());
+                            break;
+                        case STOP:
+                            stopSound(soundResource.getId());
+                            break;
+                        default:
+                            throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
+                    }
+                }
             }
 
-            if (!soundResource.hasStageChanged()) {
-                continue;
-            }
-
-            switch (soundResourceState) {
-                case PLAY:
-                    playSound(soundResource.getId());
-                    break;
-                case PAUSE:
-                    pauseSound(soundResource.getId());
-                    break;
-                case STOP:
-                    stopSound(soundResource.getId());
-                    break;
-                default:
-                    throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
-            }
-
-            soundResource.resetStateChanged();
+            soundEventActor.resetSoundEventStates();
         }
     }
 

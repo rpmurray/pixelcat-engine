@@ -66,14 +66,15 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
         return features.containsKey(featureClass);
     }
 
+    public <F extends Feature> void verifyHasFeature(Class<F> featureClass) throws TransientGameException {
+        if (!features.containsKey(featureClass)) {
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, featureClass.getSimpleName() + " feature is not available", this);
+        }
+    }
+
     public <F extends Feature> F getFeature(Class<F> featureClass) throws TransientGameException {
         // validate
-        if (!hasFeature(featureClass)) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Feature not avalable: " + featureClass.getSimpleName());
-        }
-        if (!isFeatureActive(featureClass)) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Feature not active: " + featureClass.getSimpleName());
-        }
+        verifyFeatureIsAvailable(featureClass);
 
         // fetch feature
         F feature = (F) features.get(featureClass);
@@ -101,10 +102,10 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
         featuresStatus.put(featureClass, true);
     }
 
-    public <F extends Feature> Boolean isFeatureActive(Class<F> featureClass) throws TransientGameException {
-        // validate
+    public <F extends Feature> Boolean isFeatureActive(Class<F> featureClass) {
+        // check existence
         if (!hasFeature(featureClass)) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            return false;
         }
 
         // fetch status
@@ -113,18 +114,28 @@ class GameObjectImpl extends IdGeneratorImpl implements GameObject {
         return status;
     }
 
-    public <F extends Feature> Boolean isFeatureAvailable(Class<F> featureClass) {
-        // setup
-        Boolean status;
-
-        try {
-            // generate status
-            status = hasFeature(featureClass) && isFeatureActive(featureClass);
-        } catch (TransientGameException e) {
-            return false;
+    public <F extends Feature> void verifyFeatureIsActive(Class<F> featureClass) throws TransientGameException {
+        // check existence
+        if (!hasFeature(featureClass)) {
+            return;
         }
 
+        // validate
+        if (!featuresStatus.get(featureClass)) {
+            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, featureClass.getName() + " feature is not active", this);
+        }
+    }
+
+    public <F extends Feature> Boolean isFeatureAvailable(Class<F> featureClass) {
+        // generate status
+        Boolean status = hasFeature(featureClass) && isFeatureActive(featureClass);
+
         return status;
+    }
+
+    public <F extends Feature> void verifyFeatureIsAvailable(Class<F> featureClass) throws TransientGameException {
+        verifyHasFeature(featureClass);
+        verifyFeatureIsActive(featureClass);
     }
 
     public GameObjectProperties getProperties() {

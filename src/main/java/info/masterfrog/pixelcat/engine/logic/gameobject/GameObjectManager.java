@@ -6,6 +6,7 @@ import info.masterfrog.pixelcat.engine.logic.common.IdGenerator;
 import info.masterfrog.pixelcat.engine.logic.gameobject.dao.PropertiesStorageEnum;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface GameObjectManager extends IdGenerator {
@@ -20,6 +21,8 @@ public interface GameObjectManager extends IdGenerator {
     GameObject get(String id) throws TransientGameException;
 
     Integer count();
+
+    Map<String, GameObject> getGameObjects();
 
     List<List<GameObject>> getLayeredGameObjects() throws TransientGameException;
 

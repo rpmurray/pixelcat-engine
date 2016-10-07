@@ -15,9 +15,11 @@ class ImageResourceImpl extends ResourceImpl implements ImageResource {
         super(ImageResource.class.getSimpleName());
         this.mainResource = mainResource;
         this.collisionMasks = new HashMap<>();
-        for (CollisionMaskResource collisionMask : collisionMasks) {
-            String collisionMaskId = collisionMask.getId();
-            this.collisionMasks.put(collisionMaskId, collisionMask);
+        if (collisionMasks != null) {
+            for (CollisionMaskResource collisionMask : collisionMasks) {
+                String collisionMaskId = collisionMask.getId();
+                this.collisionMasks.put(collisionMaskId, collisionMask);
+            }
         }
     }
 
