@@ -1,5 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.gameobject;
 
+import info.masterfrog.pixelcat.engine.common.binding.BindableEvent;
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
 import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
@@ -14,6 +15,7 @@ import info.masterfrog.pixelcat.engine.logic.gameobject.feature.*;
 import info.masterfrog.pixelcat.engine.logic.physics.screen.ScreenBoundsHandlingTypeEnum;
 import info.masterfrog.pixelcat.engine.logic.resource.MeasurableResource;
 import info.masterfrog.pixelcat.engine.logic.resource.Resource;
+import info.masterfrog.pixelcat.engine.logic.resource.SoundResource;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -36,7 +38,9 @@ class GameObjectUpdater {
 
     void update(GameObject gameObject, KernelState kernelState) throws TransientGameException {
         updateForHIDEventGameLogicBindings(gameObject, kernelState);
-        updateAnimation(gameObject, kernelState);
+        if (gameObject.hasFeature(AnimationSequenceLibrary.class)) {
+            updateAnimation(gameObject, kernelState);
+        }
     }
 
     private void updateForHIDEventGameLogicBindings(GameObject gameObject, KernelState kernelState) throws TransientGameException {
@@ -46,143 +50,176 @@ class GameObjectUpdater {
         }
 
         // setup
-        Map<String, BehaviorBindingImpl<HIDEventEnum>> hidBehaviorBindings = gameObject.getFeature(BehaviorBindingLibrary.class).getAll();
-        HashSet<HIDEventEnum> triggeredHIDEvents = kernelState.getHIDEvents();
+        Map<String, BehaviorBindingImpl<BindableEvent>> behaviorBindings = gameObject.getFeature(BehaviorBindingLibrary.class).getAll();
+        HashSet<HIDEventEnum> triggeredHIDEvents = kernelState.getHIDTriggeredEvents();
+        HashSet<HIDEventEnum> sustainedHIDEvents = kernelState.getHIDSustainedEvents();
 
         // update object based on HID events
-        for (BehaviorBindingImpl<HIDEventEnum> hidBehaviorBinding : hidBehaviorBindings.values()) {
+        for (BehaviorBindingImpl<BindableEvent> behaviorBinding : behaviorBindings.values()) {
             // setup
-            HIDEventEnum boundHIDEvent = hidBehaviorBinding.getBoundEvent();
-            Behavior behavior = hidBehaviorBinding.getBehavior();
+            Behavior behavior = behaviorBinding.getBehavior();
 
-            // check that bound event was triggered
-            if (!triggeredHIDEvents.contains(boundHIDEvent)) {
-                continue;
+            if (behaviorBinding.getBoundEvent() instanceof HIDEventEnum) {
+                // setup
+                HIDEventEnum boundHIDEvent = (HIDEventEnum) behaviorBinding.getBoundEvent();
+
+                // check that bound event was triggered
+                if (!triggeredHIDEvents.contains(boundHIDEvent)) {
+                    continue;
+                }
+            } else {
+                throw new TransientGameException(GameErrorCode.UNSUPPORTED_FUNCTIONALITY, "Behavior bindings only supported for HID Events");
             }
 
             // check that behavior can be triggered (i.e. not in a cool down period, etc.)
-            if (!hidBehaviorBinding.canBehaviorBeTriggered()) {
+            if (!behaviorBinding.canBehaviorBeTriggered()) {
                 continue;
             }
 
             // if so, handle its update action
-            switch (behavior.getBehaviorType()) {
-                case MOVE_UP:
-                case MOVE_DOWN:
-                case MOVE_LEFT:
-                case MOVE_RIGHT:
-                    move(gameObject, kernelState, behavior);
-                    break;
-                case ANIMATION_PLAY:
-                    if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
-                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            switch (behavior.getBehaviorType().getBehaviorClass()) {
+                case MOVEMENT:
+                    switch (behavior.getBehaviorType()) {
+                        case MOVE_UP:
+                        case MOVE_DOWN:
+                        case MOVE_LEFT:
+                        case MOVE_RIGHT:
+                            move(gameObject, kernelState, behavior);
+                            break;
                     }
-                    gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().play();
                     break;
-                case ANIMATION_STOP:
-                    if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
-                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
-                    }
-                    gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().pause();
-                    break;
-                case SOUND_PLAY:
-                    break;
-                case SOUND_PAUSE:
-                    break;
-                case SOUND_STOP:
-                    break;
-                case CAMERA_SWITCH:
+                case ANIMATION:
                     // validate
-                    if (!gameObject.isFeatureAvailable(CameraLibrary.class)) {
-                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "CameraLibrary feature not supported when expected", gameObject);
+                    gameObject.verifyFeatureIsAvailable(AnimationSequenceLibrary.class);
+                    AnimationSequence animationSequence = gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent();
+                    switch (behavior.getBehaviorType()) {
+                        case ANIMATION_PLAY:
+                            animationSequence.play();
+                            break;
+                        case ANIMATION_STOP:
+                            animationSequence.pause();
+                            break;
                     }
+                    break;
+                case SOUND:
+                    // validate
+                    gameObject.verifyFeatureIsAvailable(SoundLibrary.class);
 
-                    // generate dynamic behavior parameter if appropriate
-                    BehaviorParameter dynamicBehaviorParameter = null;
-                    if (behavior.hasBehaviorParameter(BehaviorParameterGenerator.class)) {
-                        BehaviorParameterGenerator generator = (BehaviorParameterGenerator) behavior.getBehaviorParameter(BehaviorParameterGenerator.class);
-                        dynamicBehaviorParameter = generator.getGeneratorDefinition().generateBehaviorParameter(generator.getInputs());
-                    }
-
-                    // derive behavior parameter for camera
-                    BehaviorParameterId cameraParameter;
-                    if (dynamicBehaviorParameter != null && dynamicBehaviorParameter instanceof BehaviorParameterId) {
-                        cameraParameter = (BehaviorParameterId) dynamicBehaviorParameter;
-                    } else if (behavior.hasBehaviorParameter(BehaviorParameterId.class)) {
-                        cameraParameter = (BehaviorParameterId) behavior.getBehaviorParameter(BehaviorParameterId.class);
-                    } else {
-                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Camera parameter not found for camera switch behavior binding", gameObject);
-                    }
-
-                    // assign new camera
-                    gameObject.getFeature(CameraLibrary.class).setCurrent(
-                        cameraParameter.getId()
+                    // get sound resource
+                    SoundResource soundResource = gameObject.getFeature(SoundLibrary.class).get(
+                        behavior.getBehaviorParameter(BehaviorParameterId.class).getId()
                     );
-
-                    // fetch new camera
-                    Camera camera = gameObject.getFeature(CameraLibrary.class).getCurrent();
-
-                    // assign new animation sequence, if applicable, and get new resource ID
-                    String resourceId;
-                    if (camera.getType().equals(AnimationSequence.class)) {
-                        // validate
-                        if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
-                            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "AnimationSequenceLibrary feature not supported when expected", gameObject);
-                        }
-
-                        // stop old animation
-                        gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().pause();
-
-                        // assign new animation sequence
-                        gameObject.getFeature(AnimationSequenceLibrary.class).setCurrent(camera.getView());
-
-                        // fetch new resource ID
-                        resourceId = gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().getCurrentCel();
-
-                        // play new animation
-                        gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent().play();
-                    } else if (camera.getType().equals(Resource.class)){
-                        // fetch new resource ID
-                        resourceId = camera.getView();
-                    } else {
-                        // unsupported case
-                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Unsupported camera type", gameObject);
+                    switch (behavior.getBehaviorType()) {
+                        case SOUND_PLAY:
+                            soundResource.play();
+                            break;
+                        case SOUND_PAUSE:
+                            soundResource.pause();
+                            break;
+                        case SOUND_STOP:
+                            soundResource.stop();
+                            break;
+                        case SOUND_VOLUME:
+                            float volume = behavior.getBehaviorParameter(BehaviorParameterMagnitude.class).getMagnitude().floatValue();
+                            soundResource.setVolume(volume);
+                            break;
                     }
-
-                    // validate
-                    if (!gameObject.isFeatureAvailable(ResourceLibrary.class)) {
-                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "ResourceLibrary feature not supported when expected", gameObject);
-                    }
-
-                    // assign new resource
-                    gameObject.getFeature(ResourceLibrary.class).setCurrent(resourceId);
                     break;
-                case LOGIC_ROUTINE:
-                    // validate
-                    if (!behavior.hasBehaviorParameter(BehaviorParameterLogicRoutine.class)) {
-                        throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Logic routine not found for behavior binding", gameObject);
+                case CAMERA:
+                    switch (behavior.getBehaviorType()) {
+                        case CAMERA_SWITCH:
+                            // validate
+                            gameObject.verifyFeatureIsAvailable(CameraLibrary.class);
+
+                            // generate dynamic behavior parameter if appropriate
+                            BehaviorParameter dynamicBehaviorParameter = null;
+                            if (behavior.hasBehaviorParameter(BehaviorParameterGenerator.class)) {
+                                BehaviorParameterGenerator generator = behavior.getBehaviorParameter(BehaviorParameterGenerator.class);
+                                dynamicBehaviorParameter = generator.getGeneratorDefinition().generateBehaviorParameter(generator.getInputs());
+                            }
+
+                            // derive behavior parameter for camera
+                            BehaviorParameterId cameraParameter;
+                            if (dynamicBehaviorParameter != null && dynamicBehaviorParameter instanceof BehaviorParameterId) {
+                                cameraParameter = (BehaviorParameterId) dynamicBehaviorParameter;
+                            } else if (behavior.hasBehaviorParameter(BehaviorParameterId.class)) {
+                                cameraParameter = behavior.getBehaviorParameter(BehaviorParameterId.class);
+                            } else {
+                                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Camera parameter not found for camera switch behavior binding", gameObject);
+                            }
+
+                            // assign new camera
+                            gameObject.getFeature(CameraLibrary.class).setCurrent(
+                                cameraParameter.getId()
+                            );
+
+                            // fetch new camera
+                            Camera camera = gameObject.getFeature(CameraLibrary.class).getCurrent();
+
+                            // assign new animation sequence, if applicable, and get new resource ID
+                            String resourceId;
+                            if (camera.getType().equals(AnimationSequence.class)) {
+                                // validate
+                                gameObject.verifyFeatureIsAvailable(AnimationSequenceLibrary.class);
+
+                                // setup
+                                AnimationSequenceLibrary animationSequenceLibrary = gameObject.getFeature(AnimationSequenceLibrary.class);
+
+                                // stop old animation
+                                animationSequenceLibrary.getCurrent().pause();
+
+                                // assign new animation sequence
+                                animationSequenceLibrary.setCurrent(camera.getView());
+
+                                // fetch new resource ID
+                                resourceId = animationSequenceLibrary.getCurrent().getCurrentCel();
+
+                                // play new animation
+                                animationSequenceLibrary.getCurrent().play();
+                            } else if (camera.getType().equals(Resource.class)) {
+                                // fetch new resource ID
+                                resourceId = camera.getView();
+                            } else {
+                                // unsupported case
+                                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Unsupported camera type", gameObject);
+                            }
+
+                            // validate
+                            gameObject.verifyFeatureIsAvailable(ResourceLibrary.class);
+
+                            // assign new resource
+                            gameObject.getFeature(ResourceLibrary.class).setCurrent(resourceId);
+                            break;
                     }
+                    break;
+                case LOGIC:
+                    switch (behavior.getBehaviorType()) {
+                        case LOGIC_ROUTINE:
+                            // validate
+                            if (!behavior.hasBehaviorParameter(BehaviorParameterLogicRoutine.class)) {
+                                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Logic routine not found for behavior binding", gameObject);
+                            }
 
-                    // fetch logic routine
-                    BehaviorParameterLogicRoutine logicRoutine = (BehaviorParameterLogicRoutine) behavior.getBehaviorParameter(
-                        BehaviorParameterLogicRoutine.class
-                    );
+                            // fetch logic routine
+                            BehaviorParameterLogicRoutine logicRoutine = behavior.getBehaviorParameter(
+                                BehaviorParameterLogicRoutine.class
+                            );
 
-                    // execute logic routine
-                    logicRoutine.getLogicRoutineDefinition().execute(logicRoutine.getInputs());
+                            // execute logic routine
+                            logicRoutine.getLogicRoutineDefinition().execute(logicRoutine.getInputs());
+                            break;
+                    }
                     break;
             }
 
             // record trigger event for hid behavior binding
-            hidBehaviorBinding.recordTriggerEvent();
+            behaviorBinding.recordTriggerEvent();
         }
     }
 
     private void updateAnimation(GameObject gameObject, KernelState kernelState) throws TransientGameException {
         // precondition check
-        if (!gameObject.isFeatureAvailable(AnimationSequenceLibrary.class)) {
-            return;
-        }
+        gameObject.verifyFeatureIsAvailable(AnimationSequenceLibrary.class);
 
         // setup
         AnimationSequence animationSequence = gameObject.getFeature(AnimationSequenceLibrary.class).getCurrent();
@@ -193,6 +230,10 @@ class GameObjectUpdater {
 
     private void move(GameObject gameObject, KernelState kernelState, Behavior behavior)
             throws TransientGameException {
+        // validate
+        gameObject.verifyFeatureIsAvailable(Renderable.class);
+        gameObject.verifyFeatureIsAvailable(PhysicsBindingSet.class);
+
         // setup
         BehaviorParameterMagnitude magnitudeParameter;
         Double xVel = 0.0, yVel = 0.0;
@@ -200,9 +241,7 @@ class GameObjectUpdater {
         // derive move magnitude
         Double magnitude;
         try {
-            magnitudeParameter = (BehaviorParameterMagnitude) behavior.getBehaviorParameter(
-                BehaviorParameterMagnitude.class
-            );
+            magnitudeParameter = behavior.getBehaviorParameter(BehaviorParameterMagnitude.class);
             magnitude = magnitudeParameter.getMagnitude();
         } catch (TransientGameException e) {
             PRINTER.printWarning("Logic behavior parameter lookup failed during game object movement for {GameObjectLogicBehaviorParameterMagnitude}");
@@ -255,6 +294,9 @@ class GameObjectUpdater {
 
     private void handleScreenBounds(GameObject gameObject, KernelState kernelState, Point finalPosition)
             throws TransientGameException {
+        // validate
+        gameObject.verifyFeatureIsAvailable(Renderable.class);
+
         // setup
         Resource resource = gameObject.getFeature(Renderable.class).getRenderableResource(gameObject);
         Rectangle resourceBounds;
@@ -269,6 +311,9 @@ class GameObjectUpdater {
         } else {
             return;
         }
+
+        // validate
+        gameObject.verifyFeatureIsAvailable(PhysicsBindingSet.class);
 
         // check if screen bounds handling is not defined
         if (!gameObject.isFeatureAvailable(PhysicsBindingSet.class) ||

@@ -11,15 +11,21 @@ public interface GameObject extends IdGenerator {
 
     <F extends Feature> Boolean hasFeature(Class<F> featureClass);
 
+    <F extends Feature> void verifyHasFeature(Class<F> featureClass) throws TransientGameException;
+
     <F extends Feature> F getFeature(Class<F> featureClass) throws TransientGameException;
 
     <F extends Feature> void deactivateFeature(Class<F> featureClass) throws TransientGameException;
 
     <F extends Feature> void activateFeature(Class<F> featureClass) throws TransientGameException;
 
-    <F extends Feature> Boolean isFeatureActive(Class<F> featureClass) throws TransientGameException;
+    <F extends Feature> Boolean isFeatureActive(Class<F> featureClass);
+
+    <F extends Feature> void verifyFeatureIsActive(Class<F> featureClass) throws TransientGameException;
 
     <F extends Feature> Boolean isFeatureAvailable(Class<F> featureClass);
+
+    <F extends Feature> void verifyFeatureIsAvailable(Class<F> featureClass) throws TransientGameException;
 
     GameObjectProperties getProperties();
 

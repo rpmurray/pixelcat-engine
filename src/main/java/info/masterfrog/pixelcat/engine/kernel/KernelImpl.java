@@ -86,7 +86,7 @@ class KernelImpl implements Kernel {
     }
 
     private void initSoundPlayer() {
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             try {
                 soundEngine = SoundEngine.getInstance().init();
             } catch (TerminalGameException e) {
@@ -179,7 +179,7 @@ class KernelImpl implements Kernel {
 
     private void processSound() throws TransientGameException, TerminalGameException {
         // process sound generation
-        soundEngine.process(logicHandler.getSoundEvents());
+        soundEngine.process(logicHandler.getSoundEvents(kernelState));
     }
 
     private void sleep() {
@@ -227,10 +227,10 @@ class KernelImpl implements Kernel {
         KernelActionBinder kernelActionBinder = (KernelActionBinder) kernelState.getProperty(KernelStatePropertyEnum.KERNEL_ACTION_BINDER);
 
         // process hid events + generate kernel actions
-        for (HIDEventEnum hidEvent : kernelState.getHIDEvents()) {
+        for (HIDEventEnum hidEvent : kernelState.getHIDTriggeredEvents()) {
             try {
                 // fetch binding
-                KernelActionEnum kernelAction = kernelActionBinder.binding(hidEvent);
+                KernelActionEnum kernelAction = kernelActionBinder.resolveBinding(hidEvent);
 
                 // set kernel action
                 kernelState.addKernelAction(kernelAction);
@@ -259,6 +259,9 @@ class KernelImpl implements Kernel {
     }
 
     private void cleanUp() {
+        // transition triggered hid events to sustained hid events
+        kernelState.sustainHIDEvents();
+
         // reset certain temporary hid events
         kernelState.resetTransientHIDEvents();
 

@@ -5,7 +5,7 @@ import info.masterfrog.pixelcat.engine.logic.resource.Resource;
 
 public interface ResourceLibrary extends LibraryTemplate<Resource> {
     static ResourceLibrary create() throws TransientGameException {
-        return create(ResourceLibraryImpl.class);
+        return Feature.create(ResourceLibraryImpl.class);
     }
 }
 

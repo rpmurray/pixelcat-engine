@@ -4,9 +4,9 @@ import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.hid.HIDEventEnum;
 
 public interface KernelActionBinder {
-    public KernelActionEnum binding(HIDEventEnum key) throws TransientGameException;
+    public KernelActionEnum resolveBinding(HIDEventEnum key) throws TransientGameException;
 
-    public HIDEventEnum binding(KernelActionEnum kernelAction) throws TransientGameException;
+    public HIDEventEnum resolveBinding(KernelActionEnum kernelAction) throws TransientGameException;
 
     public void bind(HIDEventEnum key, KernelActionEnum kernelAction);
 

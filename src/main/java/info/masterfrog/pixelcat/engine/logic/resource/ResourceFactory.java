@@ -36,6 +36,12 @@ public class ResourceFactory {
         return resource;
     }
 
+    public SoundResource createSoundResource(String fileName, float volume) {
+        SoundResource resource = new SoundResourceImpl(fileName, volume);
+
+        return resource;
+    }
+
     public SoundResource createSoundResource(String fileName) {
         SoundResource resource = new SoundResourceImpl(fileName);
 

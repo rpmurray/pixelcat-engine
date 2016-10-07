@@ -14,11 +14,11 @@ public class BehaviorBindingImpl<E extends BindableEvent> extends IdGeneratorImp
     private Long coolDownInMS;
     private SimpleGameClock clock;
 
-    public BehaviorBindingImpl(Behavior behavior, E boundEvent) {
+    BehaviorBindingImpl(Behavior behavior, E boundEvent) {
         this(behavior, boundEvent, 0L);
     }
 
-    public BehaviorBindingImpl(Behavior behavior, E boundEvent, Long coolDownInMS) {
+    BehaviorBindingImpl(Behavior behavior, E boundEvent, Long coolDownInMS) {
         super(BehaviorBindingImpl.class.getSimpleName());
         this.behavior = behavior;
         this.boundEvent = boundEvent;

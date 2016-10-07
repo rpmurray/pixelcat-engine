@@ -38,11 +38,11 @@ public class Behavior {
         return false;
     }
 
-    public BehaviorParameter getBehaviorParameter(Class<? extends BehaviorParameter> behaviorParameterClass)
+    public <B extends BehaviorParameter> B getBehaviorParameter(Class<B> behaviorParameterClass)
            throws TransientGameException {
         for (BehaviorParameter behaviorParameter : behaviorParameters) {
             if (behaviorParameter.getClass().equals(behaviorParameterClass)) {
-                return behaviorParameter;
+                return (B) behaviorParameter;
             }
         }
 
@@ -51,9 +51,9 @@ public class Behavior {
 
     @Override
     public String toString() {
-        return "GameObjectLogicBehavior{" +
+        return "Behavior{" +
             "behaviorType=" + behaviorType +
-            ", gameObjectLogicParameters=" + behaviorParameters +
+            ", behaviorParameters=" + behaviorParameters +
             '}';
     }
 }

@@ -5,6 +5,6 @@ import info.masterfrog.pixelcat.engine.logic.physics.PhysicsBinding;
 
 public interface PhysicsBindingSet extends BindingSetTemplate<PhysicsBinding> {
     static PhysicsBindingSet create() throws TransientGameException {
-        return create(PhysicsBindingSetImpl.class);
+        return Feature.create(PhysicsBindingSetImpl.class);
     }
 }

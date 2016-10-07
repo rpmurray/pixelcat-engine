@@ -9,54 +9,60 @@ import java.util.HashSet;
 
 public interface KernelState {
     // game clock names
-    public static final String MASTER_GAME_CLOCK = "masterClock";
-    public static final String LOOP_GAME_CLOCK = "loopClock";
+    String MASTER_GAME_CLOCK = "masterClock";
+    String LOOP_GAME_CLOCK = "loopClock";
 
-    public void addHIDEvent(HIDEventEnum hidEvent);
+    void addHIDTriggeredEvent(HIDEventEnum hidEvent);
 
-    public void removeHIDEvent(HIDEventEnum hidEvent);
+    void removeHIDEvent(HIDEventEnum hidEvent);
 
-    public void clearHIDEvents();
+    void removeHIDTriggeredEvent(HIDEventEnum hidEvent);
 
-    public Boolean hasHIDEvent(HIDEventEnum event);
+    void removeHIDSustainedEvent(HIDEventEnum hidEvent);
 
-    public HashSet<HIDEventEnum> getHIDEvents();
+    Boolean hasHIDTriggeredEvent(HIDEventEnum event);
 
-    public void addKernelAction(KernelActionEnum kernelAction);
+    Boolean hasHIDSustainedEvent(HIDEventEnum hidEvent);
 
-    public void removeKernelAction(KernelActionEnum kernelAction);
+    HashSet<HIDEventEnum> getHIDTriggeredEvents();
 
-    public void clearKernelActions();
+    HashSet<HIDEventEnum> getHIDSustainedEvents();
 
-    public void resetTransientKernelActions();
+    void addKernelAction(KernelActionEnum kernelAction);
 
-    public Boolean hasKernelAction(KernelActionEnum kernelAction);
+    void removeKernelAction(KernelActionEnum kernelAction);
 
-    public HashSet<KernelActionEnum> getKernelActions();
+    void clearKernelActions();
 
-    public void addTerminalError(Exception exception);
+    void resetTransientKernelActions();
 
-    public Boolean hasTerminalErrors();
+    Boolean hasKernelAction(KernelActionEnum kernelAction);
 
-    public HashSet<Exception> getTerminalErrors();
+    HashSet<KernelActionEnum> getKernelActions();
 
-    public void addTransientError(Exception exception);
+    void addTerminalError(Exception exception);
 
-    public void clearTransientErrors();
+    Boolean hasTerminalErrors();
 
-    public Boolean hasTransientErrors();
+    HashSet<Exception> getTerminalErrors();
 
-    public HashSet<Exception> getTransientErrors();
+    void addTransientError(Exception exception);
 
-    public void setProperty(KernelStatePropertyEnum name, Object value) throws TransientGameException;
+    void clearTransientErrors();
 
-    public Object getProperty(KernelStatePropertyEnum name);
+    Boolean hasTransientErrors();
 
-    public Boolean getPropertyFlag(KernelStatePropertyEnum name);
+    HashSet<Exception> getTransientErrors();
 
-    public void setBounds(Rectangle bounds);
+    void setProperty(KernelStatePropertyEnum name, Object value) throws TransientGameException;
 
-    public Rectangle getBounds();
+    Object getProperty(KernelStatePropertyEnum name);
 
-    public GameClockManager getMasterGameClockManager();
+    Boolean getPropertyFlag(KernelStatePropertyEnum name);
+
+    void setBounds(Rectangle bounds);
+
+    Rectangle getBounds();
+
+    GameClockManager getMasterGameClockManager();
 }
