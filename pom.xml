@@ -41,13 +41,6 @@
             <artifactId>java-cup-runtime</artifactId>
             <version>11b</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-        -->
         <dependency>
             <groupId>paulscode.sound</groupId>
             <artifactId>SoundSystem</artifactId>
@@ -80,11 +73,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -116,41 +111,96 @@
                     </archive>
                 </configuration>
             </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <configuration>
+                    <createDependencyReducedPom>true</createDependencyReducedPom>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <!--
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${shade.main.class}</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                        -->
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <finalName>uber-${project.artifactId}-${project.version}</finalName>
+                </configuration>
+            </plugin>
+            -->
         </plugins>
     </build>
 
-<!--    <profiles>
-        <profile>-->
-            <repositories>
-                <repository>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <id>central</id>
-                    <name>repo</name>
-                    <url>http://mvn.rx14.co.uk/repo</url>
-                </repository>
-            </repositories>
-<!--            <pluginRepositories>
-                <pluginRepository>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <id>central</id>
-                    <name>repo</name>
-                    <url>http://mvn.rx14.co.uk/repo</url>
-                </pluginRepository>
-                <pluginRepository>
-                    <snapshots/>
-                    <id>snapshots</id>
-                    <name>repo</name>
-                    <url>http://mvn.rx14.co.uk/repo</url>
-                </pluginRepository>
-            </pluginRepositories>
-            <id>artifactory</id>-->
-<!--        </profile>
-    </profiles>
-    <activeProfiles>
-        <activeProfile>artifactory</activeProfile>
-    </activeProfiles>-->
+    <!--    <profiles>
+            <profile>-->
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>repo</name>
+            <url>http://mvn.rx14.co.uk/repo</url>
+        </repository>
+    </repositories>
+    <!--            <pluginRepositories>
+                    <pluginRepository>
+                        <snapshots>
+                            <enabled>false</enabled>
+                        </snapshots>
+                        <id>central</id>
+                        <name>repo</name>
+                        <url>http://mvn.rx14.co.uk/repo</url>
+                    </pluginRepository>
+                    <pluginRepository>
+                        <snapshots/>
+                        <id>snapshots</id>
+                        <name>repo</name>
+                        <url>http://mvn.rx14.co.uk/repo</url>
+                    </pluginRepository>
+                </pluginRepositories>
+                <id>artifactory</id>-->
+    <!--        </profile>
+        </profiles>
+        <activeProfiles>
+            <activeProfile>artifactory</activeProfile>
+        </activeProfiles>-->
 </project>

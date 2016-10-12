@@ -51,7 +51,10 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
         // set up frame
         frame = new JFrame("Video Game");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setLocation(100, 50);
+        frame.setLocation(
+            ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).x,
+            ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).y
+        );
         frame.setSize(
             ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).width,
             ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height
