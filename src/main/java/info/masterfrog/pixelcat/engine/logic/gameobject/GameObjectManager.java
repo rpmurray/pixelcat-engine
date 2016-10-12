@@ -16,6 +16,10 @@ public interface GameObjectManager extends IdGenerator {
 
     GameObjectManager add(Set<GameObject> gameObjects) throws TransientGameException;
 
+    GameObjectManager remove(String id) throws TransientGameException;
+
+    GameObjectManager remove(Set<String> ids) throws TransientGameException;
+
     Boolean has(String id);
 
     GameObject get(String id) throws TransientGameException;

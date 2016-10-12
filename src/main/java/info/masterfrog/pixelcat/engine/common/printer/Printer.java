@@ -44,4 +44,8 @@ public interface Printer {
     public static Level getLogLevelTrace() {
         return PrinterUtil.getLogLevelTrace();
     }
+
+    public static Boolean isThreadHidden(Class c) {
+        return PrinterUtil.isThreadHidden(c);
+    }
 }

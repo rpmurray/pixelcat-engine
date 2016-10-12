@@ -137,7 +137,7 @@ class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationSequence
             return this;
         }
 
-        if (GameClock.toMS(animationClock.getElapsed()) * animationVelocity > millisecondsPerCel) {
+        if (GameClock.ns2ms(animationClock.getElapsed()) * animationVelocity > millisecondsPerCel) {
             animationClock.reset();
             if (isAnimationAccelerationEnabled && animationVelocity < 1.0) {
                 animationVelocity += animationAcceleration;

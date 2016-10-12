@@ -61,6 +61,25 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
         return this;
     }
 
+    public GameObjectManager remove(String id) throws TransientGameException {
+            if (!has(id)) {
+                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, id);
+            }
+
+        gameObjects.remove(id);
+
+        return this;
+    }
+
+    public GameObjectManager remove(Set<String> ids) throws TransientGameException {
+        // add one at a time
+        for (String id : ids) {
+            remove(id);
+        }
+
+        return this;
+    }
+
     public Boolean has(String id) {
         return gameObjects.containsKey(id);
     }

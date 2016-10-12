@@ -54,7 +54,7 @@ public class BehaviorBindingImpl<E extends BindableEvent> extends IdGeneratorImp
 
     public Boolean canBehaviorBeTriggered() throws TransientGameException {
         if (hasCoolDown()) {
-            return GameClock.toMS(clock.getElapsed()) > coolDownInMS;
+            return GameClock.ns2ms(clock.getElapsed()) > coolDownInMS;
         } else {
             return true;
         }

@@ -29,6 +29,8 @@ public interface SoundEngine {
 
     SoundEngine init() throws TerminalGameException;
 
+    void shutdown();
+
     Boolean isInitialized();
 
     void loadStreamingSource(String id, String fileName);

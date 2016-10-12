@@ -34,13 +34,16 @@ class KernelImpl implements Kernel {
 
     public void init(HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties) throws TerminalErrorException {
         try {
-            //initGuice();
-            initRenderer();
-            initSoundPlayer();
+            // core init
+            initRenderEngine();
+            initSoundEngine();
             initKernelState(kernelStateInitProperties);
             initHIDEventManager();
             initLogicHandler();
             initGraphicsPanel();
+
+            // finalization
+            finalizeSoundEngineInit();
         } catch (TerminalErrorException e) {
             PRINTER.printError(e);
 
@@ -67,6 +70,9 @@ class KernelImpl implements Kernel {
         } catch (ExitException e) {
             // game quit, not an issue
             PRINTER.printWarning("Normal game exit condition met. Game will exit...");
+
+            // shutdown necessary systems before exit
+            shutdown();
         } catch (TerminalErrorException e) {
             // log terminal error
             PRINTER.printWarning("Terminal error(s) encountered! Game will forcibly exit!");
@@ -81,18 +87,35 @@ class KernelImpl implements Kernel {
     }
     */
 
-    private void initRenderer() {
+    private void initRenderEngine() {
         renderEngine = new RenderEngine();
     }
 
-    private void initSoundPlayer() {
-        Thread t = new Thread(() -> {
+    private void initSoundEngine() {
+        new Thread(() -> {
             try {
                 soundEngine = SoundEngine.getInstance().init();
             } catch (TerminalGameException e) {
                 kernelState.addTerminalError(e);
             }
-        });
+        }).start();
+    }
+
+    private void finalizeSoundEngineInit() {
+        // wait for sound engine initialization
+        long t = 0L;
+        while (!SoundEngine.getInstance().isInitialized()) {
+            // wait for sound engine
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                PRINTER.printWarning(e);
+            }
+
+            // log
+            t += 100L;
+            PRINTER.printInfo("Slept for " + t + "ms total waiting for sound engine to initialize...");
+        }
     }
 
     private void initKernelState(HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties) throws TerminalErrorException {
@@ -114,6 +137,14 @@ class KernelImpl implements Kernel {
 
     private void initGraphicsPanel() {
         graphicsPanel = new GraphicsPanel(kernelState, renderEngine, logicHandler, hidEventManager);
+    }
+
+    private void shutdown() {
+        shutdownSoundSystem();
+    }
+
+    private void shutdownSoundSystem() {
+        SoundEngine.getInstance().shutdown();
     }
 
     public KernelState getKernelState() {
@@ -203,7 +234,7 @@ class KernelImpl implements Kernel {
                 );
 
                 if (loopRemainingTime > 0) {
-                    Long sleepTime = GameClock.toMS(loopRemainingTime);
+                    Long sleepTime = GameClock.ns2ms(loopRemainingTime);
                     loopClock.addEvent("sleep started");
                     PRINTER.printInfo("Sleep " + sleepTime + "ms");
                     try {

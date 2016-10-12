@@ -9,5 +9,6 @@ public enum KernelActionEnum {
     SET_LOG_LVL_INFO,
     SET_LOG_LVL_DEBUG,
     SET_LOG_LVL_TRACE,
+    KERNEL_LOGGING_TOGGLE,
     ;
 }
