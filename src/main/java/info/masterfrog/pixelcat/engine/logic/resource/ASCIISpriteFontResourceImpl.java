@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.resource;
 
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.*;
@@ -72,7 +72,7 @@ class ASCIISpriteFontResourceImpl implements ASCIISpriteFontResource {
     private Point getCharacterCoordinates(Character c) throws TransientGameException {
         // validate lookup
         if (index(c) >= characterCoordinatesDefinition.length) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
         }
 
         // look up coordinates
@@ -80,7 +80,7 @@ class ASCIISpriteFontResourceImpl implements ASCIISpriteFontResource {
 
         // validate coordinates
         if (coordinates == null) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
         }
 
         return coordinates;

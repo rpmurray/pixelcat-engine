@@ -3,7 +3,7 @@ package info.masterfrog.pixelcat.engine.sound;
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
 import info.masterfrog.pixelcat.engine.constants.ResourceType;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
 import java.io.FileNotFoundException;
@@ -54,7 +54,7 @@ public class AudioPlayer implements Runnable {
         isPlayingFlag = true;
 
         if (fileName == null) {
-            throw new TransientGameException(GameErrorCode.INTERNAL_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.INTERNAL_ERROR);
         }
 
         if (fileName.toLowerCase().endsWith(".txt")) {

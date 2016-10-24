@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.clock;
 
-import com.google.common.collect.ImmutableMap;
+import info.masterfrog.pixelcat.engine.common.util.MapBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,8 @@ class GameClockManagerImpl implements GameClockManager {
     }
 
     GameClockManagerImpl(String name, GameClock gameClock) {
-        this(new HashMap(ImmutableMap.of(name, gameClock)));
+        this.gameClocks = new HashMap();
+        gameClocks.put(name, gameClock);
     }
 
     GameClockManagerImpl(Map<String, GameClock> gameClocks) {

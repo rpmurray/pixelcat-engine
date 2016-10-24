@@ -19,7 +19,13 @@ public class ResourceFactory {
     }
 
     public SpriteResource createSpriteResource(Integer xIndex, Integer yIndex, SpriteSheet spriteSheet) {
-        SpriteResource resource = new SpriteResourceImpl(spriteSheet, xIndex, yIndex);
+        SpriteResource resource = new SpriteResourceImpl(spriteSheet, xIndex, yIndex, 1.0f);
+
+        return resource;
+    }
+
+    public SpriteResource createSpriteResource(Integer xIndex, Integer yIndex, SpriteSheet spriteSheet, Float alphaMask) {
+        SpriteResource resource = new SpriteResourceImpl(spriteSheet, xIndex, yIndex, alphaMask);
 
         return resource;
     }

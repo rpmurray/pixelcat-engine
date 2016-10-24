@@ -25,6 +25,8 @@ public interface AnimationSequence extends RenderableContainer, IdGenerator {
 
     public AnimationSequence resetSequence();
 
+    public AnimationSequence forceAdvanceSequence();
+
     public AnimationSequence advanceSequence();
 
     public AnimationSequence advanceSequenceByTime() throws TransientGameException;

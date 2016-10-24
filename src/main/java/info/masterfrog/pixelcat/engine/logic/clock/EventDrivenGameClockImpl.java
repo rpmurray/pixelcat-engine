@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.clock;
 
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
 import java.util.*;
@@ -43,10 +43,10 @@ abstract class EventDrivenGameClockImpl extends GameClockImpl implements EventDr
     public Long getTagTimer(String tag, Integer index) throws TransientGameException {
         // validation
         if (!events.containsKey(tag)) {
-            throw new TransientGameException(GameErrorCode.GAME_CLOCK_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.GAME_CLOCK_ERROR);
         }
         if (index < 0 || index >= events.get(tag).size()) {
-            throw new TransientGameException(GameErrorCode.GAME_CLOCK_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.GAME_CLOCK_ERROR);
         }
 
         return events.get(tag).get(index);
@@ -62,7 +62,7 @@ abstract class EventDrivenGameClockImpl extends GameClockImpl implements EventDr
     public Long getMostRecentTagTimer(String tag) throws TransientGameException {
         // validation
         if (!events.containsKey(tag)) {
-            throw new TransientGameException(GameErrorCode.GAME_CLOCK_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.GAME_CLOCK_ERROR);
         }
 
         // get timer events for tag
@@ -70,7 +70,7 @@ abstract class EventDrivenGameClockImpl extends GameClockImpl implements EventDr
 
         // validation
         if (tagEvents.size() == 0) {
-            throw new TransientGameException(GameErrorCode.GAME_CLOCK_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.GAME_CLOCK_ERROR);
         }
 
         return tagEvents.get(tagEvents.size() - 1);
@@ -142,7 +142,7 @@ abstract class EventDrivenGameClockImpl extends GameClockImpl implements EventDr
         List<Long> timers = getTagTimers(tag);
         Long startTimer;
         if (timers == null || timers.size() == 0) {
-            throw new TransientGameException(GameErrorCode.GAME_CLOCK_TAG_NOT_EXISTS);
+            throw new TransientGameException(GameEngineErrorCode.GAME_CLOCK_TAG_NOT_EXISTS);
         } else {
             startTimer = timers.get(timers.size() - 1);
         }

@@ -1,8 +1,10 @@
 package info.masterfrog.pixelcat.engine.kernel;
 
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
-import info.masterfrog.pixelcat.engine.exception.TerminalGameException;
+import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
+import info.masterfrog.pixelcat.engine.common.util.MapBuilder;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
+import info.masterfrog.pixelcat.engine.exception.TerminalErrorException;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.hid.HIDEventBinder;
 import info.masterfrog.pixelcat.engine.hid.HIDEventEnum;
@@ -10,9 +12,7 @@ import info.masterfrog.pixelcat.engine.logic.clock.GameClockFactory;
 import info.masterfrog.pixelcat.engine.logic.clock.GameClockManager;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 class KernelStateImpl implements KernelState {
     private HashSet<HIDEventEnum> hidTriggeredEvents;
@@ -24,6 +24,8 @@ class KernelStateImpl implements KernelState {
     private Rectangle bounds;
     private GameClockManager masterGameClockManager;
 
+    private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(KernelStateImpl.class);
+
     KernelStateImpl() {
         this.hidTriggeredEvents = new HashSet<>();
         this.hidSustainedEvents = new HashSet<>();
@@ -34,52 +36,68 @@ class KernelStateImpl implements KernelState {
         this.masterGameClockManager = GameClockFactory.getInstance().createGameClockManager();
     }
 
-    void init(HashMap<KernelStatePropertyEnum, Object> initProperties) throws TerminalGameException {
+    void init(HashMap<KernelStatePropertyEnum, Object> initProperties) throws TerminalErrorException {
         // create master game clocks
         masterGameClockManager.addAdvancedGameClock(MASTER_GAME_CLOCK);
         masterGameClockManager.addAdvancedGameClock(LOOP_GAME_CLOCK);
 
-        // set properties
-        for (KernelStatePropertyEnum propertyKey : KernelStatePropertyEnum.values()) {
-            // setup
-            Object propertyValue;
+        try {
+            // set properties
+            for (KernelStatePropertyEnum propertyKey : KernelStatePropertyEnum.values()) {
+                // setup
+                Object propertyValue;
 
-            // get defaults
-            HashMap<KernelStatePropertyEnum, Object> defaultProperties = getDefaultProperties();
+                // get defaults
+                HashMap<KernelStatePropertyEnum, Object> defaultProperties = getDefaultProperties();
 
-            // determine property value
-            if (initProperties.containsKey(propertyKey)) {
-                propertyValue = initProperties.get(propertyKey);
-            } else if (defaultProperties.containsKey(propertyKey)) {
-                propertyValue = defaultProperties.get(propertyKey);
-            } else {
-                // skip cases that don't have a defined init or default value
-                continue;
-            }
 
-            try {
+                // determine property value
+                if (initProperties.containsKey(propertyKey)) {
+                    propertyValue = initProperties.get(propertyKey);
+                } else if (defaultProperties.containsKey(propertyKey)) {
+                    propertyValue = defaultProperties.get(propertyKey);
+                } else {
+                    // skip cases that don't have a defined init or default value
+                    continue;
+                }
+
                 // set property
                 setProperty(propertyKey, propertyValue);
-            } catch (TransientGameException e) {
-                throw new TerminalGameException(GameErrorCode.KERNEL_INITIALIZATION_FAILED);
             }
+        } catch (Exception e) {
+            Set exceptionSet = new HashSet<>();
+            exceptionSet.add(e);
+            throw new TerminalErrorException(exceptionSet);
         }
     }
 
-    private HashMap<KernelStatePropertyEnum, Object> getDefaultProperties() {
-        // init
-        HashMap<KernelStatePropertyEnum, Object> defaultProperties = new HashMap<>();
-
+    private HashMap<KernelStatePropertyEnum, Object> getDefaultProperties() throws TransientGameException {
         // define defaults
-        defaultProperties.put(KernelStatePropertyEnum.SCREEN_BOUNDS, getDefaultScreenBounds());
-        defaultProperties.put(KernelStatePropertyEnum.FRAME_RATE, 30);
-        defaultProperties.put(KernelStatePropertyEnum.FONT_DISPLAY_ENABLED, false);
-        defaultProperties.put(KernelStatePropertyEnum.LOG_LVL, Printer.getLogLevelWarn());
-        defaultProperties.put(KernelStatePropertyEnum.HID_EVENT_BINDER, HIDEventBinder.create());
-        defaultProperties.put(KernelStatePropertyEnum.KERNEL_ACTION_BINDER, KernelActionBinder.create());
-        defaultProperties.put(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, new ArrayList<>());
+        HashMap defaultProperties = new MapBuilder<HashMap, KernelStatePropertyEnum, Object>(HashMap.class).add(
+            KernelStatePropertyEnum.SCREEN_BOUNDS, getDefaultScreenBounds()
+        ).add(
+            KernelStatePropertyEnum.FRAME_RATE, 30
+        ).add(
+            KernelStatePropertyEnum.FONT_DISPLAY_ENABLED, false
+        ).add(
+            KernelStatePropertyEnum.LOG_LVL, Printer.getLogLevelWarn()
+        ).add(
+            KernelStatePropertyEnum.HID_EVENT_BINDER, HIDEventBinder.create()
+        ).add(
+            KernelStatePropertyEnum.KERNEL_ACTION_BINDER, KernelActionBinder.create()
+        ).add(
+            KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, new ArrayList<>()
+        ).get();
+
+        temp(new MapBuilder<HashMap, Integer, Kernel>(HashMap.class).add(
+            1, new KernelImpl()
+        ).get());
 
         return defaultProperties;
+    }
+
+    private void temp(Map<Integer, Kernel> foo) {
+        foo.clear();
     }
 
     private Rectangle getDefaultScreenBounds() {
@@ -195,11 +213,11 @@ class KernelStateImpl implements KernelState {
         switch (name) {
             case GAME_LOOP_DURATION_NS:
                 // do not allow these cases to be set manually
-                throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+                throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
             case FRAME_RATE:
                 // validate
                 if ((Integer) value > 1000) {
-                    throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+                    throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
                 }
 
                 // set loop time
@@ -208,7 +226,7 @@ class KernelStateImpl implements KernelState {
             case LOG_LVL:
                 // validate input
                 if (!(Printer.getLogLevelClass().isInstance(value))) {
-                    throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+                    throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
                 }
 
                 // update logging level in printer

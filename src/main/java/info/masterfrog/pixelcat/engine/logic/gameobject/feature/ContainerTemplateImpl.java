@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.gameobject.feature;
 
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.logic.common.IdGenerator;
 
@@ -20,7 +20,7 @@ abstract class ContainerTemplateImpl<C extends IdGenerator> extends FeatureImpl 
 
     public C get(String id) throws TransientGameException {
         if (!map.containsKey(id)) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
         }
 
         return map.get(id);
@@ -28,7 +28,7 @@ abstract class ContainerTemplateImpl<C extends IdGenerator> extends FeatureImpl 
 
     public ContainerTemplate<C> add(C object) throws TransientGameException {
         if (map.containsKey(object.getId())) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
         }
 
         map.put(object.getId(), object);
@@ -42,7 +42,7 @@ abstract class ContainerTemplateImpl<C extends IdGenerator> extends FeatureImpl 
 
     public void remove(String id) throws TransientGameException {
         if (!map.containsKey(id)) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
         }
 
         map.remove(id);

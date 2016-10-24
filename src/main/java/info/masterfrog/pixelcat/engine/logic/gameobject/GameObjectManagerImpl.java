@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.gameobject;
 
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.kernel.KernelState;
 import info.masterfrog.pixelcat.engine.logic.common.IdGeneratorImpl;
@@ -26,7 +26,7 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
         // game object factory setup
         switch (propertiesStorageEnum) {
             case XML:
-                throw new TransientGameException(GameErrorCode.INTERNAL_ERROR, "Unsupported game object properties DB");
+                throw new TransientGameException(GameEngineErrorCode.INTERNAL_ERROR, "Unsupported game object properties DB");
             case HASH_MAP:
             default:
                 propertiesDB = new HashMapPropertiesDB();
@@ -43,7 +43,7 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
     public GameObjectManager add(GameObject gameObject) throws TransientGameException {
         if (gameObject.hasFeature(Renderable.class)) {
             if (!layerManager.isValidLayer(gameObject.getFeature(Renderable.class).getLayer())) {
-                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, gameObject);
+                throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR, gameObject);
             }
         }
 
@@ -63,7 +63,7 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
 
     public GameObjectManager remove(String id) throws TransientGameException {
             if (!has(id)) {
-                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, id);
+                throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR, id);
             }
 
         gameObjects.remove(id);
@@ -86,7 +86,7 @@ public class GameObjectManagerImpl extends IdGeneratorImpl implements GameObject
 
     public GameObject get(String id) throws TransientGameException {
         if (!has(id)) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
         }
 
         return gameObjects.get(id);

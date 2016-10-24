@@ -1,7 +1,7 @@
 package info.masterfrog.pixelcat.engine.logic;
 
-import com.google.common.collect.ImmutableMap;
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
+import info.masterfrog.pixelcat.engine.common.util.MapBuilder;
 import info.masterfrog.pixelcat.engine.exception.TerminalGameException;
 import info.masterfrog.pixelcat.engine.kernel.KernelActionEnum;
 import info.masterfrog.pixelcat.engine.logic.gameobject.GameObject;
@@ -11,8 +11,8 @@ import info.masterfrog.pixelcat.engine.exception.ExitException;
 import info.masterfrog.pixelcat.engine.kernel.KernelState;
 import info.masterfrog.pixelcat.engine.kernel.KernelStatePropertyEnum;
 import info.masterfrog.pixelcat.engine.logic.gameobject.feature.SoundLibrary;
-import info.masterfrog.pixelcat.engine.logic.resource.SoundResource;
 import info.masterfrog.pixelcat.engine.sound.SoundEngine;
+import org.apache.log4j.Level;
 
 import java.util.*;
 
@@ -123,19 +123,19 @@ public class LogicHandlerImpl implements LogicHandler {
         setKernelStateProperty(
             kernelState,
             KernelStatePropertyEnum.LOG_LVL,
-            ImmutableMap.<KernelActionEnum, Object>builder().put(
+            new MapBuilder<HashMap, KernelActionEnum, Level>(HashMap.class).add(
                 KernelActionEnum.SET_LOG_LVL_FATAL, Printer.getLogLevelFatal()
-            ).put(
+            ).add(
                 KernelActionEnum.SET_LOG_LVL_ERROR, Printer.getLogLevelError()
-            ).put(
+            ).add(
                 KernelActionEnum.SET_LOG_LVL_WARN, Printer.getLogLevelWarn()
-            ).put(
+            ).add(
                 KernelActionEnum.SET_LOG_LVL_INFO, Printer.getLogLevelInfo()
-            ).put(
+            ).add(
                 KernelActionEnum.SET_LOG_LVL_DEBUG, Printer.getLogLevelDebug()
-            ).put(
+            ).add(
                 KernelActionEnum.SET_LOG_LVL_TRACE, Printer.getLogLevelTrace()
-            ).build()
+            ).get()
         );
     }
 

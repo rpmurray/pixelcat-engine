@@ -1,7 +1,7 @@
 package info.masterfrog.pixelcat.engine.logic.gameobject.behavior;
 
 import com.google.common.collect.ImmutableSet;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
 import java.util.Set;
@@ -46,7 +46,7 @@ public class Behavior {
             }
         }
 
-        throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+        throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
     }
 
     @Override

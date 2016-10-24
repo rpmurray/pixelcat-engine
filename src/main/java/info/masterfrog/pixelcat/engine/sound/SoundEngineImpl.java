@@ -2,7 +2,7 @@ package info.masterfrog.pixelcat.engine.sound;
 
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TerminalGameException;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.logic.resource.SoundResource;
@@ -42,7 +42,7 @@ class SoundEngineImpl implements SoundEngine {
             SoundSystemConfig.setCodec("wav", CodecWav.class);
             SoundSystemConfig.setCodec("ogg", CodecJOgg.class);
         } catch (SoundSystemException e) {
-            throw new TerminalGameException(GameErrorCode.SOUND_ENGINE_ERROR, e);
+            throw new TerminalGameException(GameEngineErrorCode.SOUND_ENGINE_ERROR, e);
         }
 
         isInitialized = true;
@@ -72,46 +72,46 @@ class SoundEngineImpl implements SoundEngine {
 
     private void setMasterVolume(float volume) throws TransientGameException {
         try {
-            PRINTER.printDebug("Setting master volume to " + volume + "...");
+            PRINTER.printInfo("Setting master volume to " + volume + "...");
             soundSystem.setMasterVolume(volume);
         } catch (Exception e) {
-            throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.SOUND_ENGINE_ERROR);
         }
     }
 
     private void setVolume(String id, float volume) throws TransientGameException {
         try {
-            PRINTER.printDebug("Setting volume for " + id + " to" + volume + "...");
+            PRINTER.printInfo("Setting volume for " + id + " to" + volume + "...");
             soundSystem.setVolume(id, volume);
         } catch (Exception e) {
-            throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.SOUND_ENGINE_ERROR);
         }
     }
 
     private void playSound(String id) throws TransientGameException {
         try {
-            PRINTER.printDebug("Playing " + id + "...");
+            PRINTER.printInfo("Playing " + id + "...");
             soundSystem.play(id);
         } catch (Exception e) {
-            throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.SOUND_ENGINE_ERROR);
         }
     }
 
     private void pauseSound(String id) throws TransientGameException {
         try {
-            PRINTER.printDebug("Pausing " + id + "...");
+            PRINTER.printInfo("Pausing " + id + "...");
             soundSystem.pause(id);
         } catch (Exception e) {
-            throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.SOUND_ENGINE_ERROR);
         }
     }
 
     private void stopSound(String id) throws TransientGameException {
         try {
-            PRINTER.printDebug("Stopping " + id + "...");
+            PRINTER.printInfo("Stopping " + id + "...");
             soundSystem.stop(id);
         } catch (Exception e) {
-            throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.SOUND_ENGINE_ERROR);
         }
     }
 
@@ -155,7 +155,7 @@ class SoundEngineImpl implements SoundEngine {
                             stopSound(soundResource.getId());
                             break;
                         default:
-                            throw new TransientGameException(GameErrorCode.SOUND_ENGINE_ERROR);
+                            throw new TransientGameException(GameEngineErrorCode.SOUND_ENGINE_ERROR);
                     }
                 }
             }

@@ -1,7 +1,7 @@
 package info.masterfrog.pixelcat.engine.common.file;
 
 import info.masterfrog.pixelcat.engine.constants.ResourceType;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import org.w3c.dom.Document;
 
@@ -35,7 +35,7 @@ public class FileLoader {
             InputStream inputStream = createInputStream(fileName, ResourceType.IMAGE);
             bufferedImage = ImageIO.read(inputStream);
         } catch (Exception e) {
-            throw new TransientGameException(GameErrorCode.INTERNAL_ERROR, e);
+            throw new TransientGameException(GameEngineErrorCode.INTERNAL_ERROR, e);
         }
 
         return bufferedImage;
@@ -48,7 +48,7 @@ public class FileLoader {
             InputStream inputStream = createInputStream(fileName, ResourceType.FONT);
             font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
         } catch (Exception e) {
-            throw new TransientGameException(GameErrorCode.INTERNAL_ERROR, e);
+            throw new TransientGameException(GameEngineErrorCode.INTERNAL_ERROR, e);
         }
 
         return font;
@@ -61,7 +61,7 @@ public class FileLoader {
             InputStream inputStream = FileLoader.getInstance().createInputStream(fileName, ResourceType.XML);
             document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputStream);
         } catch (Exception e) {
-            throw new TransientGameException(GameErrorCode.XML_PARSER_ERROR, e);
+            throw new TransientGameException(GameEngineErrorCode.XML_PARSER_ERROR, e);
         }
 
         return document;
@@ -76,7 +76,7 @@ public class FileLoader {
             String filePath = resourceType.getResourceFilePath() + "/" + fileName;
             inputStream = ClassLoader.getSystemResourceAsStream(filePath);
         } catch (Exception e) {
-            throw new TransientGameException(GameErrorCode.INTERNAL_ERROR, e);
+            throw new TransientGameException(GameEngineErrorCode.INTERNAL_ERROR, e);
         }
 
         return inputStream;

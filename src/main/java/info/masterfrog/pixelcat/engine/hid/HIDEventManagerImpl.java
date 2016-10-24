@@ -3,7 +3,7 @@ package info.masterfrog.pixelcat.engine.hid;
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.InternalUnexpectedLogicException;
 import info.masterfrog.pixelcat.engine.kernel.KernelState;
 import info.masterfrog.pixelcat.engine.kernel.KernelStatePropertyEnum;
@@ -34,7 +34,7 @@ class HIDEventManagerImpl implements HIDEventManager {
                     kernelState.removeHIDEvent(hidEvent);
                     break;
                 default:
-                    throw new InternalUnexpectedLogicException(GameErrorCode.HID_EVENT_TYPE_UNSUPPORTED);
+                    throw new InternalUnexpectedLogicException(GameEngineErrorCode.HID_EVENT_TYPE_UNSUPPORTED);
             }
         } catch (TransientGameException e) {
             PRINTER.printInfo(e.toString() + " [" + keyEvent + "," + hidEventType + "]");
@@ -59,7 +59,7 @@ class HIDEventManagerImpl implements HIDEventManager {
                     break;
                 case DRAG:
                 default:
-                    throw new InternalUnexpectedLogicException(GameErrorCode.HID_EVENT_TYPE_UNSUPPORTED);
+                    throw new InternalUnexpectedLogicException(GameEngineErrorCode.HID_EVENT_TYPE_UNSUPPORTED);
             }
         } catch (TransientGameException e) {
             PRINTER.printInfo(e.toString() + " [" + mouseEvent + "," + hidEventType + "]");

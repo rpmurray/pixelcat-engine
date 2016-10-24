@@ -3,7 +3,7 @@ package info.masterfrog.pixelcat.engine.logic.gameobject;
 import info.masterfrog.pixelcat.engine.common.binding.BindableEvent;
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.hid.HIDEventEnum;
 import info.masterfrog.pixelcat.engine.kernel.KernelState;
@@ -68,7 +68,7 @@ class GameObjectUpdater {
                     continue;
                 }
             } else {
-                throw new TransientGameException(GameErrorCode.UNSUPPORTED_FUNCTIONALITY, "Behavior bindings only supported for HID Events");
+                throw new TransientGameException(GameEngineErrorCode.UNSUPPORTED_FUNCTIONALITY, "Behavior bindings only supported for HID Events");
             }
 
             // check that behavior can be triggered (i.e. not in a cool down period, etc.)
@@ -145,7 +145,7 @@ class GameObjectUpdater {
                             } else if (behavior.hasBehaviorParameter(BehaviorParameterId.class)) {
                                 cameraParameter = behavior.getBehaviorParameter(BehaviorParameterId.class);
                             } else {
-                                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Camera parameter not found for camera switch behavior binding", gameObject);
+                                throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR, "Camera parameter not found for camera switch behavior binding", gameObject);
                             }
 
                             // assign new camera
@@ -181,7 +181,7 @@ class GameObjectUpdater {
                                 resourceId = camera.getView();
                             } else {
                                 // unsupported case
-                                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Unsupported camera type", gameObject);
+                                throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR, "Unsupported camera type", gameObject);
                             }
 
                             // validate
@@ -197,7 +197,7 @@ class GameObjectUpdater {
                         case LOGIC_ROUTINE:
                             // validate
                             if (!behavior.hasBehaviorParameter(BehaviorParameterLogicRoutine.class)) {
-                                throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Logic routine not found for behavior binding", gameObject);
+                                throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR, "Logic routine not found for behavior binding", gameObject);
                             }
 
                             // fetch logic routine
@@ -372,7 +372,7 @@ class GameObjectUpdater {
                 );
                 break;
             default:
-                throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+                throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
         }
 
         // check bounds

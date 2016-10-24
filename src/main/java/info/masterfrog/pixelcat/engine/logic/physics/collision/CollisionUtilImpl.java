@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.physics.collision;
 
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.logic.gameobject.GameObject;
 import info.masterfrog.pixelcat.engine.logic.gameobject.feature.Renderable;
@@ -90,7 +90,7 @@ class CollisionUtilImpl implements CollisionUtil {
 
         // validate that it is a collidable resource and that collision physics can be performed on it
         if (!(resource instanceof CollidableResource)) {
-            throw new TransientGameException(GameErrorCode.PHYSICS_COLLISION_LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.PHYSICS_COLLISION_LOGIC_ERROR);
         }
 
         // setup
@@ -111,7 +111,7 @@ class CollisionUtilImpl implements CollisionUtil {
 
         // validate that it is a collidable resource and that collision physics can be performed on it
         if (!(resource instanceof CollidableResource)) {
-            throw new TransientGameException(GameErrorCode.PHYSICS_COLLISION_LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.PHYSICS_COLLISION_LOGIC_ERROR);
         }
 
         // setup
@@ -122,7 +122,7 @@ class CollisionUtilImpl implements CollisionUtil {
         if (collidableResource.hasCollisionMask(collisionMaskId)) {
             collisionMaskResource = collidableResource.getCollisionMask(collisionMaskId);
         } else {
-            throw new TransientGameException(GameErrorCode.PHYSICS_COLLISION_LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.PHYSICS_COLLISION_LOGIC_ERROR);
         }
 
         return collisionMaskResource;

@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.animation;
 
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.logic.clock.GameClock;
 import info.masterfrog.pixelcat.engine.logic.clock.GameClockFactory;
@@ -72,7 +72,7 @@ class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationSequence
     public AnimationSequence setCurrentCel(String id) throws TransientGameException {
         // validate
         if (!cels.contains(id)) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
         }
 
         // update current index
@@ -98,7 +98,7 @@ class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationSequence
 
     public String getCurrentCel() throws TransientGameException {
         if (currentIndex == null) {
-            throw new TransientGameException(GameErrorCode.INTERNAL_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.INTERNAL_ERROR);
         }
 
         return cels.get(currentIndex);
@@ -118,6 +118,12 @@ class AnimationSequenceImpl extends IdGeneratorImpl implements AnimationSequence
 
     public AnimationSequence resetSequence() {
         currentIndex = 0;
+
+        return this;
+    }
+
+    public AnimationSequence forceAdvanceSequence() {
+        currentIndex = currentIndex + 1 == cels.size() ? 0 : currentIndex + 1;
 
         return this;
     }

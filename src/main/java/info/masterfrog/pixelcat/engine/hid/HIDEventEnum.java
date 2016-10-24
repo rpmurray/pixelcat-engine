@@ -54,6 +54,7 @@ public enum HIDEventEnum implements BindableEvent {
     ESC,
     ENTER,
     SPACE,
+    DELETE,
     ;
 
     HashMap<String, Object> properties;

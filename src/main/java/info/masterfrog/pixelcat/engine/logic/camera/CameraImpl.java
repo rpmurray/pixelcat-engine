@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.camera;
 
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.logic.common.IdGeneratorImpl;
 import info.masterfrog.pixelcat.engine.logic.common.RenderableContainer;
@@ -34,7 +34,7 @@ public class CameraImpl extends IdGeneratorImpl implements Camera {
 
         // if we didn't find a matching interface, throw an error
         if (typeIntf == null) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, "Renderable container type interface does not exist", type);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR, "Renderable container type interface does not exist", type);
         }
 
         return typeIntf;

@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.gameobject.feature;
 
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.logic.animation.AnimationSequence;
 import info.masterfrog.pixelcat.engine.logic.camera.Camera;
@@ -50,7 +50,7 @@ class RenderableImpl extends FeatureImpl implements Renderable {
                 // fetch resource ID
                 resourceId = camera.getView();
             } else {
-                throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+                throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
             }
 
             // fetch resource
@@ -74,7 +74,7 @@ class RenderableImpl extends FeatureImpl implements Renderable {
             // fetch resource
             resource = resourceLibrary.getCurrent();
         } else {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
         }
 
         return resource;

@@ -12,4 +12,8 @@ public interface SpriteResource extends MeasurableResource {
     Rectangle getCelBounds();
 
     SpriteSheet getSpriteSheet();
+
+    Float getAlphaMask();
+
+    void setAlphaMask(Float alphaMask);
 }

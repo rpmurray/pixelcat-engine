@@ -7,7 +7,7 @@ import info.masterfrog.pixelcat.engine.kernel.KernelStatePropertyEnum;
 import info.masterfrog.pixelcat.engine.logic.gameobject.feature.Renderable;
 import info.masterfrog.pixelcat.engine.logic.resource.ImageResource;
 import info.masterfrog.pixelcat.engine.logic.resource.SpriteResource;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.logic.gameobject.GameObject;
 import info.masterfrog.pixelcat.engine.logic.resource.Resource;
@@ -51,7 +51,7 @@ public class RenderEngine {
                 } else if (resource instanceof TextResource) {
                     renderTextResource(g, (TextResource) resource, position, layer);
                 } else {
-                    PRINTER.printError(new TransientGameException(GameErrorCode.UNSUPPORTED_RESOURCE_FOR_RENDERING, resource));
+                    PRINTER.printError(new TransientGameException(GameEngineErrorCode.UNSUPPORTED_RESOURCE_FOR_RENDERING, resource));
                 }
             }
         }
@@ -74,6 +74,9 @@ public class RenderEngine {
                 PRINTER.printError(e);
             }
         }
+
+        // set up alpha mask composite
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, spriteResource.getAlphaMask()));
 
         // draw
         g.drawImage(

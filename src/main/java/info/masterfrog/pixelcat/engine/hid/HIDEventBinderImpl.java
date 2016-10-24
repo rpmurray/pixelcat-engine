@@ -2,7 +2,7 @@ package info.masterfrog.pixelcat.engine.hid;
 
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
 import java.awt.event.KeyEvent;
@@ -23,6 +23,7 @@ class HIDEventBinderImpl implements HIDEventBinder {
         bind(KeyEvent.VK_ENTER, HIDEventEnum.ENTER);
         bind(KeyEvent.VK_SPACE, HIDEventEnum.SPACE);
         bind(KeyEvent.VK_ESCAPE, HIDEventEnum.ESC);
+        bind(KeyEvent.VK_DELETE, HIDEventEnum.DELETE);
         bind(MouseEvent.BUTTON1, HIDEventEnum.CLICK_LEFT);
         bind(MouseEvent.BUTTON2, HIDEventEnum.CLICK_MIDDLE);
         bind(MouseEvent.BUTTON3, HIDEventEnum.CLICK_RIGHT);
@@ -70,7 +71,7 @@ class HIDEventBinderImpl implements HIDEventBinder {
 
         // check result
         if (hidEvent == null) {
-            throw new TransientGameException(GameErrorCode.HID_EVENT_UNSUPPORTED);
+            throw new TransientGameException(GameEngineErrorCode.HID_EVENT_UNSUPPORTED);
         }
 
         return hidEvent;
@@ -87,7 +88,7 @@ class HIDEventBinderImpl implements HIDEventBinder {
         }
 
         // throw error if not found
-        throw new TransientGameException(GameErrorCode.HID_EVENT_UNSUPPORTED);
+        throw new TransientGameException(GameEngineErrorCode.HID_EVENT_UNSUPPORTED);
     }
 
     public void bind(Integer key, HIDEventEnum hidEvent) {

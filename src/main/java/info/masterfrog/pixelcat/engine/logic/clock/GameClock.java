@@ -22,11 +22,11 @@ public interface GameClock {
     }
 
     static Long ms2s(Long ms) {
-        return ms * 1000;
+        return ms / 1000;
     }
 
     static Long s2ms(Long s) {
-        return s / 1000;
+        return s * 1000;
     }
 
     static Long s2ns(Long s) {

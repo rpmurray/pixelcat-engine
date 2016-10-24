@@ -2,7 +2,7 @@ package info.masterfrog.pixelcat.engine.kernel;
 
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.hid.HIDEventEnum;
 
@@ -34,7 +34,7 @@ class KernelActionBinderImpl implements KernelActionBinder {
 
         // check result
         if (kernelAction == null) {
-            throw new TransientGameException(GameErrorCode.KERNEL_ACTION_UNSUPPORTED);
+            throw new TransientGameException(GameEngineErrorCode.KERNEL_ACTION_UNSUPPORTED);
         }
 
         return kernelAction;
@@ -51,7 +51,7 @@ class KernelActionBinderImpl implements KernelActionBinder {
         }
 
         // throw error if not found
-        throw new TransientGameException(GameErrorCode.KERNEL_ACTION_UNSUPPORTED);
+        throw new TransientGameException(GameEngineErrorCode.KERNEL_ACTION_UNSUPPORTED);
     }
 
     public void bind(HIDEventEnum key, KernelActionEnum kernelAction) {

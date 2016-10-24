@@ -8,12 +8,14 @@ class SpriteResourceImpl extends ResourceImpl implements SpriteResource {
     SpriteSheet spriteSheet;
     Integer xIndex;
     Integer yIndex;
+    Float alphaMask;
 
-    SpriteResourceImpl(SpriteSheet spriteSheet, Integer xIndex, Integer yIndex) {
+    SpriteResourceImpl(SpriteSheet spriteSheet, Integer xIndex, Integer yIndex, Float alphaMask) {
         super(SpriteResource.class.getSimpleName());
         this.spriteSheet = spriteSheet;
         this.xIndex = xIndex;
         this.yIndex = yIndex;
+        this.alphaMask = alphaMask;
     }
 
     public Boolean isLoaded() {
@@ -39,6 +41,16 @@ class SpriteResourceImpl extends ResourceImpl implements SpriteResource {
 
     public SpriteSheet getSpriteSheet() {
         return spriteSheet;
+    }
+
+    @Override
+    public Float getAlphaMask() {
+        return alphaMask;
+    }
+
+    @Override
+    public void setAlphaMask(Float alphaMask) {
+        this.alphaMask = alphaMask;
     }
 
     @Override

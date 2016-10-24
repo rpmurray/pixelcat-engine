@@ -119,12 +119,8 @@ class KernelImpl implements Kernel {
     }
 
     private void initKernelState(HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties) throws TerminalErrorException {
-        try {
-            kernelState = new KernelStateImpl();
-            kernelState.init(kernelStateInitProperties);
-        } catch (TerminalGameException e) {
-            throw new TerminalErrorException(ImmutableSet.of(e));
-        }
+        kernelState = new KernelStateImpl();
+        kernelState.init(kernelStateInitProperties);
     }
 
     private void initLogicHandler() {
@@ -151,11 +147,17 @@ class KernelImpl implements Kernel {
         return kernelState;
     }
 
-    public void registerGameObjectManagers(List<GameObjectManager> gameObjectManagers) {
+    public void registerGameObjectManagers(List<GameObjectManager> gameObjectManagers) throws RecoverableTerminalErrorException {
         try {
+            for (GameObjectManager gameObjectManager : gameObjectManagers) {
+                if (gameObjectManager == null) {
+                    throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
+                }
+            }
+
             kernelState.setProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, gameObjectManagers);
         } catch (TransientGameException e) {
-            PRINTER.printWarning("Transient error: " + e);
+            throw new RecoverableTerminalErrorException(ImmutableSet.of(e));
         }
     }
 
@@ -227,7 +229,7 @@ class KernelImpl implements Kernel {
                         String.format("%,d", loopDuration) + "ns]"
                 );
             } else if (loopRemainingTime >= 0) {
-                PRINTER.printInfo(
+                PRINTER.printDebug(
                     "The game loop was within the allotted time window for the current FPS configuration [" +
                         String.format("%,d", loopRemainingTime) + "ns left of " +
                         String.format("%,d", loopDuration) + "ns]"
@@ -236,11 +238,11 @@ class KernelImpl implements Kernel {
                 if (loopRemainingTime > 0) {
                     Long sleepTime = GameClock.ns2ms(loopRemainingTime);
                     loopClock.addEvent("sleep started");
-                    PRINTER.printInfo("Sleep " + sleepTime + "ms");
+                    PRINTER.printDebug("Sleep " + sleepTime + "ms");
                     try {
                         Thread.sleep(sleepTime);
                     } catch (Exception e) {
-                        throw new TransientGameException(GameErrorCode.KERNEL_LOOP_SLEEP_FAILED, e);
+                        throw new TransientGameException(GameEngineErrorCode.KERNEL_LOOP_SLEEP_FAILED, e);
                     }
                     loopClock.addEvent("sleep ended");
                 }

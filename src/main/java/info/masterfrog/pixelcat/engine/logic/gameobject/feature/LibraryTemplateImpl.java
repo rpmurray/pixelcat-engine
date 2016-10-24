@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.gameobject.feature;
 
-import info.masterfrog.pixelcat.engine.exception.GameErrorCode;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.logic.common.IdGenerator;
 
@@ -26,7 +26,7 @@ abstract class LibraryTemplateImpl<L extends IdGenerator> extends ContainerTempl
 
     public L getCurrent() throws TransientGameException {
         if (current == null || !getAll().containsKey(current)) {
-            throw new TransientGameException(GameErrorCode.LOGIC_ERROR, this);
+            throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR, this);
         }
 
         return getAll().get(current);

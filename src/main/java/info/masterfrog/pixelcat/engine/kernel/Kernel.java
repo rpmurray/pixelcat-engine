@@ -1,5 +1,6 @@
 package info.masterfrog.pixelcat.engine.kernel;
 
+import info.masterfrog.pixelcat.engine.exception.RecoverableTerminalErrorException;
 import info.masterfrog.pixelcat.engine.exception.TerminalErrorException;
 import info.masterfrog.pixelcat.engine.logic.gameobject.GameObjectManager;
 
@@ -8,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface Kernel {
-    public void init(HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties) throws TerminalErrorException;
+    void init(HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties) throws TerminalErrorException;
 
-    public void kernelMain(Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap);
+    void registerGameObjectManagers(List<GameObjectManager> gameObjectManagers) throws RecoverableTerminalErrorException;
 
-    public KernelState getKernelState();
+    void kernelMain(Map<KernelInjectionEventEnum, KernelInjection> kernelInjectionMap);
 
-    public void registerGameObjectManagers(List<GameObjectManager> gameObjectManagers);
+    KernelState getKernelState();
 }
