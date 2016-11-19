@@ -7,7 +7,7 @@ import org.w3c.dom.Document;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.awt.*;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 

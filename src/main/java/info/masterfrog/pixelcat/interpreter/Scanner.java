@@ -6,7 +6,7 @@ package info.masterfrog.pixelcat.interpreter;
 * Scanner provides a scanner for the {@link Parser} grammar.
 */
 
-import java_cup.runtime.*;
+import java_cup.runtime.Symbol;
 
 
 /**

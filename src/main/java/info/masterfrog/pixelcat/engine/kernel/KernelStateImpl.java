@@ -7,26 +7,35 @@ import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TerminalErrorException;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.hid.HIDEventBinder;
-import info.masterfrog.pixelcat.engine.hid.HIDEventEnum;
+import info.masterfrog.pixelcat.engine.hid.HIDEvent;
 import info.masterfrog.pixelcat.engine.logic.clock.GameClockFactory;
 import info.masterfrog.pixelcat.engine.logic.clock.GameClockManager;
+import info.masterfrog.pixelcat.engine.logic.gameobject.element.aspect.canvas.Canvas;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-class KernelStateImpl implements KernelState {
-    private HashSet<HIDEventEnum> hidTriggeredEvents;
-    private HashSet<HIDEventEnum> hidSustainedEvents;
-    private HashSet<KernelActionEnum> kernelActions;
+class KernelStateImpl implements KernelState, KernelStateCore {
+    private static KernelStateImpl instance;
+
+    private HashSet<HIDEvent> hidTriggeredEvents;
+    private HashSet<HIDEvent> hidSustainedEvents;
+    private HashSet<KernelAction> kernelActions;
     private HashSet<Exception> terminalErrors;
     private HashSet<Exception> transientErrors;
-    private HashMap<KernelStatePropertyEnum, Object> properties;
-    private Rectangle bounds;
+    private HashMap<KernelStateProperty, Object> properties;
     private GameClockManager masterGameClockManager;
 
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(KernelStateImpl.class);
 
-    KernelStateImpl() {
+    private KernelStateImpl() {
         this.hidTriggeredEvents = new HashSet<>();
         this.hidSustainedEvents = new HashSet<>();
         this.kernelActions = new HashSet<>();
@@ -36,19 +45,27 @@ class KernelStateImpl implements KernelState {
         this.masterGameClockManager = GameClockFactory.getInstance().createGameClockManager();
     }
 
-    void init(HashMap<KernelStatePropertyEnum, Object> initProperties) throws TerminalErrorException {
+    static KernelStateImpl getInstance() {
+        if (instance == null) {
+            instance = new KernelStateImpl();
+        }
+
+        return instance;
+    }
+
+    public void init(HashMap<KernelStateProperty, Object> initProperties) throws TerminalErrorException {
         // create master game clocks
-        masterGameClockManager.addAdvancedGameClock(MASTER_GAME_CLOCK);
-        masterGameClockManager.addAdvancedGameClock(LOOP_GAME_CLOCK);
+        masterGameClockManager.addAdvancedGameClock(KernelGameClock.MASTER_GAME_CLOCK);
+        masterGameClockManager.addAdvancedGameClock(KernelGameClock.LOOP_GAME_CLOCK);
 
         try {
             // set properties
-            for (KernelStatePropertyEnum propertyKey : KernelStatePropertyEnum.values()) {
+            for (KernelStateProperty propertyKey : KernelStateProperty.values()) {
                 // setup
                 Object propertyValue;
 
                 // get defaults
-                HashMap<KernelStatePropertyEnum, Object> defaultProperties = getDefaultProperties();
+                HashMap<KernelStateProperty, Object> defaultProperties = getDefaultProperties();
 
 
                 // determine property value
@@ -64,6 +81,11 @@ class KernelStateImpl implements KernelState {
                 // set property
                 setProperty(propertyKey, propertyValue);
             }
+
+            // other property initialization
+            this.<CanvasManager>getProperty(KernelStateProperty.CANVAS_MANAGER).add(
+                Canvas.createFromKernel()
+            );
         } catch (Exception e) {
             Set exceptionSet = new HashSet<>();
             exceptionSet.add(e);
@@ -71,22 +93,26 @@ class KernelStateImpl implements KernelState {
         }
     }
 
-    private HashMap<KernelStatePropertyEnum, Object> getDefaultProperties() throws TransientGameException {
+    private HashMap<KernelStateProperty, Object> getDefaultProperties() throws TransientGameException {
         // define defaults
-        HashMap defaultProperties = new MapBuilder<HashMap, KernelStatePropertyEnum, Object>(HashMap.class).add(
-            KernelStatePropertyEnum.SCREEN_BOUNDS, getDefaultScreenBounds()
+        HashMap defaultProperties = new MapBuilder<HashMap, KernelStateProperty, Object>(HashMap.class).add(
+            KernelStateProperty.SCREEN_BOUNDS, getDefaultScreenBounds()
         ).add(
-            KernelStatePropertyEnum.FRAME_RATE, 30
+            KernelStateProperty.BACKGROUND_COLOR, Color.WHITE
         ).add(
-            KernelStatePropertyEnum.FONT_DISPLAY_ENABLED, false
+            KernelStateProperty.FRAME_RATE, 30
         ).add(
-            KernelStatePropertyEnum.LOG_LVL, Printer.getLogLevelWarn()
+            KernelStateProperty.FONT_DISPLAY_ENABLED, false
         ).add(
-            KernelStatePropertyEnum.HID_EVENT_BINDER, HIDEventBinder.create()
+            KernelStateProperty.LOG_LVL, Printer.getLogLevelWarn()
         ).add(
-            KernelStatePropertyEnum.KERNEL_ACTION_BINDER, KernelActionBinder.create()
+            KernelStateProperty.HID_EVENT_BINDER, HIDEventBinder.create()
         ).add(
-            KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, new ArrayList<>()
+            KernelStateProperty.KERNEL_ACTION_BINDER, KernelActionBinder.create()
+        ).add(
+            KernelStateProperty.ACTIVE_GAME_OBJECT_MANAGERS, new ArrayList<>()
+        ).add(
+            KernelStateProperty.CANVAS_MANAGER, CanvasManagerFactory.create()
         ).get();
 
         temp(new MapBuilder<HashMap, Integer, Kernel>(HashMap.class).add(
@@ -101,18 +127,18 @@ class KernelStateImpl implements KernelState {
     }
 
     private Rectangle getDefaultScreenBounds() {
-        // set up screen
+        // set up bounds
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Rectangle screenBounds = new Rectangle(0, 0, (int) screenSize.getWidth() - 200, (int) screenSize.getHeight() - 400);
 
         return screenBounds;
     }
 
-    public void addHIDTriggeredEvent(HIDEventEnum hidEvent) {
+    public void addHIDTriggeredEvent(HIDEvent hidEvent) {
         hidTriggeredEvents.add(hidEvent);
     }
 
-    public void removeHIDEvent(HIDEventEnum hidEvent) {
+    public void removeHIDEvent(HIDEvent hidEvent) {
         if (hasHIDTriggeredEvent(hidEvent)) {
             removeHIDTriggeredEvent(hidEvent);
         }
@@ -121,46 +147,46 @@ class KernelStateImpl implements KernelState {
         }
     }
 
-    public void removeHIDTriggeredEvent(HIDEventEnum hidEvent) {
+    public void removeHIDTriggeredEvent(HIDEvent hidEvent) {
         hidTriggeredEvents.remove(hidEvent);
     }
 
-    public void removeHIDSustainedEvent(HIDEventEnum hidEvent) {
+    public void removeHIDSustainedEvent(HIDEvent hidEvent) {
         hidSustainedEvents.remove(hidEvent);
     }
 
-    void sustainHIDEvents() {
+    public void sustainHIDEvents() {
         hidSustainedEvents.addAll(hidTriggeredEvents);
         hidTriggeredEvents.clear();
     }
 
-    void resetTransientHIDEvents() {
+    public void resetTransientHIDEvents() {
         // wipe out scroll up and scroll down which don't have a "reset" listener event
-        removeHIDEvent(HIDEventEnum.SCROLL_UP);
-        removeHIDEvent(HIDEventEnum.SCROLL_DOWN);
+        removeHIDEvent(HIDEvent.SCROLL_UP);
+        removeHIDEvent(HIDEvent.SCROLL_DOWN);
     }
 
-    public Boolean hasHIDTriggeredEvent(HIDEventEnum hidEvent) {
+    public Boolean hasHIDTriggeredEvent(HIDEvent hidEvent) {
         return hidTriggeredEvents.contains(hidEvent);
     }
 
-    public Boolean hasHIDSustainedEvent(HIDEventEnum hidEvent) {
+    public Boolean hasHIDSustainedEvent(HIDEvent hidEvent) {
         return hidSustainedEvents.contains(hidEvent);
     }
 
-    public HashSet<HIDEventEnum> getHIDTriggeredEvents() {
+    public HashSet<HIDEvent> getHIDTriggeredEvents() {
         return hidTriggeredEvents;
     }
 
-    public HashSet<HIDEventEnum> getHIDSustainedEvents() {
+    public HashSet<HIDEvent> getHIDSustainedEvents() {
         return hidSustainedEvents;
     }
 
-    public void addKernelAction(KernelActionEnum kernelAction) {
+    public void addKernelAction(KernelAction kernelAction) {
         kernelActions.add(kernelAction);
     }
 
-    public void removeKernelAction(KernelActionEnum kernelAction) {
+    public void removeKernelAction(KernelAction kernelAction) {
         kernelActions.remove(kernelAction);
     }
 
@@ -172,11 +198,11 @@ class KernelStateImpl implements KernelState {
         // none to reset
     }
 
-    public Boolean hasKernelAction(KernelActionEnum kernelAction) {
+    public Boolean hasKernelAction(KernelAction kernelAction) {
         return kernelActions.contains(kernelAction);
     }
 
-    public HashSet<KernelActionEnum> getKernelActions() {
+    public HashSet<KernelAction> getKernelActions() {
         return kernelActions;
     }
 
@@ -208,12 +234,24 @@ class KernelStateImpl implements KernelState {
         return transientErrors;
     }
 
-    public void setProperty(KernelStatePropertyEnum name, Object value) throws TransientGameException {
+    public void setProperty(KernelStateProperty name, Object value) throws TransientGameException {
         // property-specific handling
         switch (name) {
             case GAME_LOOP_DURATION_NS:
                 // do not allow these cases to be set manually
                 throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
+            case CANVAS_MANAGER:
+                // do not allow these cases to be set manually after they have been set once
+                if (getProperty(name) != null) {
+                    throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
+                }
+                break;
+            case BACKGROUND_COLOR:
+                // validate
+                if (!(value instanceof Color)) {
+                    throw new TransientGameException(GameEngineErrorCode.LOGIC_ERROR);
+                }
+                break;
             case FRAME_RATE:
                 // validate
                 if ((Integer) value > 1000) {
@@ -221,7 +259,7 @@ class KernelStateImpl implements KernelState {
                 }
 
                 // set loop time
-                properties.put(KernelStatePropertyEnum.GAME_LOOP_DURATION_NS, 1000000000 / (Integer) value);
+                properties.put(KernelStateProperty.GAME_LOOP_DURATION_NS, 1000000000 / (Integer) value);
                 break;
             case LOG_LVL:
                 // validate input
@@ -241,30 +279,22 @@ class KernelStateImpl implements KernelState {
         properties.put(name, value);
     }
 
-    public Object getProperty(KernelStatePropertyEnum name) {
-        Object value = null;
+    public <T> T getProperty(KernelStateProperty name) {
+        T value = null;
         if (properties.containsKey(name)) {
-            value = properties.get(name);
+            value = (T) properties.get(name);
         }
 
         return value;
     }
 
-    public Boolean getPropertyFlag(KernelStatePropertyEnum name) {
+    public Boolean getPropertyFlag(KernelStateProperty name) {
         Boolean value = false;
         if (properties.containsKey(name)) {
             value = (Boolean) properties.get(name);
         }
 
         return value;
-    }
-
-    public Rectangle getBounds() {
-        return bounds;
-    }
-
-    public void setBounds(Rectangle bounds) {
-        this.bounds = bounds;
     }
 
     public GameClockManager getMasterGameClockManager() {

@@ -4,12 +4,12 @@ import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
 import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
-import info.masterfrog.pixelcat.engine.hid.HIDEventEnum;
+import info.masterfrog.pixelcat.engine.hid.HIDEvent;
 
 import java.util.HashMap;
 
 class KernelActionBinderImpl implements KernelActionBinder {
-    private HashMap<HIDEventEnum, KernelActionEnum> bindings;
+    private HashMap<HIDEvent, KernelAction> bindings;
 
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(KernelActionBinderImpl.class);
 
@@ -18,19 +18,19 @@ class KernelActionBinderImpl implements KernelActionBinder {
         bindings = new HashMap<>();
 
         // default bindings
-        bind(HIDEventEnum.ESC, KernelActionEnum.EXIT);
-        bind(HIDEventEnum.F, KernelActionEnum.FONT_DEBUG_TOGGLE);
-        bind(HIDEventEnum.SIX, KernelActionEnum.SET_LOG_LVL_TRACE);
-        bind(HIDEventEnum.FIVE, KernelActionEnum.SET_LOG_LVL_DEBUG);
-        bind(HIDEventEnum.FOUR, KernelActionEnum.SET_LOG_LVL_INFO);
-        bind(HIDEventEnum.THREE, KernelActionEnum.SET_LOG_LVL_WARN);
-        bind(HIDEventEnum.TWO, KernelActionEnum.SET_LOG_LVL_ERROR);
-        bind(HIDEventEnum.ONE, KernelActionEnum.SET_LOG_LVL_FATAL);
+        bind(HIDEvent.ESC, KernelAction.EXIT);
+        bind(HIDEvent.F, KernelAction.FONT_DEBUG_TOGGLE);
+        bind(HIDEvent.SIX, KernelAction.SET_LOG_LVL_TRACE);
+        bind(HIDEvent.FIVE, KernelAction.SET_LOG_LVL_DEBUG);
+        bind(HIDEvent.FOUR, KernelAction.SET_LOG_LVL_INFO);
+        bind(HIDEvent.THREE, KernelAction.SET_LOG_LVL_WARN);
+        bind(HIDEvent.TWO, KernelAction.SET_LOG_LVL_ERROR);
+        bind(HIDEvent.ONE, KernelAction.SET_LOG_LVL_FATAL);
     }
 
-    public KernelActionEnum resolveBinding(HIDEventEnum key) throws TransientGameException {
+    public KernelAction resolveBinding(HIDEvent key) throws TransientGameException {
         // look up kernel action
-        KernelActionEnum kernelAction = bindings.get(key);
+        KernelAction kernelAction = bindings.get(key);
 
         // check result
         if (kernelAction == null) {
@@ -40,10 +40,10 @@ class KernelActionBinderImpl implements KernelActionBinder {
         return kernelAction;
     }
 
-    public HIDEventEnum resolveBinding(KernelActionEnum kernelAction) throws TransientGameException {
+    public HIDEvent resolveBinding(KernelAction kernelAction) throws TransientGameException {
         // look up hid event
         if (bindings.containsValue(kernelAction)) {
-            for (HIDEventEnum key : bindings.keySet()) {
+            for (HIDEvent key : bindings.keySet()) {
                 if (bindings.get(key).equals(kernelAction)) {
                     return key;
                 }
@@ -54,7 +54,7 @@ class KernelActionBinderImpl implements KernelActionBinder {
         throw new TransientGameException(GameEngineErrorCode.KERNEL_ACTION_UNSUPPORTED);
     }
 
-    public void bind(HIDEventEnum key, KernelActionEnum kernelAction) {
+    public void bind(HIDEvent key, KernelAction kernelAction) {
         // debug
         PRINTER.printInfo("Binding " + key + " to " + kernelAction);
 
@@ -62,9 +62,9 @@ class KernelActionBinderImpl implements KernelActionBinder {
         bindings.put(key, kernelAction);
     }
 
-    public void unbind(HIDEventEnum key) {
+    public void unbind(HIDEvent key) {
         // look up binding
-        KernelActionEnum kernelAction = bindings.get(key);
+        KernelAction kernelAction = bindings.get(key);
 
         // debug
         PRINTER.printInfo("Unbinding " + key + " from " + kernelAction);

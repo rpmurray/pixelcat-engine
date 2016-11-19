@@ -2,7 +2,7 @@ package info.masterfrog.pixelcat.engine.logic.resource;
 
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 class SpriteResourceImpl extends ResourceImpl implements SpriteResource {
     SpriteSheet spriteSheet;

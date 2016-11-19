@@ -3,11 +3,11 @@ package info.masterfrog.pixelcat.engine.hid;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
 public interface HIDEventBinder {
-    public HIDEventEnum binding(Integer key) throws TransientGameException;
+    public HIDEvent binding(Integer key) throws TransientGameException;
 
-    public Integer binding(HIDEventEnum value) throws TransientGameException;
+    public Integer binding(HIDEvent value) throws TransientGameException;
 
-    public void bind(Integer key, HIDEventEnum hidEvent);
+    public void bind(Integer key, HIDEvent hidEvent);
 
     public void unbind(Integer key);
 

@@ -3,8 +3,11 @@ package info.masterfrog.pixelcat.engine.sound;
 import info.masterfrog.pixelcat.engine.constants.ResourceType;
 
 import java.io.InputStream;
-import javax.swing.*;
-import javax.sound.sampled.*;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 public class ClipPlayer {
     private static ClipPlayer instance = null;

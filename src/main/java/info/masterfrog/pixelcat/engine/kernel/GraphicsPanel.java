@@ -6,23 +6,31 @@ import info.masterfrog.pixelcat.engine.hid.HIDEventTypeEnum;
 import info.masterfrog.pixelcat.engine.logic.LogicHandler;
 import info.masterfrog.pixelcat.engine.renderer.RenderEngine;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private JFrame frame; // jframe to put the graphics into
-    private KernelState kernelState;
     private RenderEngine renderEngine;
     private LogicHandler logicHandler;
     private HIDEventManager hidEventManager;
 
-    GraphicsPanel(KernelState kernelState, RenderEngine renderEngine, LogicHandler logicHandler, HIDEventManager hidEventManager) {
+    GraphicsPanel(RenderEngine renderEngine, LogicHandler logicHandler, HIDEventManager hidEventManager) {
         // handle parent
         super();
 
         // handle local init
-        this.kernelState = kernelState;
         this.renderEngine = renderEngine;
         this.logicHandler = logicHandler;
         this.hidEventManager = hidEventManager;
@@ -52,12 +60,12 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
         frame = new JFrame("Video Game");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLocation(
-            ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).x,
-            ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).y
+            KernelState.getInstance().<Rectangle>getProperty(KernelStateProperty.SCREEN_BOUNDS).x,
+            KernelState.getInstance().<Rectangle>getProperty(KernelStateProperty.SCREEN_BOUNDS).y
         );
         frame.setSize(
-            ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).width,
-            ((Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS)).height
+            KernelState.getInstance().<Rectangle>getProperty(KernelStateProperty.SCREEN_BOUNDS).width,
+            KernelState.getInstance().<Rectangle>getProperty(KernelStateProperty.SCREEN_BOUNDS).height
         );
         frame.setVisible(true);
         frame.setContentPane(this);
@@ -73,16 +81,16 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
 
         // update logic handler with new display bounds
         try {
-            kernelState.setProperty(KernelStatePropertyEnum.SCREEN_BOUNDS, screen);
+            KernelState.getInstance().setProperty(KernelStateProperty.SCREEN_BOUNDS, screen);
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         }
 
         // render frame
         try {
-            renderEngine.process((Graphics2D) graphics, kernelState, logicHandler.getLayeredGameObjects(kernelState));
+            renderEngine.process((Graphics2D) graphics, logicHandler.getLayeredGameObjects());
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         }
 
         // notify parent thread
@@ -93,7 +101,7 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
         try {
             hidEventManager.handleKeyboardEvent(HIDEventTypeEnum.PRESS, event);
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         }
     }
 
@@ -101,7 +109,7 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
         try {
             hidEventManager.handleKeyboardEvent(HIDEventTypeEnum.RELEASE, event);
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         }
     }
 
@@ -119,9 +127,9 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
 
     public void mouseMoved(MouseEvent event) {
         try {
-            kernelState.setProperty(KernelStatePropertyEnum.MOUSE_POSITION, event.getLocationOnScreen());
+            KernelState.getInstance().setProperty(KernelStateProperty.MOUSE_POSITION, event.getLocationOnScreen());
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         }
     }
 
@@ -129,7 +137,7 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
         try {
             hidEventManager.handleMouseEvent(HIDEventTypeEnum.PRESS, mouseEvent);
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         }
     }
 
@@ -137,7 +145,7 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
         try {
             hidEventManager.handleMouseEvent(HIDEventTypeEnum.RELEASE, mouseEvent);
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         }
     }
 
@@ -153,7 +161,7 @@ class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseM
         try {
             hidEventManager.handleMouseEvent(HIDEventTypeEnum.SCROLL, mouseWheelEvent);
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         }
     }
 }

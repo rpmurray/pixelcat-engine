@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.resource;
 
-import java.awt.*;
+import java.awt.Font;
 import java.util.Set;
 
 public class ResourceFactory {

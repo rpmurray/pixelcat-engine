@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 class PrinterUtil {
-    private static Set<Class> hiddenThreads = new HashSet<>();
+    private static Set<PrinterThread> hiddenThreads = new HashSet<>();
 
     static void setLevel(Level level) {
         System.out.print("--- [main] MESSAGE " + PrinterImpl.class.getName() + "  - Log level changed to " + level + "\n");
@@ -41,17 +41,17 @@ class PrinterUtil {
         return Level.TRACE;
     }
 
-    static void hideThread(Class c) {
-        hiddenThreads.add(c);
+    static void hideThread(PrinterThread t) {
+        hiddenThreads.add(t);
     }
 
-    static void showThread(Class c) {
-        if (hiddenThreads.contains(c)) {
-            hiddenThreads.remove(c);
+    static void showThread(PrinterThread t) {
+        if (hiddenThreads.contains(t)) {
+            hiddenThreads.remove(t);
         }
     }
 
-    static Boolean isThreadHidden(Class c) {
-        return hiddenThreads.contains(c);
+    static Boolean isThreadHidden(PrinterThread t) {
+        return hiddenThreads.contains(t);
     }
 }

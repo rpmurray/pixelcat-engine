@@ -1,44 +1,39 @@
 package info.masterfrog.pixelcat.engine.kernel;
 
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
-import info.masterfrog.pixelcat.engine.hid.HIDEventEnum;
+import info.masterfrog.pixelcat.engine.hid.HIDEvent;
 import info.masterfrog.pixelcat.engine.logic.clock.GameClockManager;
 
-import java.awt.*;
 import java.util.HashSet;
 
 public interface KernelState {
-    // game clock names
-    String MASTER_GAME_CLOCK = "masterClock";
-    String LOOP_GAME_CLOCK = "loopClock";
+    void addHIDTriggeredEvent(HIDEvent hidEvent);
 
-    void addHIDTriggeredEvent(HIDEventEnum hidEvent);
+    void removeHIDEvent(HIDEvent hidEvent);
 
-    void removeHIDEvent(HIDEventEnum hidEvent);
+    void removeHIDTriggeredEvent(HIDEvent hidEvent);
 
-    void removeHIDTriggeredEvent(HIDEventEnum hidEvent);
+    void removeHIDSustainedEvent(HIDEvent hidEvent);
 
-    void removeHIDSustainedEvent(HIDEventEnum hidEvent);
+    Boolean hasHIDTriggeredEvent(HIDEvent event);
 
-    Boolean hasHIDTriggeredEvent(HIDEventEnum event);
+    Boolean hasHIDSustainedEvent(HIDEvent hidEvent);
 
-    Boolean hasHIDSustainedEvent(HIDEventEnum hidEvent);
+    HashSet<HIDEvent> getHIDTriggeredEvents();
 
-    HashSet<HIDEventEnum> getHIDTriggeredEvents();
+    HashSet<HIDEvent> getHIDSustainedEvents();
 
-    HashSet<HIDEventEnum> getHIDSustainedEvents();
+    void addKernelAction(KernelAction kernelAction);
 
-    void addKernelAction(KernelActionEnum kernelAction);
-
-    void removeKernelAction(KernelActionEnum kernelAction);
+    void removeKernelAction(KernelAction kernelAction);
 
     void clearKernelActions();
 
     void resetTransientKernelActions();
 
-    Boolean hasKernelAction(KernelActionEnum kernelAction);
+    Boolean hasKernelAction(KernelAction kernelAction);
 
-    HashSet<KernelActionEnum> getKernelActions();
+    HashSet<KernelAction> getKernelActions();
 
     void addTerminalError(Exception exception);
 
@@ -54,15 +49,15 @@ public interface KernelState {
 
     HashSet<Exception> getTransientErrors();
 
-    void setProperty(KernelStatePropertyEnum name, Object value) throws TransientGameException;
+    void setProperty(KernelStateProperty name, Object value) throws TransientGameException;
 
-    Object getProperty(KernelStatePropertyEnum name);
+    <T> T getProperty(KernelStateProperty name);
 
-    Boolean getPropertyFlag(KernelStatePropertyEnum name);
-
-    void setBounds(Rectangle bounds);
-
-    Rectangle getBounds();
+    Boolean getPropertyFlag(KernelStateProperty name);
 
     GameClockManager getMasterGameClockManager();
+
+    static KernelState getInstance() {
+        return KernelStateImpl.getInstance();
+    }
 }

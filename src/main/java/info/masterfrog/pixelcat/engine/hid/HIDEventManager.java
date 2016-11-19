@@ -1,7 +1,6 @@
 package info.masterfrog.pixelcat.engine.hid;
 
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
-import info.masterfrog.pixelcat.engine.kernel.KernelState;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -13,8 +12,8 @@ public interface HIDEventManager {
 
     public void generateSynthesizedEvents();
 
-    public static HIDEventManager create(KernelState kernelState) {
-        HIDEventManager hidEventManager = new HIDEventManagerImpl(kernelState);
+    public static HIDEventManager create() {
+        HIDEventManager hidEventManager = new HIDEventManagerImpl();
 
         return hidEventManager;
     }

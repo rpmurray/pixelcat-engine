@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.resource;
 
-import java.awt.*;
+import java.awt.Font;
 
 public class BuiltInBasicFontResourceImpl implements BasicFontResource {
     private Font font;

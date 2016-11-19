@@ -1,6 +1,6 @@
 package info.masterfrog.pixelcat.engine.logic.resource;
 
-import java.awt.*;
+import java.awt.Font;
 
 class TextResourceImpl extends ResourceImpl implements TextResource {
     String text;

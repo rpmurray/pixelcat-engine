@@ -3,26 +3,46 @@ package info.masterfrog.pixelcat.engine.logic;
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.util.MapBuilder;
 import info.masterfrog.pixelcat.engine.exception.TerminalGameException;
-import info.masterfrog.pixelcat.engine.kernel.KernelActionEnum;
-import info.masterfrog.pixelcat.engine.logic.gameobject.GameObject;
-import info.masterfrog.pixelcat.engine.logic.gameobject.GameObjectManager;
+import info.masterfrog.pixelcat.engine.kernel.KernelAction;
+import info.masterfrog.pixelcat.engine.logic.gameobject.element.feature.ResourceLibrary;
+import info.masterfrog.pixelcat.engine.logic.gameobject.object.GameObject;
+import info.masterfrog.pixelcat.engine.logic.gameobject.manager.GameObjectManager;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.exception.ExitException;
 import info.masterfrog.pixelcat.engine.kernel.KernelState;
-import info.masterfrog.pixelcat.engine.kernel.KernelStatePropertyEnum;
-import info.masterfrog.pixelcat.engine.logic.gameobject.feature.SoundLibrary;
+import info.masterfrog.pixelcat.engine.kernel.KernelStateProperty;
+import info.masterfrog.pixelcat.engine.logic.resource.SoundResource;
 import info.masterfrog.pixelcat.engine.sound.SoundEngine;
 import org.apache.log4j.Level;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class LogicHandlerImpl implements LogicHandler {
-    public List<GameObject> getGameObjects(KernelState kernelState) throws TransientGameException {
+class LogicHandlerImpl implements LogicHandler {
+    private static LogicHandlerImpl instance;
+
+    private LogicHandlerImpl() {
+        // do nothing
+    }
+
+    static LogicHandlerImpl getInstance() {
+        if (instance == null) {
+            instance = new LogicHandlerImpl();
+        }
+
+        return instance;
+    }
+
+    public List<GameObject> getGameObjects() throws TransientGameException {
         // setup
         List<GameObject> consolidatedGameObjects = new ArrayList<>();
 
         // retrieve game object managers
-        List<GameObjectManager> gameObjectManagers = (List) kernelState.getProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS);
+        List<GameObjectManager> gameObjectManagers = KernelState.getInstance().getProperty(KernelStateProperty.ACTIVE_GAME_OBJECT_MANAGERS);
 
         // loop through each and consolidate
         for (GameObjectManager gameObjectManager: gameObjectManagers) {
@@ -32,12 +52,12 @@ public class LogicHandlerImpl implements LogicHandler {
         return consolidatedGameObjects;
     }
 
-    public List<List<GameObject>> getLayeredGameObjects(KernelState kernelState) throws TransientGameException {
+    public List<List<GameObject>> getLayeredGameObjects() throws TransientGameException {
         // setup
         List<List<GameObject>> consolidatedLayeredGameObjects = new ArrayList<>();
 
         // retrieve game object managers
-        List<GameObjectManager> gameObjectManagers = (List) kernelState.getProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS);
+        List<GameObjectManager> gameObjectManagers = KernelState.getInstance().getProperty(KernelStateProperty.ACTIVE_GAME_OBJECT_MANAGERS);
 
         // loop through each and consolidate
         for (GameObjectManager gameObjectManager: gameObjectManagers) {
@@ -62,23 +82,29 @@ public class LogicHandlerImpl implements LogicHandler {
         return consolidatedLayeredGameObjects;
     }
 
-    public Set<SoundEngine.SoundEventActor> getSoundEvents(KernelState kernelState) throws TransientGameException {
+    public Set<SoundEngine.SoundEventActor> getSoundEvents() throws TransientGameException {
         Set<SoundEngine.SoundEventActor> soundEvents = new HashSet<>();
 
         // get all game objects
-        List<GameObject> gameObjects = getGameObjects(kernelState);
+        List<GameObject> gameObjects = getGameObjects();
 
         // iterate through and find sound event capable objects
         for (GameObject gameObject : gameObjects) {
-            if (gameObject.hasFeature(SoundLibrary.class)) {
+            if (gameObject.hasFeature(ResourceLibrary.class)) {
                 // get sound library
-                SoundLibrary soundLibrary = gameObject.getFeature(SoundLibrary.class);
+                ResourceLibrary soundLibrary = ResourceLibrary.create();
+                ResourceLibrary resourceLibrary = gameObject.getFeature(ResourceLibrary.class);
+                for (String resourceId : resourceLibrary.getAll().keySet()) {
+                    if (resourceLibrary.get(resourceId) instanceof SoundResource) {
+                        soundLibrary.add(resourceLibrary.get(resourceId));
+                    }
+                }
 
                 // iterate through all sound library elements
                 for (String soundResourceId : soundLibrary.getAll().keySet()) {
                     // check each sound event actor for existence of actionable sound event states
                     // and add such sound event actors to our set of sound events
-                    SoundEngine.SoundEventActor soundEventActor = soundLibrary.get(soundResourceId);
+                    SoundEngine.SoundEventActor soundEventActor = (SoundResource) soundLibrary.get(soundResourceId);
                     if (soundEventActor.containsSoundEventStates()) {
                         soundEvents.add(soundEventActor);
                     }
@@ -89,93 +115,90 @@ public class LogicHandlerImpl implements LogicHandler {
         return soundEvents;
     }
 
-    public void process(KernelState kernelState) throws TransientGameException, TerminalGameException, ExitException {
+    public void process() throws TransientGameException, TerminalGameException, ExitException {
         // do logic checks
-        checkExit(kernelState);
+        checkExit();
 
         // do gameObjectManager handling
-        List<GameObjectManager> gameObjectManagers = (List<GameObjectManager>) kernelState.getProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS);
+        List<GameObjectManager> gameObjectManagers = KernelState.getInstance().getProperty(KernelStateProperty.ACTIVE_GAME_OBJECT_MANAGERS);
         for (GameObjectManager gameObjectManager: gameObjectManagers) {
-            gameObjectManager.process(kernelState);
+            gameObjectManager.process();
         }
 
         // update game state
-        updateGameState(kernelState);
+        updateGameState();
     }
 
-    private void checkExit(KernelState kernelState) throws ExitException {
-        if (kernelState.hasKernelAction(KernelActionEnum.EXIT)) {
+    private void checkExit() throws ExitException {
+        if (KernelState.getInstance().hasKernelAction(KernelAction.EXIT)) {
             // trigger an exit
             throw new ExitException();
         }
     }
 
-    private void updateGameState(KernelState kernelState) throws TransientGameException {
+    private void updateGameState() throws TransientGameException {
         // handle logging
-        handleLogging(kernelState);
+        handleLogging();
 
         // handle font display
-        handleFontDisplay(kernelState);
+        handleFontDisplay();
     }
 
-    private void handleLogging(KernelState kernelState) throws TransientGameException {
+    private void handleLogging() throws TransientGameException {
         // logging level
         setKernelStateProperty(
-            kernelState,
-            KernelStatePropertyEnum.LOG_LVL,
-            new MapBuilder<HashMap, KernelActionEnum, Level>(HashMap.class).add(
-                KernelActionEnum.SET_LOG_LVL_FATAL, Printer.getLogLevelFatal()
+            KernelStateProperty.LOG_LVL,
+            new MapBuilder<HashMap, KernelAction, Level>(HashMap.class).add(
+                KernelAction.SET_LOG_LVL_FATAL, Printer.getLogLevelFatal()
             ).add(
-                KernelActionEnum.SET_LOG_LVL_ERROR, Printer.getLogLevelError()
+                KernelAction.SET_LOG_LVL_ERROR, Printer.getLogLevelError()
             ).add(
-                KernelActionEnum.SET_LOG_LVL_WARN, Printer.getLogLevelWarn()
+                KernelAction.SET_LOG_LVL_WARN, Printer.getLogLevelWarn()
             ).add(
-                KernelActionEnum.SET_LOG_LVL_INFO, Printer.getLogLevelInfo()
+                KernelAction.SET_LOG_LVL_INFO, Printer.getLogLevelInfo()
             ).add(
-                KernelActionEnum.SET_LOG_LVL_DEBUG, Printer.getLogLevelDebug()
+                KernelAction.SET_LOG_LVL_DEBUG, Printer.getLogLevelDebug()
             ).add(
-                KernelActionEnum.SET_LOG_LVL_TRACE, Printer.getLogLevelTrace()
+                KernelAction.SET_LOG_LVL_TRACE, Printer.getLogLevelTrace()
             ).get()
         );
     }
 
-    private void handleFontDisplay(KernelState kernelState) throws TransientGameException {
+    private void handleFontDisplay() throws TransientGameException {
         // font debugger
-        toggleKernelStateProperty(kernelState, KernelActionEnum.FONT_DEBUG_TOGGLE, KernelStatePropertyEnum.FONT_DISPLAY_ENABLED);
+        toggleKernelStateProperty(KernelAction.FONT_DEBUG_TOGGLE, KernelStateProperty.FONT_DISPLAY_ENABLED);
     }
 
-    private void setKernelStateProperty(KernelState kernelState,
-                                        KernelStatePropertyEnum kernelStateProperty,
-                                        Map<KernelActionEnum, Object> kernelActionBindings)
+    private void setKernelStateProperty(KernelStateProperty kernelStateProperty,
+                                        Map<KernelAction, Object> kernelActionBindings)
                  throws TransientGameException {
-        for (KernelActionEnum kernelAction: kernelActionBindings.keySet()) {
+        for (KernelAction kernelAction: kernelActionBindings.keySet()) {
             // setup
             Object kernelStatePropertyValue = kernelActionBindings.get(kernelAction);
 
             // check hid event and set kernel state property
-            if (kernelState.hasKernelAction(kernelAction)) {
+            if (KernelState.getInstance().hasKernelAction(kernelAction)) {
                 // remove kernel action so it isn't processed twice
-                kernelState.removeKernelAction(kernelAction);
+                KernelState.getInstance().removeKernelAction(kernelAction);
 
                 // set kernel state property
-                kernelState.setProperty(kernelStateProperty, kernelStatePropertyValue);
+                KernelState.getInstance().setProperty(kernelStateProperty, kernelStatePropertyValue);
             }
         }
     }
 
-    private void toggleKernelStateProperty(KernelState kernelState,
-                                           KernelActionEnum kernelAction,
-                                           KernelStatePropertyEnum kernelStateProperty)
+    private void toggleKernelStateProperty(KernelAction kernelAction,
+                                           KernelStateProperty kernelStateProperty)
                  throws TransientGameException {
-        if (kernelState.hasKernelAction(kernelAction)) {
+        if (KernelState.getInstance().hasKernelAction(kernelAction)) {
             // remove kernel action so it isn't processed twice
-            kernelState.removeKernelAction(kernelAction);
+            KernelState.getInstance().removeKernelAction(kernelAction);
 
             // toggle kernel state property
-            if (kernelState.getPropertyFlag(kernelStateProperty)) {
-                kernelState.setProperty(kernelStateProperty, false);
+            if (KernelState.getInstance().getPropertyFlag(kernelStateProperty)) {
+                KernelState.getInstance().setProperty(kernelStateProperty, false);
             } else {
-                kernelState.setProperty(kernelStateProperty, true);
+                KernelState.getInstance().setProperty(kernelStateProperty, true);
             }
         }
     }

@@ -15,8 +15,14 @@ public class PrinterFactory {
         return instance;
     }
 
+    public Printer createPrinter(Class context, PrinterThread thread) {
+        Printer printer = new PrinterImpl(context, thread);
+
+        return printer;
+    }
+
     public Printer createPrinter(Class context) {
-        Printer printer = new PrinterImpl(context);
+        Printer printer = new PrinterImpl(context, BasePrinterThread.DEFAULT);
 
         return printer;
     }

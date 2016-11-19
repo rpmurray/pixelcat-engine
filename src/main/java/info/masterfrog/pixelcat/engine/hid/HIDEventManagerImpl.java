@@ -6,32 +6,30 @@ import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.InternalUnexpectedLogicException;
 import info.masterfrog.pixelcat.engine.kernel.KernelState;
-import info.masterfrog.pixelcat.engine.kernel.KernelStatePropertyEnum;
+import info.masterfrog.pixelcat.engine.kernel.KernelStateProperty;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
 class HIDEventManagerImpl implements HIDEventManager {
-    private final KernelState kernelState;
     private static Printer PRINTER = PrinterFactory.getInstance().createPrinter(HIDEventManagerImpl.class);
 
-    public HIDEventManagerImpl(KernelState kernelState) {
-        this.kernelState = kernelState;
+    public HIDEventManagerImpl() {
     }
 
     public void handleKeyboardEvent(HIDEventTypeEnum hidEventType, KeyEvent keyEvent) throws TransientGameException {
         // map HID event
         try {
-            HIDEventEnum hidEvent = mapKeyboardEvent(keyEvent);
+            HIDEvent hidEvent = mapKeyboardEvent(keyEvent);
 
             // determine kernelState impact
             switch (hidEventType) {
                 case PRESS:
-                    kernelState.addHIDTriggeredEvent(hidEvent);
+                    KernelState.getInstance().addHIDTriggeredEvent(hidEvent);
                     break;
                 case RELEASE:
-                    kernelState.removeHIDEvent(hidEvent);
+                    KernelState.getInstance().removeHIDEvent(hidEvent);
                     break;
                 default:
                     throw new InternalUnexpectedLogicException(GameEngineErrorCode.HID_EVENT_TYPE_UNSUPPORTED);
@@ -44,18 +42,18 @@ class HIDEventManagerImpl implements HIDEventManager {
     public void handleMouseEvent(HIDEventTypeEnum hidEventType, MouseEvent mouseEvent) throws TransientGameException {
         // map HID event
         try {
-            HIDEventEnum hidEvent = mapMouseEvent(mouseEvent);
+            HIDEvent hidEvent = mapMouseEvent(mouseEvent);
 
             // determine kernelState impact
             switch (hidEventType) {
                 case PRESS:
-                    kernelState.addHIDTriggeredEvent(hidEvent);
+                    KernelState.getInstance().addHIDTriggeredEvent(hidEvent);
                     break;
                 case RELEASE:
-                    kernelState.removeHIDEvent(hidEvent);
+                    KernelState.getInstance().removeHIDEvent(hidEvent);
                     break;
                 case SCROLL:
-                    kernelState.addHIDTriggeredEvent(hidEvent);
+                    KernelState.getInstance().addHIDTriggeredEvent(hidEvent);
                     break;
                 case DRAG:
                 default:
@@ -66,12 +64,12 @@ class HIDEventManagerImpl implements HIDEventManager {
         }
     }
 
-    private HIDEventEnum mapKeyboardEvent(KeyEvent keyEvent) throws TransientGameException {
+    private HIDEvent mapKeyboardEvent(KeyEvent keyEvent) throws TransientGameException {
         // setup
-        HIDEventEnum hidEvent;
+        HIDEvent hidEvent;
 
         // fetch hid event bindings
-        HIDEventBinder hidEventBinder = (HIDEventBinder) kernelState.getProperty(KernelStatePropertyEnum.HID_EVENT_BINDER);
+        HIDEventBinder hidEventBinder = KernelState.getInstance().getProperty(KernelStateProperty.HID_EVENT_BINDER);
 
         // derive key code from key event
         Integer keyCode = keyEvent.getKeyCode();
@@ -82,12 +80,12 @@ class HIDEventManagerImpl implements HIDEventManager {
         return hidEvent;
     }
 
-    private HIDEventEnum mapMouseEvent(MouseEvent mouseEvent) throws TransientGameException {
+    private HIDEvent mapMouseEvent(MouseEvent mouseEvent) throws TransientGameException {
         // setup
-        HIDEventEnum hidEvent;
+        HIDEvent hidEvent;
 
         // fetch hid event bindings
-        HIDEventBinder hidEventBinder = (HIDEventBinder) kernelState.getProperty(KernelStatePropertyEnum.HID_EVENT_BINDER);
+        HIDEventBinder hidEventBinder = KernelState.getInstance().getProperty(KernelStateProperty.HID_EVENT_BINDER);
 
         // derive button code from mouse event
         Integer buttonCode = mouseEvent.getButton();
@@ -97,10 +95,10 @@ class HIDEventManagerImpl implements HIDEventManager {
             MouseWheelEvent mouseWheelEvent = (MouseWheelEvent) mouseEvent;
             Double magnitude = mouseWheelEvent.getPreciseWheelRotation();
             if (magnitude > 0) {
-                hidEvent = HIDEventEnum.SCROLL_UP;
+                hidEvent = HIDEvent.SCROLL_UP;
                 hidEvent.value("magnitude", Math.abs(magnitude));
             } else {
-                hidEvent = HIDEventEnum.SCROLL_DOWN;
+                hidEvent = HIDEvent.SCROLL_DOWN;
                 hidEvent.value("magnitude", Math.abs(magnitude));
             }
         } else {
@@ -112,13 +110,13 @@ class HIDEventManagerImpl implements HIDEventManager {
 
     public void generateSynthesizedEvents() {
         // no directional keyboard events
-        if (!kernelState.hasHIDTriggeredEvent(HIDEventEnum.PRIMARY_UP) &&
-            !kernelState.hasHIDTriggeredEvent(HIDEventEnum.PRIMARY_DOWN) &&
-            !kernelState.hasHIDTriggeredEvent(HIDEventEnum.PRIMARY_LEFT) &&
-            !kernelState.hasHIDTriggeredEvent(HIDEventEnum.PRIMARY_RIGHT)) {
-            kernelState.addHIDTriggeredEvent(HIDEventEnum.PRIMARY_NO_DIRECTION);
+        if (!KernelState.getInstance().hasHIDTriggeredEvent(HIDEvent.PRIMARY_UP) &&
+            !KernelState.getInstance().hasHIDTriggeredEvent(HIDEvent.PRIMARY_DOWN) &&
+            !KernelState.getInstance().hasHIDTriggeredEvent(HIDEvent.PRIMARY_LEFT) &&
+            !KernelState.getInstance().hasHIDTriggeredEvent(HIDEvent.PRIMARY_RIGHT)) {
+            KernelState.getInstance().addHIDTriggeredEvent(HIDEvent.PRIMARY_NO_DIRECTION);
         } else {
-            kernelState.removeHIDSustainedEvent(HIDEventEnum.PRIMARY_NO_DIRECTION);
+            KernelState.getInstance().removeHIDSustainedEvent(HIDEvent.PRIMARY_NO_DIRECTION);
         }
     }
 }

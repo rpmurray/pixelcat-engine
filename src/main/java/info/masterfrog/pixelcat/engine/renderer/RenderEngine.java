@@ -2,26 +2,35 @@ package info.masterfrog.pixelcat.engine.renderer;
 
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
+import info.masterfrog.pixelcat.engine.kernel.CanvasManager;
 import info.masterfrog.pixelcat.engine.kernel.KernelState;
-import info.masterfrog.pixelcat.engine.kernel.KernelStatePropertyEnum;
-import info.masterfrog.pixelcat.engine.logic.gameobject.feature.Renderable;
+import info.masterfrog.pixelcat.engine.kernel.KernelStateProperty;
+import info.masterfrog.pixelcat.engine.logic.gameobject.element.aspect.canvas.Canvas;
+import info.masterfrog.pixelcat.engine.logic.gameobject.element.aspect.rendering.Rendering;
+import info.masterfrog.pixelcat.engine.logic.gameobject.element.feature.RenderingLibrary;
 import info.masterfrog.pixelcat.engine.logic.resource.ImageResource;
 import info.masterfrog.pixelcat.engine.logic.resource.SpriteResource;
 import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
-import info.masterfrog.pixelcat.engine.logic.gameobject.GameObject;
+import info.masterfrog.pixelcat.engine.logic.gameobject.object.GameObject;
 import info.masterfrog.pixelcat.engine.logic.resource.Resource;
 import info.masterfrog.pixelcat.engine.logic.resource.TextResource;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.List;
 
 public class RenderEngine {
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(RenderEngine.class);
 
-    public void process(Graphics2D g, KernelState kernelState, List<List<GameObject>> layeredGameObjects) throws TransientGameException {
+    public void process(Graphics2D g, List<List<GameObject>> layeredGameObjects) throws TransientGameException {
         // Clear the drawing area, then draw logic components
-        Rectangle bounds = (Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS);
+        Rectangle bounds = KernelState.getInstance().getProperty(KernelStateProperty.SCREEN_BOUNDS);
+        g.setBackground(KernelState.getInstance().getProperty(KernelStateProperty.BACKGROUND_COLOR));
         g.clearRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
         for (List<GameObject> gameObjects: layeredGameObjects) {
@@ -32,16 +41,32 @@ public class RenderEngine {
                 }
 
                 // check for non-renderable object
-                if (!gameObject.isFeatureAvailable(Renderable.class)) {
+                if (!gameObject.isFeatureAvailable(RenderingLibrary.class)) {
                     continue;
                 }
 
                 // setup
-                Renderable renderFeature = gameObject.getFeature(Renderable.class);
-                Point position = renderFeature.getPosition();
-                Double scaleFactor = renderFeature.getScaleFactor();
-                Integer layer = renderFeature.getLayer();
-                Resource resource = renderFeature.getRenderableResource(gameObject);
+                Rendering rendering = gameObject.getFeature(RenderingLibrary.class).getCurrent(gameObject.getCanvas());
+                Canvas canvas = rendering.getCanvas();
+                Point position = new Point(
+                    canvas.getPosition().x + rendering.getCanvasNormalizedPosition().x,
+                    canvas.getPosition().y + rendering.getCanvasNormalizedPosition().y
+                );
+                Double scaleFactor = canvas.getScaleFactor() * rendering.getScaleFactor();
+                Integer layer = rendering.getLayer();
+                Resource resource = rendering.getRenderableResource(gameObject);
+
+                // see if rendering position is off the canvas, if so skip processing
+                if (rendering.getPosition().x > canvas.getBounds().width || rendering.getPosition().y > canvas.getBounds().height) {
+                    continue;
+                }
+
+                // see if canvas is active, if not skip processing
+                CanvasManager canvasManager = KernelState.getInstance().getProperty(KernelStateProperty.CANVAS_MANAGER);
+                if (!canvasManager.has(canvas.getId()) ||
+                    !canvasManager.isActive(canvas.getId())) {
+                    continue;
+                }
 
                 // render specific resource by type
                 if (resource instanceof ImageResource) {
@@ -57,8 +82,8 @@ public class RenderEngine {
         }
 
         // font rendering -- debug
-        if (kernelState.getPropertyFlag(KernelStatePropertyEnum.FONT_DISPLAY_ENABLED)) {
-            debugFonts(g, (Rectangle) kernelState.getProperty(KernelStatePropertyEnum.SCREEN_BOUNDS));
+        if (KernelState.getInstance().getPropertyFlag(KernelStateProperty.FONT_DISPLAY_ENABLED)) {
+            debugFonts(g, KernelState.getInstance().getProperty(KernelStateProperty.SCREEN_BOUNDS));
         }
     }
 

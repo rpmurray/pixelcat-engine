@@ -3,7 +3,8 @@ package info.masterfrog.pixelcat.engine.logic.resource;
 import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 class ASCIISpriteFontResourceImpl implements ASCIISpriteFontResource {
     private SpriteSheet spriteSheet;

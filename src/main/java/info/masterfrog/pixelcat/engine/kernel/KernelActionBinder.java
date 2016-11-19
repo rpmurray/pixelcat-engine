@@ -1,16 +1,16 @@
 package info.masterfrog.pixelcat.engine.kernel;
 
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
-import info.masterfrog.pixelcat.engine.hid.HIDEventEnum;
+import info.masterfrog.pixelcat.engine.hid.HIDEvent;
 
 public interface KernelActionBinder {
-    public KernelActionEnum resolveBinding(HIDEventEnum key) throws TransientGameException;
+    public KernelAction resolveBinding(HIDEvent key) throws TransientGameException;
 
-    public HIDEventEnum resolveBinding(KernelActionEnum kernelAction) throws TransientGameException;
+    public HIDEvent resolveBinding(KernelAction kernelAction) throws TransientGameException;
 
-    public void bind(HIDEventEnum key, KernelActionEnum kernelAction);
+    public void bind(HIDEvent key, KernelAction kernelAction);
 
-    public void unbind(HIDEventEnum key);
+    public void unbind(HIDEvent key);
 
     public static KernelActionBinder create() {
         KernelActionBinder kernelActionBinder = new KernelActionBinderImpl();

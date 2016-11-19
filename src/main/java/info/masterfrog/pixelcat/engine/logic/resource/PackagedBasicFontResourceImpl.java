@@ -3,7 +3,7 @@ package info.masterfrog.pixelcat.engine.logic.resource;
 import info.masterfrog.pixelcat.engine.common.file.FileLoader;
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
-import java.awt.*;
+import java.awt.Font;
 
 public class PackagedBasicFontResourceImpl implements BasicFontResource, LoadableResource {
     private String fileName;

@@ -2,7 +2,7 @@ package info.masterfrog.pixelcat.engine.logic.resource;
 
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

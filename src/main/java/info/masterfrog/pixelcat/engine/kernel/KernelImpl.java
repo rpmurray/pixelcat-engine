@@ -5,14 +5,18 @@ package info.masterfrog.pixelcat.engine.kernel;
 import com.google.common.collect.ImmutableSet;
 import info.masterfrog.pixelcat.engine.common.printer.Printer;
 import info.masterfrog.pixelcat.engine.common.printer.PrinterFactory;
-import info.masterfrog.pixelcat.engine.exception.*;
-import info.masterfrog.pixelcat.engine.hid.HIDEventEnum;
+import info.masterfrog.pixelcat.engine.exception.ExitException;
+import info.masterfrog.pixelcat.engine.exception.GameEngineErrorCode;
+import info.masterfrog.pixelcat.engine.exception.RecoverableTerminalErrorException;
+import info.masterfrog.pixelcat.engine.exception.TerminalErrorException;
+import info.masterfrog.pixelcat.engine.exception.TerminalGameException;
+import info.masterfrog.pixelcat.engine.exception.TransientGameException;
+import info.masterfrog.pixelcat.engine.hid.HIDEvent;
 import info.masterfrog.pixelcat.engine.logic.LogicHandler;
 import info.masterfrog.pixelcat.engine.hid.HIDEventManager;
-import info.masterfrog.pixelcat.engine.logic.LogicHandlerFactory;
 import info.masterfrog.pixelcat.engine.logic.clock.AdvancedGameClock;
 import info.masterfrog.pixelcat.engine.logic.clock.GameClock;
-import info.masterfrog.pixelcat.engine.logic.gameobject.GameObjectManager;
+import info.masterfrog.pixelcat.engine.logic.gameobject.manager.GameObjectManager;
 import info.masterfrog.pixelcat.engine.renderer.RenderEngine;
 import info.masterfrog.pixelcat.engine.sound.SoundEngine;
 
@@ -24,7 +28,6 @@ class KernelImpl implements Kernel {
     // components
     private RenderEngine renderEngine; // render engine
     private SoundEngine soundEngine; // sound engine
-    private KernelStateImpl kernelState; // game kernelState
     private LogicHandler logicHandler; // game logic
     private HIDEventManager hidEventManager; // human interface device manager
     private GraphicsPanel graphicsPanel; // graphics panel
@@ -32,9 +35,9 @@ class KernelImpl implements Kernel {
     // utilities
     private static final Printer PRINTER = PrinterFactory.getInstance().createPrinter(KernelImpl.class);
 
-    public void init(HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties) throws TerminalErrorException {
+    public void init(HashMap<KernelStateProperty, Object> kernelStateInitProperties) throws TerminalErrorException {
         try {
-            // core init
+            // object init
             initRenderEngine();
             initSoundEngine();
             initKernelState(kernelStateInitProperties);
@@ -56,7 +59,7 @@ class KernelImpl implements Kernel {
             Integer loopCounter = 0;
             while (true) {
                 // record clock time
-                ((AdvancedGameClock) kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK)).addEvent("loop started");
+                ((AdvancedGameClock) KernelState.getInstance().getMasterGameClockManager().getGameClock(KernelGameClock.LOOP_GAME_CLOCK)).addEvent("loop started");
 
                 // debug game loop
                 PRINTER.printDebug("Game loop counter: " + loopCounter++);
@@ -96,7 +99,7 @@ class KernelImpl implements Kernel {
             try {
                 soundEngine = SoundEngine.getInstance().init();
             } catch (TerminalGameException e) {
-                kernelState.addTerminalError(e);
+                KernelState.getInstance().addTerminalError(e);
             }
         }).start();
     }
@@ -118,21 +121,20 @@ class KernelImpl implements Kernel {
         }
     }
 
-    private void initKernelState(HashMap<KernelStatePropertyEnum, Object> kernelStateInitProperties) throws TerminalErrorException {
-        kernelState = new KernelStateImpl();
-        kernelState.init(kernelStateInitProperties);
+    private void initKernelState(HashMap<KernelStateProperty, Object> kernelStateInitProperties) throws TerminalErrorException {
+        KernelStateCore.getInstance().init(kernelStateInitProperties);
     }
 
     private void initLogicHandler() {
-        logicHandler = LogicHandlerFactory.getInstance().createLogicHandler();
+        logicHandler = LogicHandler.getInstance();
     }
 
     private void initHIDEventManager() {
-        hidEventManager = HIDEventManager.create(kernelState);
+        hidEventManager = HIDEventManager.create();
     }
 
     private void initGraphicsPanel() {
-        graphicsPanel = new GraphicsPanel(kernelState, renderEngine, logicHandler, hidEventManager);
+        graphicsPanel = new GraphicsPanel(renderEngine, logicHandler, hidEventManager);
     }
 
     private void shutdown() {
@@ -143,10 +145,6 @@ class KernelImpl implements Kernel {
         SoundEngine.getInstance().shutdown();
     }
 
-    public KernelState getKernelState() {
-        return kernelState;
-    }
-
     public void registerGameObjectManagers(List<GameObjectManager> gameObjectManagers) throws RecoverableTerminalErrorException {
         try {
             for (GameObjectManager gameObjectManager : gameObjectManagers) {
@@ -155,7 +153,7 @@ class KernelImpl implements Kernel {
                 }
             }
 
-            kernelState.setProperty(KernelStatePropertyEnum.ACTIVE_GAME_OBJECT_MANAGERS, gameObjectManagers);
+            KernelState.getInstance().setProperty(KernelStateProperty.ACTIVE_GAME_OBJECT_MANAGERS, gameObjectManagers);
         } catch (TransientGameException e) {
             throw new RecoverableTerminalErrorException(ImmutableSet.of(e));
         }
@@ -175,9 +173,9 @@ class KernelImpl implements Kernel {
             // handle sound engine updates
             processSound();
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         } catch (TerminalGameException e) {
-            kernelState.addTerminalError(e);
+            KernelState.getInstance().addTerminalError(e);
         }
 
         // handle errors
@@ -196,13 +194,13 @@ class KernelImpl implements Kernel {
 
         // handle pre-processing kernel injection
         if (kernelInjectionMap.containsKey(KernelInjectionEventEnum.PRE_PROCESSING)) {
-            kernelInjectionMap.get(KernelInjectionEventEnum.PRE_PROCESSING).run(kernelState);
+            kernelInjectionMap.get(KernelInjectionEventEnum.PRE_PROCESSING).run();
         }
     }
 
     private void processLogic() throws TransientGameException, TerminalGameException, ExitException {
         // process logic
-        logicHandler.process(kernelState);
+        logicHandler.process();
     }
 
     private void processGraphics() throws TransientGameException, TerminalGameException {
@@ -212,15 +210,15 @@ class KernelImpl implements Kernel {
 
     private void processSound() throws TransientGameException, TerminalGameException {
         // process sound generation
-        soundEngine.process(logicHandler.getSoundEvents(kernelState));
+        soundEngine.process(logicHandler.getSoundEvents());
     }
 
     private void sleep() {
         try {
-            AdvancedGameClock loopClock = (AdvancedGameClock) kernelState.getMasterGameClockManager().getGameClock(KernelState.LOOP_GAME_CLOCK);
+            AdvancedGameClock loopClock = (AdvancedGameClock) KernelState.getInstance().getMasterGameClockManager().getGameClock(KernelGameClock.LOOP_GAME_CLOCK);
             Long loopTimeElapsed = loopClock.getElapsed("loop started");
             loopClock.addEvent("loop logic ended");
-            Integer loopDuration = (Integer) kernelState.getProperty(KernelStatePropertyEnum.GAME_LOOP_DURATION_NS);
+            Integer loopDuration = KernelState.getInstance().getProperty(KernelStateProperty.GAME_LOOP_DURATION_NS);
             Long loopRemainingTime = loopDuration - loopTimeElapsed;
             if (loopRemainingTime < 0) {
                 PRINTER.printWarning(
@@ -248,7 +246,7 @@ class KernelImpl implements Kernel {
                 }
             }
         } catch (TransientGameException e) {
-            kernelState.addTransientError(e);
+            KernelState.getInstance().addTransientError(e);
         }
 
         // handle errors
@@ -257,16 +255,16 @@ class KernelImpl implements Kernel {
 
     private void mapHIDEventsToKernelActions() {
         // fetch kernel action binder
-        KernelActionBinder kernelActionBinder = (KernelActionBinder) kernelState.getProperty(KernelStatePropertyEnum.KERNEL_ACTION_BINDER);
+        KernelActionBinder kernelActionBinder = KernelState.getInstance().getProperty(KernelStateProperty.KERNEL_ACTION_BINDER);
 
         // process hid events + generate kernel actions
-        for (HIDEventEnum hidEvent : kernelState.getHIDTriggeredEvents()) {
+        for (HIDEvent hidEvent : KernelState.getInstance().getHIDTriggeredEvents()) {
             try {
                 // fetch binding
-                KernelActionEnum kernelAction = kernelActionBinder.resolveBinding(hidEvent);
+                KernelAction kernelAction = kernelActionBinder.resolveBinding(hidEvent);
 
                 // set kernel action
-                kernelState.addKernelAction(kernelAction);
+                KernelState.getInstance().addKernelAction(kernelAction);
             } catch (TransientGameException e) {
                 // do nothing, this just means there wasn't an action bound for this hid event
             }
@@ -278,27 +276,27 @@ class KernelImpl implements Kernel {
         handleTransientErrors();
 
         // handle terminal errors
-        if (kernelState.hasTerminalErrors()) {
-            throw new TerminalErrorException(kernelState.getTerminalErrors());
+        if (KernelState.getInstance().hasTerminalErrors()) {
+            throw new TerminalErrorException(KernelState.getInstance().getTerminalErrors());
         }
     }
 
     private void handleTransientErrors() {
         // log transient errors
-        kernelState.getTransientErrors().forEach(PRINTER::printError);
+        KernelState.getInstance().getTransientErrors().forEach(PRINTER::printError);
 
         // wipe out transient errors
-        kernelState.clearTransientErrors();
+        KernelState.getInstance().clearTransientErrors();
     }
 
     private void cleanUp() {
         // transition triggered hid events to sustained hid events
-        kernelState.sustainHIDEvents();
+        KernelStateCore.getInstance().sustainHIDEvents();
 
         // reset certain temporary hid events
-        kernelState.resetTransientHIDEvents();
+        KernelStateCore.getInstance().resetTransientHIDEvents();
 
         // reset certain temporary kernel actions
-        kernelState.resetTransientKernelActions();
+        KernelState.getInstance().resetTransientKernelActions();
     }
 }

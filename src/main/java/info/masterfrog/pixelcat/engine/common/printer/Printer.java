@@ -45,7 +45,15 @@ public interface Printer {
         return PrinterUtil.getLogLevelTrace();
     }
 
-    public static Boolean isThreadHidden(Class c) {
-        return PrinterUtil.isThreadHidden(c);
+    public static void hideThread(PrinterThread t) {
+        PrinterUtil.hideThread(t);
+    }
+
+    public static void showThread(PrinterThread t) {
+        PrinterUtil.showThread(t);
+    }
+
+    public static Boolean isThreadHidden(PrinterThread t) {
+        return PrinterUtil.isThreadHidden(t);
     }
 }

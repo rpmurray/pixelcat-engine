@@ -2,7 +2,8 @@ package info.masterfrog.pixelcat.engine.logic.resource;
 
 import info.masterfrog.pixelcat.engine.exception.TransientGameException;
 
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 public interface ASCIISpriteFontResource extends FontResource, LoadableResource {
     public ASCIISpriteFontResource defineCharacter(Character c, Integer width, Integer xIndex, Integer yIndex);
